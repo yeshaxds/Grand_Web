@@ -1,75 +1,79 @@
 <template>
   <div class="home">
-    <!-- 左侧广告栏 -->
-    <div class="ad-sidebar ad-left">
-      <div class="ad-content">
-        <h3>精选课程</h3>
-        <div class="ad-item">
-          <div class="ad-emoji">📚</div>
-          <p>高级JavaScript教程</p>
-        </div>
-        <div class="ad-item">
-          <div class="ad-emoji">🐍</div>
-          <p>Python数据分析</p>
-        </div>
-        <div class="ad-button">查看更多</div>
-      </div>
-    </div>
-
-    <!-- 右侧广告栏 -->
-    <div class="ad-sidebar ad-right">
-      <div class="ad-content">
-        <h3>推荐工具</h3>
-        <div class="ad-item">
-          <div class="ad-emoji">💻</div>
-          <p>在线代码编辑器</p>
-        </div>
-        <div class="ad-item">
-          <div class="ad-emoji">🔧</div>
-          <p>开发者工具包</p>
-        </div>
-        <div class="ad-button">了解详情</div>
-      </div>
-    </div>
-
-    <h1 class="title">代码学习中心</h1>
-    <p class="subtitle">探索不同的编程语言和技术栈</p>
-    
-    <div class="search-container">
-      <input type="text" placeholder="搜索技术或语言..." v-model="searchQuery" />
-      <button @click="search">搜索</button>
-    </div>
-
-    <div class="categories">
-      <h2>热门编程语言</h2>
-      <div class="language-grid">
-        <div class="language-card" v-for="language in languages" :key="language.id" @click="goToLanguage(language.id)">
-          <div class="language-icon">{{ language.icon }}</div>
-          <h3>{{ language.name }}</h3>
-          <p>{{ language.description }}</p>
+    <!-- 内容层 -->
+    <div class="content-layer">
+      <!-- 左侧广告栏 -->
+      <div class="ad-sidebar ad-left">
+        <div class="ad-content">
+          <h3>精选课程</h3>
+          <div class="ad-item">
+            <div class="ad-emoji">📚</div>
+            <p>高级JavaScript教程</p>
+          </div>
+          <div class="ad-item">
+            <div class="ad-emoji">🐍</div>
+            <p>Python数据分析</p>
+          </div>
+          <div class="ad-button">查看更多</div>
         </div>
       </div>
-    </div>
 
-    <div class="categories">
-      <h2>流行技术栈</h2>
-      <div class="stack-grid">
-        <div class="stack-card" v-for="stack in techStacks" :key="stack.id" @click="goToStack(stack.id)">
-          <div class="stack-icon">{{ stack.icon }}</div>
-          <h3>{{ stack.name }}</h3>
-          <p>{{ stack.description }}</p>
+      <!-- 右侧广告栏 -->
+      <div class="ad-sidebar ad-right">
+        <div class="ad-content">
+          <h3>推荐工具</h3>
+          <div class="ad-item">
+            <div class="ad-emoji">💻</div>
+            <p>在线代码编辑器</p>
+          </div>
+          <div class="ad-item">
+            <div class="ad-emoji">🔧</div>
+            <p>开发者工具包</p>
+          </div>
+          <div class="ad-button">了解详情</div>
         </div>
       </div>
-    </div>
 
-    <div class="learning-path">
-      <h2>推荐学习路径</h2>
-      <div class="path-steps">
-        <div class="path-step" v-for="(step, index) in learningPath" :key="index">
-          <div class="step-number">{{ index + 1 }}</div>
-          <div class="step-content">
-            <h3>{{ step.title }}</h3>
-            <p>{{ step.description }}</p>
+      <h1 class="title">代码学习中心</h1>
+      <p class="subtitle">探索不同的编程语言和技术栈</p>
+
+      <div class="search-container">
+        <input type="text" placeholder="搜索技术或语言..." v-model="searchQuery" />
+        <button @click="search">搜索</button>
+      </div>
+
+      <div class="categories">
+        <h2>热门编程语言</h2>
+        <div class="language-grid">
+          <div class="language-card" v-for="language in languages" :key="language.id"
+            @click="goToLanguage(language.id)">
+            <div class="language-icon">{{ language.icon }}</div>
+            <h3>{{ language.name }}</h3>
+            <p>{{ language.description }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="categories">
+        <h2>流行技术栈</h2>
+        <div class="stack-grid">
+          <div class="stack-card" v-for="stack in techStacks" :key="stack.id" @click="goToStack(stack.id)">
+            <div class="stack-icon">{{ stack.icon }}</div>
+            <h3>{{ stack.name }}</h3>
+            <p>{{ stack.description }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="learning-path">
+        <h2>推荐学习路径</h2>
+        <div class="path-steps">
+          <div class="path-step" v-for="(step, index) in learningPath" :key="index">
+            <div class="step-number">{{ index + 1 }}</div>
+            <div class="step-content">
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.description }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -125,10 +129,21 @@ export default {
 
 <style scoped>
 .home {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* 背景图层已移至App.vue作为全局背景 */
+
+/* 内容层 */
+.content-layer {
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  position: relative;
 }
 
 .title {
@@ -181,14 +196,17 @@ export default {
   padding-bottom: 10px;
 }
 
-.language-grid, .stack-grid {
+.language-grid,
+.stack-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
 }
 
-.language-card, .stack-card {
-  background-color: white;
+.language-card,
+.stack-card {
+  background-color: rgba(255, 255, 255, 0.9);
+  /* 略微透明的背景 */
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -196,30 +214,37 @@ export default {
   cursor: pointer;
 }
 
-.language-card:hover, .stack-card:hover {
+.language-card:hover,
+.stack-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 1);
+  /* 悬停时变为不透明 */
 }
 
-.language-icon, .stack-icon {
+.language-icon,
+.stack-icon {
   font-size: 2rem;
   margin-bottom: 15px;
   color: #4285f4;
 }
 
-.language-card h3, .stack-card h3 {
+.language-card h3,
+.stack-card h3 {
   font-size: 1.4rem;
   margin-bottom: 10px;
   color: #333;
 }
 
-.language-card p, .stack-card p {
+.language-card p,
+.stack-card p {
   color: #666;
   font-size: 0.9rem;
 }
 
 .learning-path {
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.9);
+  /* 略微透明的背景 */
   border-radius: 8px;
   padding: 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -265,7 +290,8 @@ export default {
   top: 50%;
   transform: translateY(-50%);
   width: 180px;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.9);
+  /* 略微透明的背景 */
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 100;
@@ -328,4 +354,4 @@ export default {
     display: none;
   }
 }
-</style> 
+</style>

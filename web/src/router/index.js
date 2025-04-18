@@ -36,6 +36,16 @@ const routes = [
     path: '/resources',
     name: 'resources',
     component: () => import('../views/ResourcesView.vue')
+  },
+  {
+    path: '/chat',
+    name: 'chat',
+    component: () => import('../views/ChatView.vue')
+  },
+  {
+    path: '/code-editor',
+    name: 'codeEditor',
+    component: () => import('../views/CodeEditorView.vue')
   }
 ]
 

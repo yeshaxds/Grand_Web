@@ -1,7 +1,10 @@
 <template>
+  <!-- 全局背景图层 -->
+  <div class="global-background-layer"></div>
+  
   <nav>
     <div class="logo">
-      <img src="@/assets/logo.webp" alt="网站Logo">
+      <img src="@/assets/logo.webp" alt="网站Logo">     
       <span>CodeLearn</span>
     </div>
     <div class="nav-links">
@@ -15,4 +18,4 @@
     </div>
   </nav>
   <router-view/>
-</template> 
+</template>

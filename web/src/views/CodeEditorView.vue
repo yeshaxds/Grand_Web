@@ -1,5 +1,5 @@
 <template>
-  <div class="code-editor-container">
+  <div class="code-editor-container" :class="editorTheme">
     <div class="editor-header">
       <h1>在线代码编辑器</h1>
       <p>在这里编写代码，实时执行并查看结果</p>
@@ -8,7 +8,7 @@
     <div class="editor-options">
       <div class="language-selector">
         <label for="language-select">编程语言:</label>
-        <select id="language-select" v-model="selectedLanguage">
+        <select id="language-select" v-model="selectedLanguage" @change="handleLanguageChange">
           <option value="javascript">JavaScript</option>
           <option value="python">Python</option>
           <option value="html">HTML</option>
@@ -17,7 +17,7 @@
       </div>
       <div class="theme-selector">
         <label for="theme-select">主题:</label>
-        <select id="theme-select" v-model="editorTheme">
+        <select id="theme-select" v-model="editorTheme" @change="handleThemeChange">
           <option value="vs">浅色</option>
           <option value="vs-dark">深色</option>
         </select>
@@ -29,15 +29,12 @@
     </div>
 
     <div class="editor-main">
-      <div class="code-section">
+      <div class="code-section" :class="editorTheme">
         <div class="section-title">代码</div>
-        <MonacoEditor
-          v-model="code"
-          :language="selectedLanguage"
-          :theme="editorTheme"
-          :options="editorOptions"
-          class="code-editor"
-        />
+        <!-- 使用普通textarea作为备选方案 -->
+        <textarea v-if="!editorLoaded" v-model="code" class="code-textarea" :class="editorTheme"
+          placeholder="// 在这里编写代码"></textarea>
+        <div v-else class="monaco-editor-container" ref="monacoContainer"></div>
       </div>
       <div class="output-section">
         <div class="section-title">执行结果</div>
@@ -55,12 +52,7 @@
     <div class="examples-section">
       <h3>示例代码</h3>
       <div class="example-cards">
-        <div 
-          v-for="example in codeExamples" 
-          :key="example.id" 
-          class="example-card"
-          @click="loadExample(example)"
-        >
+        <div v-for="example in codeExamples" :key="example.id" class="example-card" @click="loadExample(example)">
           <div class="example-language">{{ example.language }}</div>
           <div class="example-title">{{ example.title }}</div>
           <div class="example-description">{{ example.description }}</div>
@@ -71,14 +63,10 @@
 </template>
 
 <script>
-import { MonacoEditor } from 'monaco-editor-vue3';
 import { executeCode } from '@/services/codeExecutionService';
 
 export default {
   name: 'CodeEditorView',
-  components: {
-    MonacoEditor
-  },
   data() {
     return {
       code: '// 在这里编写代码\nconsole.log("Hello, World!");',
@@ -86,14 +74,8 @@ export default {
       isRunning: false,
       selectedLanguage: 'javascript',
       editorTheme: 'vs-dark',
-      editorOptions: {
-        fontSize: 14,
-        tabSize: 2,
-        minimap: { enabled: false },
-        scrollBeyondLastLine: false,
-        automaticLayout: true,
-        wordWrap: 'on'
-      },
+      editor: null,
+      editorLoaded: false,
       codeExamples: [
         {
           id: 'js-hello',
@@ -134,22 +116,184 @@ export default {
       return this.selectedLanguage === 'html';
     }
   },
-  watch: {
-    selectedLanguage(newLang) {
-      if (newLang === 'html' && this.code.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
-        // 如果切换到HTML且是默认JS代码，则替换为简单的HTML模板
-        this.code = '<!DOCTYPE html>\n<html>\n<head>\n  <title>我的HTML页面</title>\n</head>\n<body>\n  <h1>Hello, World!</h1>\n  <p>这是我的第一个HTML页面。</p>\n</body>\n</html>';
-      } else if (newLang === 'python' && this.code.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
-        // 如果切换到Python且是默认JS代码，则替换为Python代码
-        this.code = '# 在这里编写Python代码\nprint("Hello, World!")';
-      } else if (newLang === 'css' && this.code.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
-        // 如果切换到CSS且是默认JS代码，则替换为CSS代码
-        this.code = '/* 在这里编写CSS样式 */\nbody {\n  font-family: Arial, sans-serif;\n  background-color: #f5f5f5;\n  color: #333;\n}\n\nh1 {\n  color: #4285f4;\n  text-align: center;\n}';
-      }
-    }
-  },
   methods: {
+    async loadMonacoEditor() {
+      try {
+        // 动态导入monaco编辑器
+        const monaco = await import('monaco-editor');
+        window.monaco = monaco; // 保存到全局以便后续使用
+
+        if (this.$refs.monacoContainer) {
+          // 创建编辑器前确保容器有尺寸
+          const container = this.$refs.monacoContainer;
+
+          if (container.clientHeight === 0) {
+            container.style.height = '400px';
+          }
+
+          // 以固定的深色主题创建编辑器，然后通过CSS控制颜色
+          this.editor = monaco.editor.create(container, {
+            value: this.code,
+            language: this.selectedLanguage,
+            fontFamily: 'Consolas, "Courier New", monospace',
+            fontSize: 14,
+            tabSize: 2,
+            minimap: { enabled: false },
+            scrollBeyondLastLine: true, // 允许滚动超过最后一行
+            automaticLayout: true,
+            wordWrap: 'on',
+            scrollbar: {
+              vertical: 'visible', // 显示垂直滚动条
+              verticalHasArrows: true,
+              verticalScrollbarSize: 12,
+              horizontalScrollbarSize: 12
+            },
+            fixedOverflowWidgets: true
+          });
+
+          // 监听内容变化
+          this.editor.onDidChangeModelContent(() => {
+            this.code = this.editor.getValue();
+          });
+
+          // 初始化后调整布局
+          setTimeout(() => {
+            this.editor.layout();
+            this.applyThemeStyles();
+          }, 100);
+
+          // 添加窗口大小变化监听器
+          window.addEventListener('resize', this.handleResize);
+
+          // 设置为已加载
+          this.editorLoaded = true;
+          console.log('Monaco编辑器加载成功');
+        }
+      } catch (error) {
+        console.error('Monaco编辑器加载失败:', error);
+        this.editorLoaded = false;
+      }
+    },
+
+    handleResize() {
+      if (this.editor && this.editorLoaded) {
+        this.editor.layout();
+      }
+    },
+
+    handleLanguageChange() {
+      if (!this.editorLoaded || !window.monaco) return;
+
+      try {
+        if (this.editor) {
+          window.monaco.editor.setModelLanguage(this.editor.getModel(), this.selectedLanguage);
+
+          // 更新代码示例
+          if (this.selectedLanguage === 'html' && this.code.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
+            this.code = '<!DOCTYPE html>\n<html>\n<head>\n  <title>我的HTML页面</title>\n</head>\n<body>\n  <h1>Hello, World!</h1>\n  <p>这是我的第一个HTML页面。</p>\n</body>\n</html>';
+            this.editor.setValue(this.code);
+          } else if (this.selectedLanguage === 'python' && this.code.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
+            this.code = '# 在这里编写Python代码\nprint("Hello, World!")';
+            this.editor.setValue(this.code);
+          } else if (this.selectedLanguage === 'css' && this.code.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
+            this.code = '/* 在这里编写CSS样式 */\nbody {\n  font-family: Arial, sans-serif;\n  background-color: #f5f5f5;\n  color: #333;\n}\n\nh1 {\n  color: #4285f4;\n  text-align: center;\n}';
+            this.editor.setValue(this.code);
+          }
+        }
+      } catch (error) {
+        console.error('语言切换错误:', error);
+      }
+    },
+
+    // 通过CSS样式直接控制编辑器主题
+    applyThemeStyles() {
+      if (!this.editorLoaded || !this.$refs.monacoContainer) return;
+
+      try {
+        const container = this.$refs.monacoContainer;
+
+        // 移除旧主题类
+        container.classList.remove('vs', 'vs-dark');
+
+        // 添加新主题类
+        container.classList.add(this.editorTheme);
+
+        console.log('已应用CSS主题:', this.editorTheme);
+      } catch (error) {
+        console.error('应用CSS主题错误:', error);
+      }
+    },
+
+    handleThemeChange() {
+      if (!this.editorLoaded || !window.monaco) return;
+
+      try {
+        console.log('正在切换主题为:', this.editorTheme);
+
+        // 使用简单的主题切换方式
+        // const monaco = window.monaco;
+
+        // 在DOM中查找Monaco编辑器容器并直接修改样式
+        const editorContainer = document.querySelector('.monaco-editor');
+        if (editorContainer) {
+          if (this.editorTheme === 'vs') {
+            // 浅色主题
+            document.body.style.setProperty('--monaco-background', '#ffffff');
+            document.body.style.setProperty('--monaco-foreground', '#000000');
+            editorContainer.style.backgroundColor = '#ffffff';
+            editorContainer.style.color = '#000000';
+
+            // 找到并修改所有文本元素
+            const textElements = editorContainer.querySelectorAll('.mtk1, .mtk2, .mtk3, .mtk4, .mtk5');
+            textElements.forEach(el => {
+              el.style.color = '#000000';
+            });
+
+            // 修改行号颜色
+            const lineNumbers = editorContainer.querySelectorAll('.line-numbers');
+            lineNumbers.forEach(el => {
+              el.style.color = '#237893';
+            });
+          } else {
+            // 深色主题
+            document.body.style.setProperty('--monaco-background', '#1e1e1e');
+            document.body.style.setProperty('--monaco-foreground', '#d4d4d4');
+            editorContainer.style.backgroundColor = '#1e1e1e';
+            editorContainer.style.color = '#d4d4d4';
+
+            // 找到并修改所有文本元素
+            const textElements = editorContainer.querySelectorAll('.mtk1, .mtk2, .mtk3, .mtk4, .mtk5');
+            textElements.forEach(el => {
+              el.style.color = '#d4d4d4';
+            });
+
+            // 修改行号颜色
+            const lineNumbers = editorContainer.querySelectorAll('.line-numbers');
+            lineNumbers.forEach(el => {
+              el.style.color = '#858585';
+            });
+          }
+        }
+
+        // 强制重新布局编辑器
+        if (this.editor) {
+          setTimeout(() => {
+            this.editor.layout();
+          }, 100);
+        }
+
+        console.log('主题已切换:', this.editorTheme);
+      } catch (error) {
+        console.error('主题切换错误:', error);
+      }
+    },
+
     async runCode() {
+      if (this.editor && this.editorLoaded) {
+        // 如果编辑器已加载，使用编辑器的值
+        this.code = this.editor.getValue();
+      }
+
       this.isRunning = true;
       this.output = '执行中...\n';
 
@@ -160,7 +304,12 @@ export default {
         } else {
           // 其他语言的执行
           const result = await executeCode(this.code, this.selectedLanguage);
-          this.output = result;
+
+          if (result.success) {
+            this.output = result.output || '代码执行成功，没有输出。';
+          } else {
+            this.output = result.errors || '执行出错，但没有详细错误信息。';
+          }
         }
       } catch (error) {
         this.output = `执行错误: ${error.message}`;
@@ -169,30 +318,88 @@ export default {
         this.isRunning = false;
       }
     },
+
     updateHtmlPreview() {
       // 更新HTML预览iframe的内容
       const iframe = this.$refs.previewFrame;
       if (iframe) {
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-        iframeDoc.open();
-        iframeDoc.write(this.code);
-        iframeDoc.close();
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          iframeDoc.open();
+          iframeDoc.write(this.code);
+          iframeDoc.close();
+        } catch (error) {
+          console.error('HTML预览错误:', error);
+          this.output = `预览错误: ${error.message}`;
+        }
       }
     },
+
     loadExample(example) {
       this.selectedLanguage = example.language;
       this.code = example.code;
+
+      if (this.editor && this.editorLoaded && window.monaco) {
+        try {
+          window.monaco.editor.setModelLanguage(this.editor.getModel(), example.language);
+          this.editor.setValue(example.code);
+        } catch (error) {
+          console.error('加载示例错误:', error);
+        }
+      }
+
       this.output = ''; // 清空输出
     }
   },
   mounted() {
+    // 尝试加载Monaco编辑器
+    this.loadMonacoEditor();
+
     // 页面加载后自动运行代码一次
     setTimeout(() => {
       this.runCode();
-    }, 500);
+    }, 1000);
+  },
+  beforeUnmount() {
+    // 移除事件监听器
+    window.removeEventListener('resize', this.handleResize);
+
+    // 销毁编辑器实例
+    if (this.editor && this.editorLoaded) {
+      this.editor.dispose();
+    }
   }
 };
 </script>
+
+<style>
+/* 全局样式，不使用scoped以便覆盖Monaco编辑器样式 */
+/* 浅色主题 */
+.monaco-editor.vs {
+  background-color: #ffffff !important;
+}
+
+.monaco-editor.vs .mtk1 {
+  color: #000000 !important;
+}
+
+.monaco-editor.vs .current-line {
+  background-color: #f3f3f3 !important;
+}
+
+/* 深色主题 */
+.monaco-editor.vs-dark {
+  background-color: #1e1e1e !important;
+}
+
+.monaco-editor.vs-dark .mtk1 {
+  color: #d4d4d4 !important;
+}
+
+.monaco-editor.vs-dark .current-line {
+  background-color: #2d2d2d !important;
+}
+</style>
 
 <style scoped>
 .code-editor-container {
@@ -228,12 +435,14 @@ export default {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.language-selector, .theme-selector {
+.language-selector,
+.theme-selector {
   display: flex;
   align-items: center;
 }
 
-.language-selector label, .theme-selector label {
+.language-selector label,
+.theme-selector label {
   margin-right: 10px;
   font-weight: bold;
   color: #555;
@@ -274,13 +483,23 @@ select {
   height: 500px;
 }
 
-.code-section, .output-section {
+.code-section,
+.output-section {
   flex: 1;
   display: flex;
   flex-direction: column;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 主题相关样式 */
+.code-section.vs {
+  background-color: #ffffff;
+}
+
+.code-section.vs-dark {
+  background-color: #1e1e1e;
 }
 
 .section-title {
@@ -291,10 +510,35 @@ select {
   font-size: 0.9rem;
 }
 
-.code-editor {
+.monaco-editor-container {
   flex: 1;
-  height: 100%;
+  height: calc(100% - 36px);
+  /* 减去标题高度 */
+  min-height: 400px;
   overflow: hidden;
+  position: relative;
+}
+
+.code-textarea {
+  flex: 1;
+  padding: 15px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  resize: none;
+  border: none;
+  outline: none;
+  overflow: auto;
+  /* 允许滚动 */
+}
+
+.code-textarea.vs {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.code-textarea.vs-dark {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
 }
 
 .output-area {
@@ -369,4 +613,4 @@ select {
   font-size: 0.9rem;
   color: #666;
 }
-</style> 
+</style>

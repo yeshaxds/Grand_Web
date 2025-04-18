@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 import './assets/styles/index.css'
 import './assets/styles/mouse-effects.css'
+import './assets/styles/chat.css'
 import createClickEffect from './assets/js/mouseClickEffect'
 
 // 初始化鼠标点击特效 //要重新启动才会生效

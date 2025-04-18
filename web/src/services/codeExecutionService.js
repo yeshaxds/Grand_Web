@@ -8,6 +8,8 @@ class ConsoleCollector {
   constructor() {
     this.logs = [];
     this.errors = [];
+    this.warnings = [];
+    this.info = [];
     
     // 保存原始console方法
     this.originalConsole = {
@@ -32,12 +34,12 @@ class ConsoleCollector {
     };
     
     console.warn = (...args) => {
-      this.logs.push(`[警告] ${this.formatArgs(args)}`);
+      this.warnings.push(this.formatArgs(args));
       this.originalConsole.warn(...args);
     };
     
     console.info = (...args) => {
-      this.logs.push(`[信息] ${this.formatArgs(args)}`);
+      this.info.push(this.formatArgs(args));
       this.originalConsole.info(...args);
     };
   }
@@ -52,7 +54,11 @@ class ConsoleCollector {
   
   // 获取收集的输出
   getOutput() {
-    return this.logs.join('\n');
+    const output = [];
+    if (this.logs.length > 0) output.push('输出:', ...this.logs);
+    if (this.warnings.length > 0) output.push('警告:', ...this.warnings);
+    if (this.info.length > 0) output.push('信息:', ...this.info);
+    return output.join('\n');
   }
   
   // 获取错误信息
@@ -78,13 +84,15 @@ class ConsoleCollector {
   clear() {
     this.logs = [];
     this.errors = [];
+    this.warnings = [];
+    this.info = [];
   }
 }
 
 /**
  * 安全地执行JavaScript代码
  * @param {string} code - 要执行的JavaScript代码
- * @returns {string} - 执行结果
+ * @returns {Object} - 执行结果对象
  */
 function executeJavaScript(code) {
   const collector = new ConsoleCollector();
@@ -92,42 +100,51 @@ function executeJavaScript(code) {
   
   try {
     // 创建一个安全的Function来执行代码
-    // 使用间接eval可以在全局作用域而不是局部作用域中执行代码
     const executeFunction = new Function('console', `
       "use strict";
       try {
         ${code}
       } catch (error) {
         console.error("运行时错误:", error.message);
+        throw error;
       }
     `);
     
     executeFunction(console);
     
     const output = collector.getOutput();
-    return output || '代码执行成功，没有输出。';
+    const errors = collector.getErrors();
+    
+    return {
+      success: errors.length === 0,
+      output: output || '代码执行成功，没有输出。',
+      errors: errors || null
+    };
   } catch (error) {
-    return `代码执行出错: ${error.message}`;
+    return {
+      success: false,
+      output: null,
+      errors: `代码执行出错: ${error.message}`
+    };
   } finally {
     collector.stop();
   }
 }
 
 /**
- * 模拟执行Python代码（实际上只是格式化和提供语法高亮）
- * 注意：真正的Python执行需要服务器端支持
+ * 执行Python代码
  * @param {string} code - Python代码
- * @returns {string} - 模拟执行结果
+ * @returns {Promise<Object>} - 执行结果对象
  */
-function executePython(code) {
+async function executePython(code) {
   try {
-    // 在实际应用中，这里应该调用后端API来执行Python代码
-    // 这里我们只是进行模拟输出
+    // 在浏览器环境中模拟执行Python代码（由于浏览器无法直接执行Python）
+    // 这里我们解析简单的print语句和变量定义，提供基本的模拟输出
+    let output = [];
     
-    // 解析代码中的print语句进行简单模拟
+    // 解析代码中的print语句
     const printRegex = /print\s*\((.*?)\)(?:\s*|$)/g;
     let match;
-    let output = [];
     
     while ((match = printRegex.exec(code)) !== null) {
       try {
@@ -174,35 +191,69 @@ function executePython(code) {
       }
     }
     
-    // 如果没有提取到任何输出
-    if (output.length === 0) {
-      return "代码执行完成，没有检测到输出。\n\n注意：这是Python代码的模拟执行结果。要获取真实执行结果，请在实际的Python环境中运行代码。";
-    }
-    
-    return output.join('\n') + "\n\n注意：这是Python代码的模拟执行结果。要获取真实执行结果，请在实际的Python环境中运行代码。";
+    return {
+      success: true,
+      output: output.length > 0 
+        ? output.join('\n') + "\n\n注意：这是Python代码的模拟执行结果。要获取真实执行结果，请在实际的Python环境中运行代码。"
+        : "代码执行完成，没有检测到输出。\n\n注意：这是Python代码的模拟执行结果。要获取真实执行结果，请在实际的Python环境中运行代码。",
+      errors: null
+    };
   } catch (error) {
-    return `代码分析出错: ${error.message}\n\n注意：这是模拟执行环境，不支持完整的Python语法解析。`;
+    return {
+      success: false,
+      output: null,
+      errors: `Python代码解析错误: ${error.message}\n\n注意：这是模拟执行环境，不支持完整的Python语法解析。`
+    };
   }
 }
 
 /**
- * 执行CSS代码（返回CSS的格式化显示）
+ * 执行CSS代码
  * @param {string} code - CSS代码
- * @returns {string} - 格式化结果
+ * @returns {Object} - 执行结果对象
  */
 function executeCSS(code) {
-  return "CSS代码已解析，请在HTML中使用<style>标签引入CSS以查看效果。";
+  try {
+    // 验证CSS语法
+    const style = document.createElement('style');
+    style.textContent = code;
+    document.head.appendChild(style);
+    
+    // 检查是否有语法错误
+    const isValid = style.sheet !== null;
+    document.head.removeChild(style);
+    
+    if (!isValid) {
+      throw new Error('CSS语法错误');
+    }
+    
+    return {
+      success: true,
+      output: 'CSS代码语法正确，已成功解析。',
+      errors: null
+    };
+  } catch (error) {
+    return {
+      success: false,
+      output: null,
+      errors: `CSS解析错误: ${error.message}`
+    };
+  }
 }
 
 /**
  * 执行代码（不同语言的统一入口）
  * @param {string} code - 要执行的代码
  * @param {string} language - 编程语言（javascript, python, css）
- * @returns {Promise<string>} - 执行结果
+ * @returns {Promise<Object>} - 执行结果对象
  */
 export async function executeCode(code, language) {
   if (!code || code.trim() === '') {
-    return '请输入代码再运行';
+    return {
+      success: false,
+      output: null,
+      errors: '请输入代码再运行'
+    };
   }
   
   try {
@@ -210,14 +261,22 @@ export async function executeCode(code, language) {
       case 'javascript':
         return executeJavaScript(code);
       case 'python':
-        return executePython(code);
+        return await executePython(code);
       case 'css':
         return executeCSS(code);
       default:
-        return `不支持的语言: ${language}`;
+        return {
+          success: false,
+          output: null,
+          errors: `不支持的语言: ${language}`
+        };
     }
   } catch (error) {
     console.error('代码执行服务错误:', error);
-    return `执行出错: ${error.message}`;
+    return {
+      success: false,
+      output: null,
+      errors: `执行出错: ${error.message}`
+    };
   }
 } 

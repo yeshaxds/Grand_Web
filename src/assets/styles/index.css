@@ -1,0 +1,21 @@
+/* 导入所有样式文件 */
+@import './app.css';
+@import './components.css';
+@import './home.css';
+@import './about.css';
+@import './languages.css';
+@import './language-detail.css';
+@import './stacks.css';
+@import './stack-detail.css';
+@import './resources.css';
+
+/* 其他全局样式可以直接写在这里 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f8f9fa;
+} 

@@ -1,0 +1,223 @@
+{
+  "javascript": {
+    "id": "javascript",
+    "name": "JavaScript",
+    "icon": "JS",
+    "categories": ["前端", "后端"],
+    "difficulty": 2,
+    "description": "网络开发的通用语言，前端开发的基础，也可用于后端和移动应用开发。",
+    "longDescription": "JavaScript是一种高级的、解释型的编程语言，最初被设计用于为网页添加交互功能。如今，它已经成为Web开发的基础，并且通过Node.js拓展到了服务器端和其他应用领域。作为一种多范式的语言，JavaScript支持函数式编程、面向对象编程和事件驱动编程。",
+    "features": [
+      { "title": "动态类型", "description": "变量类型在运行时确定，提供灵活性但需要更多注意" },
+      { "title": "函数式编程", "description": "函数是一等公民，支持高阶函数、闭包等特性" },
+      { "title": "原型继承", "description": "基于原型的对象系统，不同于传统的类继承" },
+      { "title": "异步编程", "description": "通过回调、Promise和async/await处理异步操作" },
+      { "title": "事件驱动", "description": "基于事件的编程模型，特别适合用户界面交互" }
+    ],
+    "useCases": [
+      { "icon": "🌐", "title": "网页开发", "description": "创建交互性的网页应用，处理表单和用户交互" },
+      { "icon": "📱", "title": "移动应用", "description": "使用React Native或Ionic等框架开发跨平台移动应用" },
+      { "icon": "🖥️", "title": "桌面应用", "description": "通过Electron等技术构建跨平台桌面应用程序" },
+      { "icon": "🔙", "title": "后端开发", "description": "使用Node.js构建高性能的Web服务器和API" }
+    ],
+    "codeExample": "// 现代JavaScript语法示例\nconst greeting = 'Hello, World!';\nconsole.log(greeting);\n\n// 使用箭头函数\nconst add = (a, b) => a + b;\n\n// 使用Promise处理异步操作\nfetch('https://api.example.com/data')\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => console.error('Error:', error));\n\n// 使用async/await更现代的异步语法\nasync function getData() {\n  try {\n    const response = await fetch('https://api.example.com/data');\n    const data = await response.json();\n    return data;\n  } catch (error) {\n    console.error('Error:', error);\n  }\n}",
+    "learningPath": [
+      "掌握基础语法和数据类型",
+      "学习DOM操作和事件处理",
+      "深入理解函数和作用域",
+      "熟悉异步编程(Promise, async/await)",
+      "学习现代ES6+语法",
+      "掌握常用框架(React, Vue等)"
+    ],
+    "resources": [
+      { "title": "MDN Web文档", "url": "https://developer.mozilla.org/zh-CN/docs/Web/JavaScript" },
+      { "title": "JavaScript.info", "url": "https://zh.javascript.info/" },
+      { "title": "ES6入门教程", "url": "https://es6.ruanyifeng.com/" },
+      { "title": "现代JavaScript教程", "url": "https://zh.javascript.info/" }
+    ],
+    "relatedTech": [
+      { "id": "typescript", "name": "TypeScript", "icon": "TS" },
+      { "id": "nodejs", "name": "Node.js", "icon": "NJ" },
+      { "id": "react", "name": "React", "icon": "R" },
+      { "id": "vue", "name": "Vue.js", "icon": "V" }
+    ]
+  },
+  "python": {
+    "id": "python",
+    "name": "Python",
+    "icon": "🐍",
+    "categories": ["后端", "数据科学", "人工智能"],
+    "difficulty": 1,
+    "description": "易学易用的通用编程语言，广泛应用于Web开发、数据科学、人工智能等领域。",
+    "longDescription": "Python是一种解释型、高级、通用的编程语言，以其简洁、易读的语法著称。Python强调代码的可读性，使用缩进来界定代码块，允许程序员以少量的代码表达复杂的想法。Python支持多种编程范式，包括结构化、面向对象和函数式编程。它拥有丰富的标准库和第三方生态系统，使其成为科学计算、数据分析和机器学习等领域的首选语言。",
+    "features": [
+      { "title": "简洁易读", "description": "清晰的语法和强制的缩进使代码易于阅读和维护" },
+      { "title": "丰富的库", "description": "庞大的标准库和第三方包生态系统，适用于各种应用场景" },
+      { "title": "跨平台", "description": "可在Windows、macOS、Linux等多种操作系统上运行" },
+      { "title": "动态类型", "description": "变量无需声明类型，提高了编程灵活性和开发速度" },
+      { "title": "解释执行", "description": "无需编译，直接解释执行，便于调试和测试" }
+    ],
+    "useCases": [
+      { "icon": "🤖", "title": "人工智能与机器学习", "description": "使用TensorFlow、PyTorch等框架开发AI模型" },
+      { "icon": "📊", "title": "数据分析", "description": "利用Pandas、NumPy等库进行数据处理和可视化" },
+      { "icon": "🌐", "title": "Web开发", "description": "使用Django、Flask等框架构建Web应用和API" },
+      { "icon": "🧪", "title": "科学计算", "description": "在科研领域广泛应用，进行复杂的科学和数学计算" },
+      { "icon": "🔄", "title": "自动化脚本", "description": "编写自动化脚本，提高工作效率" }
+    ],
+    "codeExample": "# Python基础语法示例\n\n# 变量和简单运算\ngreeting = \"Hello, World!\"\nprint(greeting)\n\n# 列表和循环\nfruits = [\"apple\", \"banana\", \"cherry\"]\nfor fruit in fruits:\n    print(f\"I like {fruit}\")\n\n# 函数定义\ndef greet(name, message=\"Welcome\"):\n    return f\"{message}, {name}!\"\n\nprint(greet(\"Python Programmer\"))\n\n# 类和对象\nclass Person:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n    \n    def introduce(self):\n        return f\"My name is {self.name} and I am {self.age} years old.\"\n\nperson = Person(\"John\", 30)\nprint(person.introduce())\n\n# 使用列表推导式\nsquares = [x**2 for x in range(10)]\nprint(squares)",
+    "learningPath": [
+      "掌握基础语法和数据类型",
+      "学习函数和模块的使用",
+      "理解面向对象编程概念",
+      "熟悉Python标准库",
+      "学习流行的第三方库和框架",
+      "实践项目开发和测试"
+    ],
+    "resources": [
+      { "title": "Python官方文档", "url": "https://docs.python.org/zh-cn/" },
+      { "title": "Python教程 - 廖雪峰", "url": "https://www.liaoxuefeng.com/wiki/1016959663602400" },
+      { "title": "Python Cookbook", "url": "https://python3-cookbook.readthedocs.io/zh_CN/latest/" },
+      { "title": "Real Python", "url": "https://realpython.com/" }
+    ],
+    "relatedTech": [
+      { "id": "django", "name": "Django", "icon": "🦄" },
+      { "id": "flask", "name": "Flask", "icon": "🧪" },
+      { "id": "pandas", "name": "Pandas", "icon": "🐼" },
+      { "id": "tensorflow", "name": "TensorFlow", "icon": "🧠" }
+    ]
+  },
+  "java": {
+    "id": "java",
+    "name": "Java",
+    "icon": "☕",
+    "categories": ["后端", "企业级", "移动开发"],
+    "difficulty": 3,
+    "description": "强大的跨平台编程语言，广泛应用于企业级应用、Android开发和大型系统。",
+    "longDescription": "Java是一种面向对象的编程语言，由Sun Microsystems（现为Oracle所有）于1995年发布。它的设计理念是\"一次编写，到处运行\"（Write Once, Run Anywhere），这使得Java程序可以在任何支持Java的平台上运行，而无需重新编译。Java的强类型系统、自动内存管理、跨平台性和丰富的标准库使其成为企业级应用开发的首选语言之一。Java也是Android移动应用开发的官方语言。",
+    "features": [
+      { "title": "平台无关性", "description": "Java程序可以在任何有JVM的平台上运行，无需修改" },
+      { "title": "面向对象", "description": "基于类和对象的编程范式，支持封装、继承和多态" },
+      { "title": "强类型安全", "description": "严格的类型检查在编译时捕获许多错误" },
+      { "title": "自动垃圾回收", "description": "JVM自动管理内存，减轻开发者负担" },
+      { "title": "多线程支持", "description": "内置对并发编程的支持，简化多线程应用开发" }
+    ],
+    "useCases": [
+      { "icon": "🏢", "title": "企业级应用", "description": "构建大型企业级系统，如银行、电商和ERP系统" },
+      { "icon": "📱", "title": "Android应用", "description": "开发Android平台的移动应用" },
+      { "icon": "🌐", "title": "Web服务", "description": "使用Spring等框架构建高性能Web应用和RESTful API" },
+      { "icon": "☁️", "title": "云服务", "description": "开发云原生和微服务架构应用" },
+      { "icon": "🎮", "title": "游戏开发", "description": "某些游戏服务器和Minecraft等游戏的开发" }
+    ],
+    "codeExample": "// Java基础语法示例\n\npublic class HelloWorld {\n    public static void main(String[] args) {\n        // 输出问候语\n        System.out.println(\"Hello, World!\");\n        \n        // 变量和数据类型\n        int number = 10;\n        String text = \"Java Programming\";\n        double pi = 3.14159;\n        boolean isJavaFun = true;\n        \n        // 条件语句\n        if (number > 5) {\n            System.out.println(\"Number is greater than 5.\");\n        }\n        \n        // 循环\n        for (int i = 0; i < 5; i++) {\n            System.out.println(\"Count: \" + i);\n        }\n        \n        // 创建自定义类的实例\n        Person person = new Person(\"John\", 30);\n        System.out.println(person.introduce());\n    }\n}\n\n// 定义一个类\nclass Person {\n    private String name;\n    private int age;\n    \n    // 构造函数\n    public Person(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n    \n    // 方法\n    public String introduce() {\n        return \"My name is \" + name + \" and I am \" + age + \" years old.\";\n    }\n}",
+    "learningPath": [
+      "掌握Java语法基础",
+      "学习面向对象编程概念",
+      "理解Java集合框架",
+      "掌握异常处理和I/O操作",
+      "学习多线程和并发编程",
+      "熟悉常用框架(Spring, Hibernate等)",
+      "实践项目开发和设计模式"
+    ],
+    "resources": [
+      { "title": "Java官方文档", "url": "https://docs.oracle.com/javase/" },
+      { "title": "Baeldung Java教程", "url": "https://www.baeldung.com/" },
+      { "title": "Java核心技术", "url": "https://horstmann.com/corejava/" },
+      { "title": "Spring官方教程", "url": "https://spring.io/guides" }
+    ],
+    "relatedTech": [
+      { "id": "spring", "name": "Spring", "icon": "🍃" },
+      { "id": "android", "name": "Android", "icon": "🤖" },
+      { "id": "kotlin", "name": "Kotlin", "icon": "🎯" },
+      { "id": "hibernate", "name": "Hibernate", "icon": "🗄️" }
+    ]
+  },
+  "typescript": {
+    "id": "typescript",
+    "name": "TypeScript",
+    "icon": "TS",
+    "categories": ["前端", "后端"],
+    "difficulty": 3,
+    "description": "JavaScript的超集，添加了静态类型检查，提高代码质量和开发效率。",
+    "longDescription": "TypeScript是由微软开发和维护的一种开源编程语言，它是JavaScript的超集，添加了可选的静态类型和基于类的面向对象编程等特性。TypeScript代码可以编译成纯JavaScript代码，可以在任何支持JavaScript的平台上运行。TypeScript的主要目标是改善大型应用程序的开发和维护，通过编译时类型检查来捕获错误，提供更好的开发工具支持。",
+    "features": [
+      { "title": "静态类型检查", "description": "在编译时进行类型检查，及早发现潜在错误" },
+      { "title": "增强的IDE支持", "description": "类型信息使代码补全、重构和导航更加智能" },
+      { "title": "JavaScript兼容性", "description": "所有JavaScript代码都是有效的TypeScript代码，便于迁移" },
+      { "title": "面向对象编程", "description": "支持类、接口和泛型等高级OOP特性" },
+      { "title": "现代ECMAScript特性", "description": "支持最新的JavaScript功能，同时提供向后兼容性" }
+    ],
+    "useCases": [
+      { "icon": "🌐", "title": "前端应用", "description": "与Angular、React、Vue等框架配合开发大型前端应用" },
+      { "icon": "🔙", "title": "后端服务", "description": "使用Node.js和Express等框架开发健壮的后端服务" },
+      { "icon": "📱", "title": "移动应用", "description": "使用React Native开发基于TypeScript的移动应用" },
+      { "icon": "🖥️", "title": "桌面应用", "description": "结合Electron框架开发跨平台桌面应用" }
+    ],
+    "codeExample": "// TypeScript基础语法示例\n\n// 基本类型注解\nlet name: string = 'TypeScript';\nlet version: number = 4.9;\nlet isStable: boolean = true;\n\n// 接口定义\ninterface User {\n  id: number;\n  name: string;\n  email?: string; // 可选属性\n}\n\n// 使用接口\nfunction greetUser(user: User): string {\n  return `Hello, ${user.name}!`;\n}\n\nconst user: User = {\n  id: 1,\n  name: 'John Doe'\n};\n\nconsole.log(greetUser(user));\n\n// 类定义\nclass Person {\n  // 属性类型注解\n  private name: string;\n  private age: number;\n  \n  // 构造函数\n  constructor(name: string, age: number) {\n    this.name = name;\n    this.age = age;\n  }\n  \n  // 方法\n  public introduce(): string {\n    return `My name is ${this.name} and I am ${this.age} years old.`;\n  }\n}\n\n// 泛型使用\nfunction getFirstElement<T>(array: T[]): T | undefined {\n  return array.length > 0 ? array[0] : undefined;\n}\n\nconst numbers: number[] = [1, 2, 3, 4, 5];\nconst firstNumber: number | undefined = getFirstElement(numbers);\nconsole.log(firstNumber);",
+    "learningPath": [
+      "掌握JavaScript基础",
+      "学习TypeScript类型系统",
+      "理解接口和类型别名",
+      "掌握类和面向对象概念",
+      "学习泛型和高级类型",
+      "结合前端框架实践",
+      "掌握模块和命名空间"
+    ],
+    "resources": [
+      { "title": "TypeScript官方文档", "url": "https://www.typescriptlang.org/docs/" },
+      { "title": "TypeScript Deep Dive", "url": "https://basarat.gitbook.io/typescript/" },
+      { "title": "TypeScript入门教程", "url": "https://ts.xcatliu.com/" },
+      { "title": "TypeScript Playground", "url": "https://www.typescriptlang.org/play" }
+    ],
+    "relatedTech": [
+      { "id": "javascript", "name": "JavaScript", "icon": "JS" },
+      { "id": "angular", "name": "Angular", "icon": "A" },
+      { "id": "react", "name": "React", "icon": "R" },
+      { "id": "nodejs", "name": "Node.js", "icon": "NJ" }
+    ]
+  },
+  "go": {
+    "id": "go",
+    "name": "Go",
+    "icon": "🦫",
+    "categories": ["后端", "系统编程", "云原生"],
+    "difficulty": 2,
+    "description": "谷歌开发的现代化编程语言，以简洁、高效和并发支持著称，广泛用于云服务和网络应用。",
+    "longDescription": "Go（又称Golang）是一种由Google开发的静态类型、编译型编程语言，于2009年发布。Go的设计目标是提供C/C++的性能，同时改善开发效率和简化并发编程。Go具有垃圾回收、类型安全、简洁的语法和内置并发支持等特性。它特别适合开发高并发的网络服务、云基础设施和微服务架构。Go也因其快速的编译速度和小巧的二进制文件大小而受到欢迎。",
+    "features": [
+      { "title": "简洁的语法", "description": "语法简单明了，易于学习和使用" },
+      { "title": "静态类型", "description": "编译时类型检查，提供类型安全但不冗长" },
+      { "title": "并发支持", "description": "内置goroutines和channels，简化并发编程" },
+      { "title": "垃圾回收", "description": "自动内存管理，避免常见的内存错误" },
+      { "title": "标准库丰富", "description": "提供丰富的内置功能，无需大量第三方库" }
+    ],
+    "useCases": [
+      { "icon": "☁️", "title": "云服务", "description": "开发高性能的云服务、微服务和容器化应用" },
+      { "icon": "🌐", "title": "Web服务器", "description": "构建高并发的Web API和服务" },
+      { "icon": "🔄", "title": "DevOps工具", "description": "开发容器化、自动化和CI/CD工具，如Docker和Kubernetes组件" },
+      { "icon": "🖧", "title": "网络编程", "description": "构建高性能的网络服务和协议实现" },
+      { "icon": "🧰", "title": "命令行工具", "description": "开发快速、高效的命令行应用和系统工具" }
+    ],
+    "codeExample": "// Go语言基础语法示例\n\npackage main\n\nimport (\n\t\"fmt\"\n\t\"time\"\n)\n\n// 定义结构体\ntype Person struct {\n\tName string\n\tAge  int\n}\n\n// 为结构体定义方法\nfunc (p Person) Introduce() string {\n\treturn fmt.Sprintf(\"My name is %s and I am %d years old.\", p.Name, p.Age)\n}\n\n// 定义接口\ntype Speaker interface {\n\tIntroduce() string\n}\n\n// 打招呼函数接受任何实现Speaker接口的类型\nfunc Greet(s Speaker) {\n\tfmt.Println(\"Hello!\", s.Introduce())\n}\n\n// 并发示例函数\nfunc countDown(name string, count int, c chan<- string) {\n\tfor i := count; i > 0; i-- {\n\t\tfmt.Printf(\"%s: %d\\n\", name, i)\n\t\ttime.Sleep(time.Millisecond * 500)\n\t}\n\tc <- fmt.Sprintf(\"%s finished!\", name)\n}\n\nfunc main() {\n\t// 基本输出\n\tfmt.Println(\"Hello, Go!\")\n\t\n\t// 变量声明\n\tvar message string = \"Welcome to Go Programming\"\n\tnumber := 42 // 短变量声明\n\tfmt.Println(message, number)\n\t\n\t// 使用结构体\n\tperson := Person{Name: \"John\", Age: 30}\n\tGreet(person)\n\t\n\t// 并发示例\n\tchannel := make(chan string, 2)\n\t\n\t// 启动两个goroutine\n\tgo countDown(\"Counter1\", 3, channel)\n\tgo countDown(\"Counter2\", 5, channel)\n\t\n\t// 等待两个goroutine完成\n\tfor i := 0; i < 2; i++ {\n\t\tfmt.Println(<-channel)\n\t}\n}",
+    "learningPath": [
+      "了解Go语言基础语法",
+      "学习结构体和接口",
+      "掌握错误处理机制",
+      "理解Go并发模型(goroutines和channels)",
+      "学习Go标准库",
+      "实践Go项目开发",
+      "学习Go web框架和工具"
+    ],
+    "resources": [
+      { "title": "Go官方文档", "url": "https://golang.org/doc/" },
+      { "title": "Go by Example", "url": "https://gobyexample.com/" },
+      { "title": "Go Web编程", "url": "https://astaxie.gitbooks.io/build-web-application-with-golang/content/zh/" },
+      { "title": "Go语言圣经", "url": "https://github.com/golang-china/gopl-zh" }
+    ],
+    "relatedTech": [
+      { "id": "docker", "name": "Docker", "icon": "🐳" },
+      { "id": "kubernetes", "name": "Kubernetes", "icon": "🚢" },
+      { "id": "gin", "name": "Gin", "icon": "🍸" },
+      { "id": "grpc", "name": "gRPC", "icon": "📡" }
+    ]
+  }
+} 

@@ -69,7 +69,8 @@
         <div class="related-card">
           <h3>相关技术</h3>
           <div class="related-items">
-            <div class="related-item" v-for="tech in language.relatedTech" :key="tech.id" @click="goToLanguage(tech.id)">
+            <div class="related-item" v-for="tech in language.relatedTech" :key="tech.id"
+              @click="goToLanguage(tech.id)">
               <div class="related-icon">{{ tech.icon }}</div>
               <span>{{ tech.name }}</span>
             </div>
@@ -82,88 +83,22 @@
 </template>
 
 <script>
+import languageDetails from '@/data/languageDetails.json'
+
 export default {
   name: 'LanguageDetailView',
   data() {
     return {
-      language: null,
-      languages: {
-        javascript: {
-          id: 'javascript',
-          name: 'JavaScript',
-          icon: 'JS',
-          categories: ['前端', '后端'],
-          difficulty: 2,
-          description: '网络开发的通用语言，前端开发的基础，也可用于后端和移动应用开发。',
-          longDescription: 'JavaScript是一种高级的、解释型的编程语言，最初被设计用于为网页添加交互功能。如今，它已经成为Web开发的基础，并且通过Node.js拓展到了服务器端和其他应用领域。作为一种多范式的语言，JavaScript支持函数式编程、面向对象编程和事件驱动编程。',
-          features: [
-            { title: '动态类型', description: '变量类型在运行时确定，提供灵活性但需要更多注意' },
-            { title: '函数式编程', description: '函数是一等公民，支持高阶函数、闭包等特性' },
-            { title: '原型继承', description: '基于原型的对象系统，不同于传统的类继承' },
-            { title: '异步编程', description: '通过回调、Promise和async/await处理异步操作' },
-            { title: '事件驱动', description: '基于事件的编程模型，特别适合用户界面交互' }
-          ],
-          useCases: [
-            { icon: '🌐', title: '网页开发', description: '创建交互性的网页应用，处理表单和用户交互' },
-            { icon: '📱', title: '移动应用', description: '使用React Native或Ionic等框架开发跨平台移动应用' },
-            { icon: '🖥️', title: '桌面应用', description: '通过Electron等技术构建跨平台桌面应用程序' },
-            { icon: '🔙', title: '后端开发', description: '使用Node.js构建高性能的Web服务器和API' }
-          ],
-          codeExample: `// 现代JavaScript语法示例
-const greeting = 'Hello, World!';
-console.log(greeting);
-
-// 使用箭头函数
-const add = (a, b) => a + b;
-
-// 使用Promise处理异步操作
-fetch('https://api.example.com/data')
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error('Error:', error));
-
-// 使用async/await更现代的异步语法
-async function getData() {
-  try {
-    const response = await fetch('https://api.example.com/data');
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error:', error);
-  }
-}`,
-          learningPath: [
-            '掌握基础语法和数据类型',
-            '学习DOM操作和事件处理',
-            '深入理解函数和作用域',
-            '熟悉异步编程(Promise, async/await)',
-            '学习现代ES6+语法',
-            '掌握常用框架(React, Vue等)'
-          ],
-          resources: [
-            { title: 'MDN Web文档', url: 'https://developer.mozilla.org/zh-CN/docs/Web/JavaScript' },
-            { title: 'JavaScript.info', url: 'https://zh.javascript.info/' },
-            { title: 'ES6入门教程', url: 'https://es6.ruanyifeng.com/' },
-            { title: '现代JavaScript教程', url: 'https://zh.javascript.info/' }
-          ],
-          relatedTech: [
-            { id: 'typescript', name: 'TypeScript', icon: 'TS' },
-            { id: 'nodejs', name: 'Node.js', icon: 'NJ' },
-            { id: 'react', name: 'React', icon: 'R' },
-            { id: 'vue', name: 'Vue.js', icon: 'V' }
-          ]
-        }
-      }
+      language: null
     }
   },
   mounted() {
     // 从URL中获取语言ID
     const languageId = this.$route.params.id;
-    
-    // 模拟API请求 - 实际使用中应该从API获取数据
-    // 这里我们只提供了JavaScript的详细数据作为示例
-    if (this.languages[languageId]) {
-      this.language = this.languages[languageId];
+
+    // 从JSON数据中获取语言详情
+    if (languageDetails[languageId]) {
+      this.language = languageDetails[languageId];
     } else {
       // 如果找不到指定语言，创建一个简单的占位数据
       this.language = {
@@ -182,8 +117,7 @@ async function getData() {
           { icon: '💻', title: '用例1', description: '该语言的主要应用场景1' },
           { icon: '📊', title: '用例2', description: '该语言的主要应用场景2' }
         ],
-        codeExample: `// ${languageId} 代码示例
-print("Hello, World!");`,
+        codeExample: `// ${languageId} 代码示例\nprint("Hello, World!");`,
         learningPath: [
           '学习基础语法',
           '掌握核心概念',
@@ -201,7 +135,32 @@ print("Hello, World!");`,
   },
   methods: {
     goToLanguage(languageId) {
-      this.$router.push(`/language/${languageId}`);
+      // 检查目标语言是否存在于数据中
+      if (languageDetails[languageId]) {
+        this.$router.push(`/language/${languageId}`);
+      } else {
+        // 如果是跳转到相关技术而不是语言，可能需要不同的路由
+        // 例如，对于像react这样的库/框架，可能需要跳转到技术栈页面
+        if (languageId.includes('stack') || this.isFrameworkOrLibrary(languageId)) {
+          this.$router.push(`/stack/${languageId}`);
+          console.log(`导航到技术栈: ${languageId}`);
+        } else {
+          // 默认仍然使用语言路由
+          this.$router.push(`/language/${languageId}`);
+          console.log(`导航到语言: ${languageId}，但该语言可能不存在`);
+        }
+      }
+    },
+
+    // 检查ID是否是框架或库而不是语言
+    isFrameworkOrLibrary(id) {
+      // 这些ID可能是框架/库而不是语言
+      const frameworksAndLibraries = [
+        'react', 'vue', 'angular', 'nodejs', 'django',
+        'flask', 'spring', 'hibernate', 'pandas', 'tensorflow',
+        'docker', 'kubernetes', 'gin', 'grpc'
+      ];
+      return frameworksAndLibraries.includes(id);
     }
   }
 }

@@ -393,50 +393,55 @@
     "id": "spring-boot",
     "name": "Spring Boot",
     "icon": "☕",
-    "tags": ["后端栈", "Java"],
+    "tags": ["后端框架", "Java", "企业级应用"],
     "popularity": 5,
     "description": "Java, Spring Boot, Hibernate, MySQL 组成的企业级后端开发技术栈。",
-    "longDescription": "Spring Boot是基于Spring框架的快速开发工具，旨在简化Java应用的初始设置和开发过程。它采用\"约定优于配置\"的理念，大幅减少了样板代码，内置了嵌入式服务器，并提供了自动配置特性。Spring Boot特别适合构建微服务和企业级应用，它有强大的生态系统支持，包括安全认证、数据访问、消息队列等各方面的组件。作为企业级开发的首选技术栈之一，Spring Boot在金融、电商、政企等各行业有广泛应用。",
+    "longDescription": "Spring Boot是在Spring框架基础上发展而来的项目，旨在简化Java应用的初始搭建和开发过程。它采用了\"约定优于配置\"的理念，提供了许多默认设置和自动配置功能，使开发者能够快速启动和运行一个基于Spring的应用，而无需处理繁琐的配置。Spring Boot内置了Tomcat、Jetty等Web服务器，可以轻松创建独立运行的应用。它还提供了丰富的「起步依赖」，自动处理依赖版本冲突问题。Spring Boot广泛应用于企业级应用开发，是构建微服务、RESTful API和Web应用的流行选择，拥有活跃的社区和丰富的生态系统。",
     "components": [
-      { "name": "Java", "icon": "☕", "description": "强大的面向对象编程语言，跨平台、高性能，广泛应用于企业级应用开发。" },
-      { "name": "Spring Boot", "icon": "🍃", "description": "基于Spring框架的快速开发工具，自动配置和内置服务器，减少了配置工作。" },
-      { "name": "Hibernate/JPA", "icon": "🔄", "description": "Java持久层框架，用于对象关系映射(ORM)，简化数据库操作。" },
-      { "name": "MySQL/PostgreSQL", "icon": "🗄️", "description": "关系型数据库，用于存储和管理应用数据。" }
+      { "name": "Spring核心", "icon": "🌱", "description": "Spring框架的核心功能，包括依赖注入和控制反转容器。" },
+      { "name": "自动配置", "icon": "⚙️", "description": "基于classpath中的依赖自动配置Spring应用，减少手动配置。" },
+      { "name": "起步依赖", "icon": "📦", "description": "预配置的依赖组，简化构建配置，解决依赖兼容性问题。" },
+      { "name": "Actuator", "icon": "🔍", "description": "用于监控和管理应用的工具，提供健康检查、指标收集等功能。" },
+      { "name": "Spring Data", "icon": "🗄️", "description": "简化数据库访问的模块，支持多种数据存储技术，包括JPA、JDBC、MongoDB等。" }
     ],
     "advantages": [
-      { "icon": "🏢", "title": "企业级支持", "description": "强大的生态系统和商业支持，适合大型企业应用和长期维护。" },
-      { "icon": "🔌", "title": "易于集成", "description": "丰富的starter和自动配置，轻松集成各种第三方服务和组件。" },
-      { "icon": "🧩", "title": "模块化架构", "description": "支持微服务架构，易于扩展和维护复杂应用。" },
-      { "icon": "🔒", "title": "安全可靠", "description": "成熟的安全框架和稳定的性能表现，适合关键业务系统。" }
+      { "icon": "🚀", "title": "快速开发", "description": "自动配置和起步依赖大大减少了配置时间，加速项目启动。" },
+      { "icon": "🏗️", "title": "微服务友好", "description": "内置功能和生态系统工具使其成为构建微服务架构的理想选择。" },
+      { "icon": "🔒", "title": "安全稳定", "description": "Spring Security提供全面的安全性支持，适合企业级应用需求。" },
+      { "icon": "🔄", "title": "灵活可扩展", "description": "支持各种扩展点，可以根据需求定制和扩展功能。" },
+      { "icon": "🔧", "title": "开发工具支持", "description": "丰富的IDE插件和Spring Boot CLI提供了便捷的开发体验。" }
     ],
-    "codeExample": "// Spring Boot应用架构示例\n\n// 主应用类\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\n\n@SpringBootApplication\npublic class Application {\n    public static void main(String[] args) {\n        SpringApplication.run(Application.class, args);\n    }\n}\n\n// 实体类\nimport javax.persistence.*;\nimport java.time.LocalDateTime;\n\n@Entity\n@Table(name = \"items\")\npublic class Item {\n    \n    @Id\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n    \n    private String name;\n    \n    private String description;\n    \n    private LocalDateTime createdAt = LocalDateTime.now();\n    \n    // Getters and setters\n    // ...\n}\n\n// 存储库接口\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.stereotype.Repository;\n\n@Repository\npublic interface ItemRepository extends JpaRepository<Item, Long> {\n    List<Item> findByNameContaining(String name);\n}\n\n// 服务层\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.stereotype.Service;\nimport java.util.List;\n\n@Service\npublic class ItemService {\n    \n    private final ItemRepository itemRepository;\n    \n    @Autowired\n    public ItemService(ItemRepository itemRepository) {\n        this.itemRepository = itemRepository;\n    }\n    \n    public List<Item> findAllItems() {\n        return itemRepository.findAll();\n    }\n    \n    public Item findItemById(Long id) {\n        return itemRepository.findById(id)\n            .orElseThrow(() -> new RuntimeException(\"Item not found\"));\n    }\n    \n    public Item saveItem(Item item) {\n        return itemRepository.save(item);\n    }\n}\n\n// REST控制器\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.web.bind.annotation.*;\nimport java.util.List;\n\n@RestController\n@RequestMapping(\"/api/items\")\npublic class ItemController {\n    \n    private final ItemService itemService;\n    \n    @Autowired\n    public ItemController(ItemService itemService) {\n        this.itemService = itemService;\n    }\n    \n    @GetMapping\n    public List<Item> getAllItems() {\n        return itemService.findAllItems();\n    }\n    \n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Item> getItemById(@PathVariable Long id) {\n        Item item = itemService.findItemById(id);\n        return ResponseEntity.ok(item);\n    }\n    \n    @PostMapping\n    public ResponseEntity<Item> createItem(@RequestBody Item item) {\n        Item savedItem = itemService.saveItem(item);\n        return ResponseEntity.ok(savedItem);\n    }\n}",
+    "codeExample": "// Spring Boot应用示例\n\n// 主应用类\npackage com.example.demo;\n\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\n\n@SpringBootApplication\npublic class TaskManagerApplication {\n\n    public static void main(String[] args) {\n        SpringApplication.run(TaskManagerApplication.class, args);\n    }\n}\n\n// 数据模型\npackage com.example.demo.model;\n\nimport javax.persistence.*;\nimport java.time.LocalDateTime;\n\n@Entity\n@Table(name = \"tasks\")\npublic class Task {\n\n    @Id\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n\n    @Column(nullable = false)\n    private String title;\n\n    private String description;\n\n    @Column(nullable = false)\n    private boolean completed = false;\n\n    @Column(name = \"created_at\")\n    private LocalDateTime createdAt = LocalDateTime.now();\n\n    @Column(name = \"due_date\")\n    private LocalDateTime dueDate;\n\n    @ManyToOne(fetch = FetchType.LAZY)\n    @JoinColumn(name = \"user_id\")\n    private User user;\n\n    // Getters, setters, constructors...\n    \n    public Long getId() {\n        return id;\n    }\n\n    public void setId(Long id) {\n        this.id = id;\n    }\n\n    public String getTitle() {\n        return title;\n    }\n\n    public void setTitle(String title) {\n        this.title = title;\n    }\n\n    public String getDescription() {\n        return description;\n    }\n\n    public void setDescription(String description) {\n        this.description = description;\n    }\n\n    public boolean isCompleted() {\n        return completed;\n    }\n\n    public void setCompleted(boolean completed) {\n        this.completed = completed;\n    }\n\n    public LocalDateTime getCreatedAt() {\n        return createdAt;\n    }\n\n    public void setCreatedAt(LocalDateTime createdAt) {\n        this.createdAt = createdAt;\n    }\n\n    public LocalDateTime getDueDate() {\n        return dueDate;\n    }\n\n    public void setDueDate(LocalDateTime dueDate) {\n        this.dueDate = dueDate;\n    }\n\n    public User getUser() {\n        return user;\n    }\n\n    public void setUser(User user) {\n        this.user = user;\n    }\n}\n\n// 数据访问层\npackage com.example.demo.repository;\n\nimport com.example.demo.model.Task;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.Query;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Repository;\n\nimport java.util.List;\n\n@Repository\npublic interface TaskRepository extends JpaRepository<Task, Long> {\n\n    List<Task> findByUserId(Long userId);\n\n    List<Task> findByUserIdAndCompleted(Long userId, boolean completed);\n\n    @Query(\"SELECT t FROM Task t WHERE t.user.id = :userId AND \" +\n            \"(LOWER(t.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR \" +\n            \"LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%')))\")\n    List<Task> searchTasks(@Param(\"userId\") Long userId, @Param(\"keyword\") String keyword);\n}\n\n// 服务层\npackage com.example.demo.service;\n\nimport com.example.demo.exception.ResourceNotFoundException;\nimport com.example.demo.model.Task;\nimport com.example.demo.repository.TaskRepository;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.stereotype.Service;\n\nimport java.util.List;\n\n@Service\npublic class TaskService {\n\n    private final TaskRepository taskRepository;\n\n    @Autowired\n    public TaskService(TaskRepository taskRepository) {\n        this.taskRepository = taskRepository;\n    }\n\n    public List<Task> getAllTasksByUser(Long userId) {\n        return taskRepository.findByUserId(userId);\n    }\n\n    public List<Task> getTasksByUserAndStatus(Long userId, boolean completed) {\n        return taskRepository.findByUserIdAndCompleted(userId, completed);\n    }\n\n    public Task getTaskById(Long taskId) {\n        return taskRepository.findById(taskId)\n                .orElseThrow(() -> new ResourceNotFoundException(\"Task not found with id \" + taskId));\n    }\n\n    public Task createTask(Task task) {\n        return taskRepository.save(task);\n    }\n\n    public Task updateTask(Long taskId, Task taskDetails) {\n        Task task = getTaskById(taskId);\n        task.setTitle(taskDetails.getTitle());\n        task.setDescription(taskDetails.getDescription());\n        task.setCompleted(taskDetails.isCompleted());\n        task.setDueDate(taskDetails.getDueDate());\n        return taskRepository.save(task);\n    }\n\n    public void deleteTask(Long taskId) {\n        Task task = getTaskById(taskId);\n        taskRepository.delete(task);\n    }\n\n    public List<Task> searchTasks(Long userId, String keyword) {\n        return taskRepository.searchTasks(userId, keyword);\n    }\n}\n\n// 控制器\npackage com.example.demo.controller;\n\nimport com.example.demo.model.Task;\nimport com.example.demo.service.TaskService;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.web.bind.annotation.*;\n\nimport javax.validation.Valid;\nimport java.util.List;\n\n@RestController\n@RequestMapping(\"/api/users/{userId}/tasks\")\npublic class TaskController {\n\n    private final TaskService taskService;\n\n    @Autowired\n    public TaskController(TaskService taskService) {\n        this.taskService = taskService;\n    }\n\n    @GetMapping\n    public List<Task> getTasksByUser(@PathVariable Long userId,\n                                     @RequestParam(required = false) Boolean completed) {\n        if (completed != null) {\n            return taskService.getTasksByUserAndStatus(userId, completed);\n        }\n        return taskService.getAllTasksByUser(userId);\n    }\n\n    @GetMapping(\"/{taskId}\")\n    public Task getTaskById(@PathVariable Long userId, @PathVariable Long taskId) {\n        return taskService.getTaskById(taskId);\n    }\n\n    @PostMapping\n    public Task createTask(@PathVariable Long userId, @Valid @RequestBody Task task) {\n        // 在实际应用中，您需要验证userId，并将其设置到task对象中\n        return taskService.createTask(task);\n    }\n\n    @PutMapping(\"/{taskId}\")\n    public Task updateTask(@PathVariable Long userId,\n                          @PathVariable Long taskId,\n                          @Valid @RequestBody Task taskDetails) {\n        return taskService.updateTask(taskId, taskDetails);\n    }\n\n    @DeleteMapping(\"/{taskId}\")\n    public ResponseEntity<?> deleteTask(@PathVariable Long userId, @PathVariable Long taskId) {\n        taskService.deleteTask(taskId);\n        return ResponseEntity.ok().build();\n    }\n\n    @GetMapping(\"/search\")\n    public List<Task> searchTasks(@PathVariable Long userId, @RequestParam String keyword) {\n        return taskService.searchTasks(userId, keyword);\n    }\n}",
     "stats": {
       "github": "非常高",
       "jobs": "非常高",
-      "community": "活跃"
+      "community": "非常活跃"
     },
     "learningPath": [
-      "学习Java基础和面向对象编程",
-      "了解Spring框架核心概念",
-      "学习Spring Boot基础和自动配置",
-      "掌握Spring Data JPA和数据库交互",
-      "学习RESTful API设计和开发",
-      "掌握Spring Security安全框架",
+      "掌握Java基础和面向对象编程",
+      "了解Spring框架核心概念（IOC、DI、AOP）",
+      "学习Spring Boot基础知识",
+      "掌握RESTful API设计和实现",
+      "学习Spring Data JPA和数据库交互",
+      "学习Spring Security进行身份验证和授权",
+      "了解Spring Boot测试策略",
       "学习微服务架构和Spring Cloud",
-      "掌握测试和部署最佳实践"
+      "掌握应用监控和性能优化",
+      "了解DevOps和部署Spring Boot应用"
     ],
     "resources": [
-      { "title": "Spring官方文档", "url": "https://spring.io/projects/spring-boot" },
+      { "title": "Spring Boot官方文档", "url": "https://spring.io/projects/spring-boot" },
       { "title": "Spring Guides", "url": "https://spring.io/guides" },
-      { "title": "Baeldung Spring教程", "url": "https://www.baeldung.com/spring-tutorial" },
-      { "title": "Spring Boot实战", "url": "https://www.manning.com/books/spring-boot-in-action" },
-      { "title": "Java文档", "url": "https://docs.oracle.com/en/java/" }
+      { "title": "Baeldung Spring教程", "url": "https://www.baeldung.com/spring-boot" },
+      { "title": "Spring Initializr", "url": "https://start.spring.io/" },
+      { "title": "Spring Boot实战", "url": "https://www.manning.com/books/spring-boot-in-action" }
     ],
     "relatedStacks": [
+      { "id": "java", "name": "Java", "icon": "☕" },
+      { "id": "spring", "name": "Spring Framework", "icon": "🌱" },
+      { "id": "hibernate", "name": "Hibernate", "icon": "🗄️" },
       { "id": "spring-cloud", "name": "Spring Cloud", "icon": "☁️" },
-      { "id": "spring-security", "name": "Spring Security", "icon": "🔒" },
-      { "id": "spring-batch", "name": "Spring Batch", "icon": "📦" },
-      { "id": "microservices", "name": "微服务架构", "icon": "🧩" }
+      { "id": "mysql", "name": "MySQL", "icon": "🐬" }
     ]
   },
   "flask-python": {
@@ -487,6 +492,498 @@
       { "id": "fastapi", "name": "FastAPI", "icon": "⚡" },
       { "id": "data-science", "name": "数据科学", "icon": "📊" },
       { "id": "ml", "name": "机器学习", "icon": "🤖" }
+    ]
+  },
+  "django": {
+    "id": "django",
+    "name": "Django",
+    "icon": "🦄",
+    "tags": ["后端框架", "Python", "Web开发"],
+    "popularity": 5,
+    "description": "Python的高级Web框架，强调快速开发和简洁设计，遵循'batteries-included'哲学。",
+    "longDescription": "Django是一个由Python编写的高级Web框架，于2005年首次发布，鼓励快速开发和简洁实用的设计。Django遵循\"电池已包含\"(batteries-included)的设计哲学，提供了开发者构建Web应用所需的大部分组件，如ORM、模板系统、表单处理、身份验证等。它注重自动化管理界面、安全性和可扩展性，使开发者能够专注于应用逻辑而非Web框架细节。Django广泛应用于从小型网站到大型企业级应用，包括Instagram、Pinterest和Mozilla等知名项目。",
+    "components": [
+      { "name": "Models", "icon": "🗄️", "description": "Django的ORM系统，提供了与数据库交互的高级抽象，支持多种数据库后端。" },
+      { "name": "Views", "icon": "👁️", "description": "处理HTTP请求并返回响应的组件，支持函数视图和基于类的视图。" },
+      { "name": "Templates", "icon": "📝", "description": "Django的模板语言，用于生成HTML，支持继承、包含和过滤器等功能。" },
+      { "name": "Admin", "icon": "🔧", "description": "自动生成的管理界面，允许管理员轻松操作数据库内容，无需编写额外代码。" },
+      { "name": "Forms", "icon": "📋", "description": "处理用户输入和验证的表单系统，可与模型紧密集成。" }
+    ],
+    "advantages": [
+      { "icon": "🚀", "title": "快速开发", "description": "预构建的组件和强大的ORM系统大大缩短开发周期。" },
+      { "icon": "🔒", "title": "安全性", "description": "内置防御SQL注入、跨站脚本、跨站请求伪造等常见安全威胁的机制。" },
+      { "icon": "📚", "title": "丰富的生态系统", "description": "大量可用的第三方包和扩展，满足各种开发需求。" },
+      { "icon": "🔄", "title": "可扩展性", "description": "支持从小型网站到高负载企业应用的灵活扩展。" },
+      { "icon": "📊", "title": "完整的文档", "description": "详尽的官方文档和活跃的社区支持，学习资源丰富。" }
+    ],
+    "codeExample": "# Django项目示例\n\n# models.py - 定义数据模型\nfrom django.db import models\nfrom django.utils import timezone\n\nclass Category(models.Model):\n    name = models.CharField(max_length=100)\n    slug = models.SlugField(unique=True)\n    \n    def __str__(self):\n        return self.name\n    \n    class Meta:\n        verbose_name_plural = 'Categories'\n\nclass Article(models.Model):\n    title = models.CharField(max_length=200)\n    slug = models.SlugField(unique=True)\n    content = models.TextField()\n    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='articles')\n    published_date = models.DateTimeField(default=timezone.now)\n    is_featured = models.BooleanField(default=False)\n    \n    def __str__(self):\n        return self.title\n\n# views.py - 处理HTTP请求\nfrom django.shortcuts import render, get_object_or_404\nfrom django.views.generic import ListView, DetailView\nfrom .models import Article, Category\n\nclass ArticleListView(ListView):\n    model = Article\n    template_name = 'blog/article_list.html'\n    context_object_name = 'articles'\n    paginate_by = 10\n    \n    def get_queryset(self):\n        return Article.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')\n\nclass ArticleDetailView(DetailView):\n    model = Article\n    template_name = 'blog/article_detail.html'\n    \n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        context['related_articles'] = Article.objects.filter(\n            category=self.object.category\n        ).exclude(id=self.object.id)[:3]\n        return context\n\n# urls.py - URL配置\nfrom django.urls import path\nfrom . import views\n\napp_name = 'blog'\n\nurlpatterns = [\n    path('', views.ArticleListView.as_view(), name='article_list'),\n    path('article/<slug:slug>/', views.ArticleDetailView.as_view(), name='article_detail'),\n    path('category/<slug:slug>/', views.CategoryDetailView.as_view(), name='category_detail'),\n]\n\n# templates/blog/article_list.html - 模板示例\n{% extends 'base.html' %}\n\n{% block content %}\n<div class=\"articles\">\n  <h1>博客文章</h1>\n  \n  {% for article in articles %}\n  <div class=\"article-card\">\n    <h2><a href=\"{% url 'blog:article_detail' article.slug %}\">{{ article.title }}</a></h2>\n    <p class=\"meta\">{{ article.published_date|date:\"Y-m-d\" }} | {{ article.category.name }}</p>\n    <p class=\"excerpt\">{{ article.content|truncatewords:30 }}</p>\n    <a href=\"{% url 'blog:article_detail' article.slug %}\" class=\"read-more\">阅读更多</a>\n  </div>\n  {% empty %}\n  <p>暂无文章</p>\n  {% endfor %}\n  \n  {% include 'pagination.html' with page=page_obj %}\n</div>\n{% endblock %}",
+    "stats": {
+      "github": "非常高",
+      "jobs": "高",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "掌握Python基础知识",
+      "了解Web开发基本概念（HTTP、REST等）",
+      "学习Django项目结构和工作流程",
+      "掌握Django模型和数据库操作",
+      "学习Django视图和URL映射",
+      "掌握Django模板系统",
+      "学习表单处理和用户认证",
+      "了解Django REST框架开发API",
+      "学习Django测试和部署"
+    ],
+    "resources": [
+      { "title": "Django官方文档", "url": "https://docs.djangoproject.com/" },
+      { "title": "Django Girls教程", "url": "https://tutorial.djangogirls.org/" },
+      { "title": "Django REST framework文档", "url": "https://www.django-rest-framework.org/" },
+      { "title": "Two Scoops of Django", "url": "https://www.feldroy.com/books/two-scoops-of-django-3-x" },
+      { "title": "Django入门与实践", "url": "https://github.com/djangoStudyTeam/django-intro-zh" }
+    ],
+    "relatedStacks": [
+      { "id": "flask-python", "name": "Flask", "icon": "🧪" },
+      { "id": "fastapi", "name": "FastAPI", "icon": "⚡" },
+      { "id": "python", "name": "Python", "icon": "🐍" },
+      { "id": "drf", "name": "Django REST framework", "icon": "🔌" }
+    ]
+  },
+  "react": {
+    "id": "react",
+    "name": "React",
+    "icon": "⚛️",
+    "tags": ["前端框架", "JavaScript", "UI库"],
+    "popularity": 5,
+    "description": "由Facebook开发的用于构建用户界面的JavaScript库，专注于组件化开发。",
+    "longDescription": "React是由Facebook在2013年开源的JavaScript库，用于构建用户界面。React引入了虚拟DOM的概念，通过高效的DOM差异计算和更新机制，提供了出色的性能。React的核心理念是组件化，它鼓励将界面拆分为独立、可重用的组件，每个组件维护自己的状态。React采用了声明式编程范式，使代码更加可预测和易于调试。随着React Native的推出，React的生态系统扩展到了移动应用开发，使开发者能够使用相同的技术栈构建跨平台应用。React目前是最流行的前端技术之一，被许多大型公司和应用采用。",
+    "components": [
+      { "name": "组件", "icon": "🧩", "description": "React应用的基本构建块，可以是函数组件或类组件，包含渲染逻辑和状态管理。" },
+      { "name": "JSX", "icon": "📝", "description": "JavaScript的语法扩展，允许在JavaScript中编写类似HTML的代码，使组件结构更直观。" },
+      { "name": "虚拟DOM", "icon": "🔄", "description": "React的内部表示机制，通过比较虚拟DOM树的差异来高效更新实际DOM。" },
+      { "name": "Hooks", "icon": "🪝", "description": "React 16.8引入的特性，允许函数组件使用状态和其他React特性，如useState、useEffect等。" },
+      { "name": "Context", "icon": "🌐", "description": "提供一种在组件树中共享值的方式，无需显式地通过props传递。" }
+    ],
+    "advantages": [
+      { "icon": "🔄", "title": "声明式编程", "description": "React使用声明式范式，你只需描述界面应有的状态，React会处理DOM更新细节。" },
+      { "icon": "🧩", "title": "组件化", "description": "构建封装的组件来管理自身状态，然后组合它们以构建复杂UI。" },
+      { "icon": "🚀", "title": "高性能", "description": "虚拟DOM和高效的差异算法确保了应用的高性能表现。" },
+      { "icon": "🔌", "title": "生态系统丰富", "description": "庞大的工具、库和扩展生态系统，如Redux、React Router、Next.js等。" },
+      { "icon": "🌉", "title": "跨平台", "description": "与React Native结合，可以使用相同的开发模式构建原生移动应用。" }
+    ],
+    "codeExample": "// 现代React应用示例（使用Hooks和函数组件）\nimport React, { useState, useEffect } from 'react';\nimport { useParams, Link } from 'react-router-dom';\nimport axios from 'axios';\n\n// 用户列表组件\nconst UserList = () => {\n  const [users, setUsers] = useState([]);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState(null);\n\n  useEffect(() => {\n    const fetchUsers = async () => {\n      try {\n        setLoading(true);\n        const response = await axios.get('https://api.example.com/users');\n        setUsers(response.data);\n        setError(null);\n      } catch (err) {\n        setError('Failed to fetch users: ' + err.message);\n        setUsers([]);\n      } finally {\n        setLoading(false);\n      }\n    };\n\n    fetchUsers();\n  }, []);\n\n  if (loading) return <div className=\"loading\">Loading users...</div>;\n  if (error) return <div className=\"error\">{error}</div>;\n\n  return (\n    <div className=\"user-list\">\n      <h1>Users</h1>\n      {users.length === 0 ? (\n        <p>No users found</p>\n      ) : (\n        <ul>\n          {users.map(user => (\n            <li key={user.id}>\n              <Link to={`/user/${user.id}`}>{user.name}</Link>\n            </li>\n          ))}\n        </ul>\n      )}\n    </div>\n  );\n};\n\n// 用户详情组件\nconst UserDetail = () => {\n  const { userId } = useParams();\n  const [user, setUser] = useState(null);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState(null);\n\n  useEffect(() => {\n    const fetchUserDetail = async () => {\n      try {\n        setLoading(true);\n        const response = await axios.get(`https://api.example.com/users/${userId}`);\n        setUser(response.data);\n        setError(null);\n      } catch (err) {\n        setError('Failed to fetch user details: ' + err.message);\n        setUser(null);\n      } finally {\n        setLoading(false);\n      }\n    };\n\n    if (userId) {\n      fetchUserDetail();\n    }\n  }, [userId]);\n\n  if (loading) return <div className=\"loading\">Loading user details...</div>;\n  if (error) return <div className=\"error\">{error}</div>;\n  if (!user) return <div className=\"not-found\">User not found</div>;\n\n  return (\n    <div className=\"user-detail\">\n      <h1>{user.name}</h1>\n      <div className=\"user-info\">\n        <p><strong>Email:</strong> {user.email}</p>\n        <p><strong>Phone:</strong> {user.phone}</p>\n        <p><strong>Website:</strong> {user.website}</p>\n      </div>\n      <Link to=\"/\" className=\"back-link\">Back to Users</Link>\n    </div>\n  );\n};\n\n// 自定义Hook示例\nfunction useLocalStorage(key, initialValue) {\n  const [storedValue, setStoredValue] = useState(() => {\n    try {\n      const item = window.localStorage.getItem(key);\n      return item ? JSON.parse(item) : initialValue;\n    } catch (error) {\n      console.error(error);\n      return initialValue;\n    }\n  });\n\n  const setValue = value => {\n    try {\n      const valueToStore = value instanceof Function ? value(storedValue) : value;\n      setStoredValue(valueToStore);\n      window.localStorage.setItem(key, JSON.stringify(valueToStore));\n    } catch (error) {\n      console.error(error);\n    }\n  };\n\n  return [storedValue, setValue];\n}\n\n// 主应用组件\nconst App = () => {\n  const [darkMode, setDarkMode] = useLocalStorage('darkMode', false);\n  \n  return (\n    <div className={`app ${darkMode ? 'dark-mode' : ''}`}>\n      <header>\n        <h1>React App</h1>\n        <button onClick={() => setDarkMode(!darkMode)}>\n          Toggle {darkMode ? 'Light' : 'Dark'} Mode\n        </button>\n      </header>\n      <main>\n        <Routes>\n          <Route path=\"/\" element={<UserList />} />\n          <Route path=\"/user/:userId\" element={<UserDetail />} />\n          <Route path=\"*\" element={<NotFound />} />\n        </Routes>\n      </main>\n    </div>\n  );\n};",
+    "stats": {
+      "github": "非常高",
+      "jobs": "非常高",
+      "community": "非常活跃"
+    },
+    "learningPath": [
+      "掌握JavaScript和ES6+基础",
+      "学习React核心概念（组件、JSX、Props、State）",
+      "掌握React Hooks（useState、useEffect等）",
+      "学习React生命周期和组件模式",
+      "学习React Router进行路由管理",
+      "学习状态管理（Context API、Redux、Zustand等）",
+      "掌握表单处理和数据获取",
+      "学习测试React应用（Jest、React Testing Library）",
+      "了解React性能优化技术",
+      "学习Next.js或Gatsby等React框架"
+    ],
+    "resources": [
+      { "title": "React官方文档", "url": "https://react.dev/" },
+      { "title": "React入门教程", "url": "https://beta.reactjs.org/learn" },
+      { "title": "Create React App", "url": "https://create-react-app.dev/" },
+      { "title": "React开发者路线图", "url": "https://roadmap.sh/react" },
+      { "title": "Awesome React", "url": "https://github.com/enaqx/awesome-react" }
+    ],
+    "relatedStacks": [
+      { "id": "mern", "name": "MERN Stack", "icon": "📱" },
+      { "id": "nextjs", "name": "Next.js", "icon": "⏭️" },
+      { "id": "javascript", "name": "JavaScript", "icon": "JS" },
+      { "id": "typescript", "name": "TypeScript", "icon": "TS" },
+      { "id": "redux", "name": "Redux", "icon": "🔄" }
+    ]
+  },
+  "vue": {
+    "id": "vue",
+    "name": "Vue.js",
+    "icon": "🟩",
+    "tags": ["前端框架", "JavaScript", "渐进式框架"],
+    "popularity": 4,
+    "description": "渐进式JavaScript框架，易于上手且可逐步集成到项目中。",
+    "longDescription": "Vue.js是一个由尤雨溪(Evan You)开发的渐进式JavaScript框架，于2014年首次发布。Vue被设计为可以自底向上逐层应用，核心库只关注视图层，易于与其他库或现有项目集成。Vue既可以用作简单的库，也可以作为全功能框架用于构建大型应用。Vue的特点是轻量级、易学易用，同时又具有强大的功能，如响应式数据绑定、组件化开发、虚拟DOM等。Vue 3的发布引入了Composition API，提供了更好的TypeScript支持和性能改进。Vue在全球拥有广泛的用户基础，特别在中国的技术社区非常活跃。",
+    "components": [
+      { "name": "模板系统", "icon": "📝", "description": "基于HTML的模板语法，允许开发者声明式地将DOM绑定到底层Vue实例的数据。" },
+      { "name": "组件", "icon": "🧩", "description": "可复用的Vue实例，具有名称、自定义HTML元素、数据、方法等特性。" },
+      { "name": "指令", "icon": "👉", "description": "带有v-前缀的特殊属性，用于对DOM元素应用响应式行为，如v-if、v-for等。" },
+      { "name": "Composition API", "icon": "🔄", "description": "Vue 3引入的API，提供了更灵活的组织组件逻辑的方式，基于函数而非选项。" },
+      { "name": "Vuex", "icon": "🗃️", "description": "专为Vue应用设计的状态管理模式和库，提供集中式存储和管理应用所有组件的状态。" }
+    ],
+    "advantages": [
+      { "icon": "📚", "title": "易学易用", "description": "低学习曲线，友好的文档和直观的API设计，使初学者能快速上手。" },
+      { "icon": "🧩", "title": "渐进式框架", "description": "可以逐步采用，从简单应用到复杂项目，Vue都能适应不同的需求。" },
+      { "icon": "⚡", "title": "高性能", "description": "轻量级的虚拟DOM实现和优化的渲染机制，提供出色的性能。" },
+      { "icon": "🔧", "title": "灵活集成", "description": "可以作为库与现有项目集成，也可以与现代工具链配合构建完整应用。" },
+      { "icon": "🌐", "title": "强大的生态系统", "description": "丰富的官方库如Vue Router和Vuex，以及大量的社区插件和工具。" }
+    ],
+    "codeExample": "// Vue 3 Composition API示例\n<template>\n  <div class=\"todo-app\">\n    <h1>Todo List</h1>\n    \n    <div class=\"add-todo\">\n      <input \n        v-model=\"newTodo\" \n        @keyup.enter=\"addTodo\" \n        placeholder=\"添加新任务...\"\n      />\n      <button @click=\"addTodo\" :disabled=\"!newTodo.trim()\">添加</button>\n    </div>\n    \n    <div class=\"filters\">\n      <button \n        v-for=\"filter in filters\" \n        :key=\"filter.value\"\n        @click=\"currentFilter = filter.value\"\n        :class=\"{ active: currentFilter === filter.value }\"\n      >\n        {{ filter.label }}\n      </button>\n    </div>\n    \n    <div v-if=\"filteredTodos.length > 0\" class=\"todo-list\">\n      <div \n        v-for=\"todo in filteredTodos\" \n        :key=\"todo.id\"\n        class=\"todo-item\"\n        :class=\"{ completed: todo.completed }\"\n      >\n        <input \n          type=\"checkbox\" \n          :checked=\"todo.completed\"\n          @change=\"toggleTodo(todo.id)\"\n        />\n        <span>{{ todo.text }}</span>\n        <button @click=\"removeTodo(todo.id)\" class=\"delete-btn\">删除</button>\n      </div>\n    </div>\n    \n    <div v-else class=\"empty-state\">\n      没有{{ currentFilter === 'all' ? '' : currentFilter === 'active' ? '未完成' : '已完成' }}任务\n    </div>\n    \n    <div v-if=\"todos.length > 0\" class=\"todo-stats\">\n      <span>{{ activeTodosCount }} 项未完成</span>\n      <button v-if=\"completedTodosCount > 0\" @click=\"clearCompleted\">\n        清除已完成\n      </button>\n    </div>\n  </div>\n</template>\n\n<script>\nimport { ref, computed, watch, onMounted } from 'vue';\n\nexport default {\n  name: 'TodoApp',\n  \n  setup() {\n    // 状态\n    const todos = ref([]);\n    const newTodo = ref('');\n    const currentFilter = ref('all');\n    \n    // 过滤选项\n    const filters = [\n      { label: '全部', value: 'all' },\n      { label: '未完成', value: 'active' },\n      { label: '已完成', value: 'completed' }\n    ];\n    \n    // 从本地存储加载任务\n    onMounted(() => {\n      const savedTodos = localStorage.getItem('todos');\n      if (savedTodos) {\n        todos.value = JSON.parse(savedTodos);\n      }\n    });\n    \n    // 监听任务变化并保存到本地存储\n    watch(todos, (newTodos) => {\n      localStorage.setItem('todos', JSON.stringify(newTodos));\n    }, { deep: true });\n    \n    // 计算属性\n    const filteredTodos = computed(() => {\n      switch (currentFilter.value) {\n        case 'active':\n          return todos.value.filter(todo => !todo.completed);\n        case 'completed':\n          return todos.value.filter(todo => todo.completed);\n        default:\n          return todos.value;\n      }\n    });\n    \n    const activeTodosCount = computed(() => {\n      return todos.value.filter(todo => !todo.completed).length;\n    });\n    \n    const completedTodosCount = computed(() => {\n      return todos.value.filter(todo => todo.completed).length;\n    });\n    \n    // 方法\n    function addTodo() {\n      const trimmedText = newTodo.value.trim();\n      if (trimmedText) {\n        todos.value.push({\n          id: Date.now(),\n          text: trimmedText,\n          completed: false\n        });\n        newTodo.value = '';\n      }\n    }\n    \n    function toggleTodo(id) {\n      const todo = todos.value.find(todo => todo.id === id);\n      if (todo) {\n        todo.completed = !todo.completed;\n      }\n    }\n    \n    function removeTodo(id) {\n      todos.value = todos.value.filter(todo => todo.id !== id);\n    }\n    \n    function clearCompleted() {\n      todos.value = todos.value.filter(todo => !todo.completed);\n    }\n    \n    return {\n      todos,\n      newTodo,\n      currentFilter,\n      filters,\n      filteredTodos,\n      activeTodosCount,\n      completedTodosCount,\n      addTodo,\n      toggleTodo,\n      removeTodo,\n      clearCompleted\n    };\n  }\n};\n</script>\n\n<style scoped>\n.todo-app {\n  max-width: 500px;\n  margin: 0 auto;\n  padding: 20px;\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);\n  border-radius: 8px;\n  background-color: #fff;\n}\n\nh1 {\n  text-align: center;\n  color: #42b983;\n}\n\n.add-todo {\n  display: flex;\n  margin-bottom: 20px;\n}\n\ninput {\n  flex: 1;\n  padding: 10px;\n  border: 1px solid #ddd;\n  border-radius: 4px 0 0 4px;\n  font-size: 16px;\n}\n\nbutton {\n  padding: 10px 15px;\n  background-color: #42b983;\n  color: white;\n  border: none;\n  border-radius: 0 4px 4px 0;\n  cursor: pointer;\n  font-size: 16px;\n}\n\nbutton:disabled {\n  background-color: #aaa;\n}\n\n.filters {\n  display: flex;\n  justify-content: center;\n  margin-bottom: 20px;\n}\n\n.filters button {\n  background-color: transparent;\n  color: #555;\n  margin: 0 5px;\n  border: 1px solid #eee;\n  border-radius: 4px;\n}\n\n.filters button.active {\n  background-color: #42b983;\n  color: white;\n}\n\n.todo-item {\n  display: flex;\n  align-items: center;\n  padding: 10px;\n  border-bottom: 1px solid #eee;\n}\n\n.todo-item.completed span {\n  text-decoration: line-through;\n  color: #aaa;\n}\n\n.todo-item span {\n  flex: 1;\n  margin-left: 10px;\n}\n\n.delete-btn {\n  background-color: #ff6b6b;\n  border-radius: 4px;\n  padding: 5px 10px;\n}\n\n.todo-stats {\n  display: flex;\n  justify-content: space-between;\n  margin-top: 20px;\n  color: #555;\n}\n\n.empty-state {\n  text-align: center;\n  padding: 20px;\n  color: #aaa;\n}\n</style>",
+    "stats": {
+      "github": "非常高",
+      "jobs": "高",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "掌握JavaScript和ES6+基础",
+      "学习Vue核心概念（模板语法、响应式、组件）",
+      "掌握Vue生命周期和组件通信",
+      "学习Vue CLI和项目结构",
+      "学习Vue Router进行路由管理",
+      "学习Vuex或Pinia进行状态管理",
+      "掌握Vue 3的Composition API",
+      "学习测试Vue应用",
+      "学习Nuxt.js等Vue框架"
+    ],
+    "resources": [
+      { "title": "Vue.js官方文档", "url": "https://cn.vuejs.org/" },
+      { "title": "Vue Mastery教程", "url": "https://www.vuemastery.com/" },
+      { "title": "Vue CLI文档", "url": "https://cli.vuejs.org/zh/" },
+      { "title": "Awesome Vue", "url": "https://github.com/vuejs/awesome-vue" },
+      { "title": "Vue DevTools", "url": "https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd" }
+    ],
+    "relatedStacks": [
+      { "id": "mevn", "name": "MEVN Stack", "icon": "🎨" },
+      { "id": "nuxt", "name": "Nuxt.js", "icon": "🟩" },
+      { "id": "vuetify", "name": "Vuetify", "icon": "🎨" },
+      { "id": "javascript", "name": "JavaScript", "icon": "JS" },
+      { "id": "typescript", "name": "TypeScript", "icon": "TS" }
+    ]
+  },
+  "nodejs": {
+    "id": "nodejs",
+    "name": "Node.js",
+    "icon": "⬢",
+    "tags": ["JavaScript运行时", "后端", "服务器端"],
+    "popularity": 5,
+    "description": "基于Chrome V8引擎的JavaScript运行时，用于构建可扩展的网络应用程序。",
+    "longDescription": "Node.js是一个开源的、跨平台的JavaScript运行时环境，于2009年由Ryan Dahl创建。它基于Chrome的V8 JavaScript引擎构建，使开发者能够使用JavaScript来编写服务器端代码。Node.js采用事件驱动、非阻塞I/O模型，使其轻量且高效，特别适合数据密集型的实时应用。Node.js的包管理器npm是世界上最大的开源库生态系统，提供了丰富的模块和工具。通过Node.js，JavaScript开发者可以实现前后端统一的技术栈，显著提高开发效率。",
+    "components": [
+      { "name": "V8引擎", "icon": "🚀", "description": "Google开发的高性能JavaScript引擎，将JavaScript代码编译为机器码执行。" },
+      { "name": "事件循环", "icon": "🔄", "description": "Node.js的核心机制，使用单线程处理并发操作，通过事件回调实现非阻塞I/O。" },
+      { "name": "npm", "icon": "📦", "description": "Node.js的包管理器，世界上最大的软件注册表，提供了丰富的可复用代码。" },
+      { "name": "核心模块", "icon": "⚙️", "description": "内置模块如http、fs、path等，提供了基础的服务器和文件系统功能。" },
+      { "name": "libuv", "icon": "🧵", "description": "跨平台的异步I/O库，为Node.js提供事件循环和线程池实现。" }
+    ],
+    "advantages": [
+      { "icon": "⚡", "title": "高性能", "description": "非阻塞I/O和事件驱动架构使Node.js能高效处理并发连接，适合实时应用。" },
+      { "icon": "🔄", "title": "前后端统一", "description": "使用JavaScript进行全栈开发，减少上下文切换成本，提高开发效率。" },
+      { "icon": "📦", "title": "丰富的生态系统", "description": "npm拥有超过100万个包，几乎能满足任何开发需求。" },
+      { "icon": "🛠️", "title": "微服务友好", "description": "轻量级特性使其非常适合构建微服务架构的应用。" },
+      { "icon": "🌐", "title": "跨平台", "description": "在Windows、macOS和Linux等多种操作系统上运行，便于开发和部署。" }
+    ],
+    "codeExample": "// 基本的Node.js HTTP服务器示例\nconst http = require('http');\nconst fs = require('fs');\nconst path = require('path');\n\n// 环境变量配置\nconst PORT = process.env.PORT || 3000;\n\n// 创建HTTP服务器\nconst server = http.createServer((req, res) => {\n  // 请求URL路径\n  const filePath = req.url === '/' ? 'index.html' : req.url;\n  const fullPath = path.join(__dirname, 'public', filePath);\n  const extname = path.extname(fullPath);\n  \n  // 设置Content-Type\n  const contentTypeMap = {\n    '.html': 'text/html',\n    '.css': 'text/css',\n    '.js': 'text/javascript',\n    '.json': 'application/json',\n    '.png': 'image/png',\n    '.jpg': 'image/jpg',\n  };\n  const contentType = contentTypeMap[extname] || 'text/plain';\n  \n  // 读取文件\n  fs.readFile(fullPath, (err, content) => {\n    if (err) {\n      if (err.code === 'ENOENT') {\n        // 文件不存在 - 返回404\n        fs.readFile(path.join(__dirname, 'public', '404.html'), (err, content) => {\n          res.writeHead(404, { 'Content-Type': 'text/html' });\n          res.end(content, 'utf8');\n        });\n      } else {\n        // 服务器错误 - 返回500\n        res.writeHead(500);\n        res.end(`Server Error: ${err.code}`);\n      }\n    } else {\n      // 成功返回文件内容\n      res.writeHead(200, { 'Content-Type': contentType });\n      res.end(content, 'utf8');\n    }\n  });\n});\n\n// 启动服务器\nserver.listen(PORT, () => {\n  console.log(`Server running on port ${PORT}`);\n});\n\n// 处理未捕获的异常\nprocess.on('uncaughtException', (err) => {\n  console.error('Uncaught Exception:', err);\n  // 在实际生产环境中，这里可能需要更复杂的错误处理机制\n});\n\n// 优雅关闭服务器\nprocess.on('SIGTERM', () => {\n  console.log('SIGTERM received, shutting down gracefully');\n  server.close(() => {\n    console.log('Process terminated');\n  });\n  \n  // 如果在指定时间内无法关闭，则强制退出\n  setTimeout(() => {\n    console.error('Forcing shutdown');\n    process.exit(1);\n  }, 5000);\n});",
+    "stats": {
+      "github": "非常高",
+      "jobs": "非常高",
+      "community": "非常活跃"
+    },
+    "learningPath": [
+      "掌握JavaScript和ES6+基础",
+      "学习Node.js核心概念（事件循环、模块系统）",
+      "了解npm包管理和基本命令",
+      "学习Node.js标准库（fs、http、path等）",
+      "学习异步编程模式（回调、Promise、Async/Await）",
+      "学习Express等Web框架基础",
+      "掌握数据库集成（MongoDB、MySQL等）",
+      "学习RESTful API设计原则",
+      "学习安全最佳实践",
+      "学习测试和部署Node.js应用"
+    ],
+    "resources": [
+      { "title": "Node.js官方文档", "url": "https://nodejs.org/en/docs/" },
+      { "title": "Node.js入门教程", "url": "https://nodejs.dev/learn" },
+      { "title": "npm文档", "url": "https://docs.npmjs.com/" },
+      { "title": "Node.js设计模式", "url": "https://github.com/nodejsdesignpatterns/nodejsdesignpatterns.com" },
+      { "title": "awesome-nodejs", "url": "https://github.com/sindresorhus/awesome-nodejs" }
+    ],
+    "relatedStacks": [
+      { "id": "express", "name": "Express", "icon": "🚂" },
+      { "id": "mern", "name": "MERN Stack", "icon": "📱" },
+      { "id": "mean", "name": "MEAN Stack", "icon": "🅰️" },
+      { "id": "nextjs", "name": "Next.js", "icon": "⏭️" },
+      { "id": "javascript", "name": "JavaScript", "icon": "JS" }
+    ]
+  },
+  "express": {
+    "id": "express",
+    "name": "Express",
+    "icon": "🚂",
+    "tags": ["Web框架", "Node.js", "后端"],
+    "popularity": 5,
+    "description": "基于Node.js的快速、unopinionated的Web框架，为Web应用和API开发提供了一系列强大特性。",
+    "longDescription": "Express是一个极简的、灵活的Node.js Web应用程序框架，为Web和移动应用程序提供了一组强大的特性。由TJ Holowaychuk于2010年创建，它已成为Node.js生态系统中最流行的Web框架。Express提供了一种精简的方式来构建单页、多页和混合Web应用，以及设计RESTful API。其特点是代码简洁、灵活性高、扩展性强，使开发者可以根据自己的需求和偏好组织应用结构。Express不强制使用特定的模板引擎、ORM或其他组件，开发者可以自由选择适合项目的工具。它是MERN、MEAN等流行技术栈的核心组件。",
+    "components": [
+      { "name": "路由系统", "icon": "🔀", "description": "处理不同HTTP请求和URL路径的强大路由机制，支持中间件链式处理。" },
+      { "name": "中间件", "icon": "🔗", "description": "模块化的请求处理机制，可以执行代码、修改请求和响应对象，以及传递控制权到下一个中间件。" },
+      { "name": "模板引擎支持", "icon": "📝", "description": "与多种模板引擎集成，如EJS、Pug、Handlebars等，用于动态生成HTML。" },
+      { "name": "错误处理", "icon": "🚫", "description": "内置的错误处理机制，用于捕获同步和异步错误。" },
+      { "name": "静态文件服务", "icon": "📁", "description": "内置中间件用于提供静态文件，如图像、CSS和JavaScript文件。" }
+    ],
+    "advantages": [
+      { "icon": "🚀", "title": "高性能", "description": "轻量级架构和高效的中间件处理机制提供出色的性能。" },
+      { "icon": "🔄", "title": "灵活性", "description": "不强制特定的项目结构或组件选择，给予开发者极大的自由度。" },
+      { "icon": "🧩", "title": "中间件生态", "description": "丰富的第三方中间件可以轻松集成，快速实现各种功能。" },
+      { "icon": "📚", "title": "简单易学", "description": "API设计简洁直观，学习曲线平缓，开发者可以快速上手。" },
+      { "icon": "🛠️", "title": "强大的路由", "description": "灵活的路由系统可以处理复杂的URL模式和HTTP方法。" }
+    ],
+    "codeExample": "// Express基本应用示例\nconst express = require('express');\nconst morgan = require('morgan'); // 日志中间件\nconst helmet = require('helmet'); // 安全中间件\nconst cors = require('cors'); // CORS中间件\nconst mongoose = require('mongoose'); // MongoDB ODM\n\n// 创建Express应用\nconst app = express();\nconst PORT = process.env.PORT || 3000;\nconst MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/myapp';\n\n// 用户模型定义\nconst userSchema = new mongoose.Schema({\n  name: { type: String, required: true },\n  email: { type: String, required: true, unique: true },\n  password: { type: String, required: true },\n  createdAt: { type: Date, default: Date.now }\n});\n\nconst User = mongoose.model('User', userSchema);\n\n// 中间件配置\napp.use(morgan('dev')); // 日志\napp.use(helmet()); // 安全HTTP头\napp.use(cors()); // 启用CORS\napp.use(express.json()); // 解析JSON请求体\napp.use(express.urlencoded({ extended: true })); // 解析URL编码的请求体\napp.use(express.static('public')); // 静态文件服务\n\n// 自定义错误处理中间件\napp.use((err, req, res, next) => {\n  console.error(err.stack);\n  res.status(500).json({ error: 'Something went wrong!' });\n});\n\n// 连接MongoDB\nmongoose.connect(MONGO_URI, {\n  useNewUrlParser: true,\n  useUnifiedTopology: true,\n  useCreateIndex: true\n})\n  .then(() => console.log('MongoDB connected'))\n  .catch(err => console.error('MongoDB connection error:', err));\n\n// 路由定义\n// GET所有用户\napp.get('/api/users', async (req, res) => {\n  try {\n    const users = await User.find().select('-password');\n    res.json(users);\n  } catch (err) {\n    res.status(500).json({ error: err.message });\n  }\n});\n\n// 获取单个用户\napp.get('/api/users/:id', async (req, res) => {\n  try {\n    const user = await User.findById(req.params.id).select('-password');\n    if (!user) return res.status(404).json({ error: 'User not found' });\n    res.json(user);\n  } catch (err) {\n    res.status(500).json({ error: err.message });\n  }\n});\n\n// 创建新用户\napp.post('/api/users', async (req, res) => {\n  try {\n    const { name, email, password } = req.body;\n    \n    // 检查邮箱是否已存在\n    let user = await User.findOne({ email });\n    if (user) return res.status(400).json({ error: 'Email already exists' });\n    \n    // 创建新用户\n    user = new User({\n      name,\n      email,\n      password, // 实际应用中应该哈希密码\n    });\n    \n    await user.save();\n    res.status(201).json({ id: user._id, name, email });\n  } catch (err) {\n    res.status(500).json({ error: err.message });\n  }\n});\n\n// 更新用户\napp.put('/api/users/:id', async (req, res) => {\n  try {\n    const { name, email } = req.body;\n    const updatedUser = await User.findByIdAndUpdate(\n      req.params.id,\n      { name, email },\n      { new: true }\n    ).select('-password');\n    \n    if (!updatedUser) return res.status(404).json({ error: 'User not found' });\n    res.json(updatedUser);\n  } catch (err) {\n    res.status(500).json({ error: err.message });\n  }\n});\n\n// 删除用户\napp.delete('/api/users/:id', async (req, res) => {\n  try {\n    const user = await User.findByIdAndDelete(req.params.id);\n    if (!user) return res.status(404).json({ error: 'User not found' });\n    res.json({ message: 'User deleted successfully' });\n  } catch (err) {\n    res.status(500).json({ error: err.message });\n  }\n});\n\n// 启动服务器\napp.listen(PORT, () => {\n  console.log(`Server running on port ${PORT}`);\n});",
+    "stats": {
+      "github": "非常高",
+      "jobs": "非常高",
+      "community": "非常活跃"
+    },
+    "learningPath": [
+      "掌握Node.js基础",
+      "学习Express核心概念（路由、中间件）",
+      "学习请求和响应对象的操作",
+      "学习模板引擎集成",
+      "掌握数据库集成（MongoDB、MySQL等）",
+      "学习身份验证和授权实现",
+      "学习错误处理和日志记录",
+      "了解Express安全最佳实践",
+      "学习Express应用的测试",
+      "学习Express应用的部署"
+    ],
+    "resources": [
+      { "title": "Express官方文档", "url": "https://expressjs.com/" },
+      { "title": "Express入门指南", "url": "https://expressjs.com/zh-cn/starter/installing.html" },
+      { "title": "MDN Express教程", "url": "https://developer.mozilla.org/zh-CN/docs/Learn/Server-side/Express_Nodejs" },
+      { "title": "Express安全最佳实践", "url": "https://expressjs.com/en/advanced/best-practice-security.html" },
+      { "title": "awesome-express", "url": "https://github.com/rajikaimal/awesome-express" }
+    ],
+    "relatedStacks": [
+      { "id": "nodejs", "name": "Node.js", "icon": "⬢" },
+      { "id": "mern", "name": "MERN Stack", "icon": "📱" },
+      { "id": "mean", "name": "MEAN Stack", "icon": "🅰️" },
+      { "id": "mongodb", "name": "MongoDB", "icon": "🍃" },
+      { "id": "graphql", "name": "GraphQL", "icon": "📊" }
+    ]
+  },
+  "angular": {
+    "id": "angular",
+    "name": "Angular",
+    "icon": "🅰️",
+    "tags": ["前端框架", "TypeScript", "SPA"],
+    "popularity": 4,
+    "description": "由Google维护的完整前端框架，用于构建单页应用(SPA)和复杂Web应用。",
+    "longDescription": "Angular是一个由Google开发和维护的开源Web应用框架，基于TypeScript构建。它是AngularJS的完全重写版本，于2016年首次发布。Angular提供了一个完整的前端解决方案，包括数据绑定、依赖注入、路由、表单处理、HTTP客户端等功能。它采用了组件化架构，通过模块化组织代码，使开发更加结构化。Angular强调类型安全和可测试性，采用TypeScript作为主要开发语言，提供了更好的开发者体验和代码质量。Angular的特点是学习曲线相对陡峭，但一旦掌握，可以快速高效地开发复杂的企业级应用。它特别适合大型团队协作开发的项目。",
+    "components": [
+      { "name": "组件", "icon": "🧩", "description": "Angular应用的基本构建块，包含HTML模板、TypeScript类和CSS样式。" },
+      { "name": "模块", "icon": "📦", "description": "组织相关组件、指令、管道和服务的容器，提供应用的模块化结构。" },
+      { "name": "服务", "icon": "🔧", "description": "用于共享功能和数据的单例对象，可通过依赖注入在组件间共享。" },
+      { "name": "指令", "icon": "👉", "description": "用于扩展HTML元素功能的标记，包括结构型和属性型指令。" },
+      { "name": "路由", "icon": "🔀", "description": "管理应用不同视图之间的导航，支持懒加载和路由守卫。" }
+    ],
+    "advantages": [
+      { "icon": "🏗️", "title": "完整框架", "description": "提供端到端的解决方案，包括路由、表单处理、HTTP客户端等。" },
+      { "icon": "🧪", "title": "高可测试性", "description": "依赖注入架构和模块化设计使单元测试和端到端测试更加简单。" },
+      { "icon": "📏", "title": "一致性", "description": "强制执行一致的编码风格和最佳实践，使大型团队协作更加高效。" },
+      { "icon": "🚀", "title": "性能优化", "description": "内置变更检测优化、AOT编译和延迟加载，提供出色的运行时性能。" },
+      { "icon": "🛡️", "title": "类型安全", "description": "深度集成TypeScript，提供强类型系统，减少运行时错误。" }
+    ],
+    "codeExample": "// 用户资料组件示例\nimport { Component, OnInit } from '@angular/core';\nimport { FormBuilder, FormGroup, Validators } from '@angular/forms';\nimport { UserService } from '../../services/user.service';\nimport { User } from '../../models/user.model';\nimport { catchError, finalize } from 'rxjs/operators';\nimport { of } from 'rxjs';\n\n@Component({\n  selector: 'app-user-profile',\n  templateUrl: './user-profile.component.html',\n  styleUrls: ['./user-profile.component.scss']\n})\nexport class UserProfileComponent implements OnInit {\n  userForm: FormGroup;\n  user: User | null = null;\n  loading = false;\n  error = '';\n  success = '';\n  \n  constructor(\n    private fb: FormBuilder,\n    private userService: UserService\n  ) {\n    this.userForm = this.fb.group({\n      name: ['', [Validators.required, Validators.minLength(3)]],\n      email: ['', [Validators.required, Validators.email]],\n      bio: ['', Validators.maxLength(500)],\n      notifications: [false]\n    });\n  }\n  \n  ngOnInit(): void {\n    this.loadUserProfile();\n  }\n  \n  loadUserProfile(): void {\n    this.loading = true;\n    this.userService.getCurrentUser()\n      .pipe(\n        catchError(err => {\n          this.error = 'Failed to load user profile: ' + err.message;\n          return of(null);\n        }),\n        finalize(() => this.loading = false)\n      )\n      .subscribe(user => {\n        if (user) {\n          this.user = user;\n          this.userForm.patchValue({\n            name: user.name,\n            email: user.email,\n            bio: user.bio || '',\n            notifications: user.preferences?.notifications || false\n          });\n        }\n      });\n  }\n  \n  saveProfile(): void {\n    if (this.userForm.invalid) {\n      this.userForm.markAllAsTouched();\n      return;\n    }\n    \n    this.loading = true;\n    this.error = '';\n    this.success = '';\n    \n    const userData = {\n      ...this.userForm.value,\n      preferences: {\n        notifications: this.userForm.value.notifications\n      }\n    };\n    \n    this.userService.updateUserProfile(userData)\n      .pipe(\n        catchError(err => {\n          this.error = 'Failed to update profile: ' + err.message;\n          return of(null);\n        }),\n        finalize(() => this.loading = false)\n      )\n      .subscribe(result => {\n        if (result) {\n          this.success = 'Profile updated successfully';\n          this.user = { ...this.user, ...userData } as User;\n        }\n      });\n  }\n  \n  resetForm(): void {\n    if (this.user) {\n      this.userForm.reset({\n        name: this.user.name,\n        email: this.user.email,\n        bio: this.user.bio || '',\n        notifications: this.user.preferences?.notifications || false\n      });\n    } else {\n      this.userForm.reset();\n    }\n    this.error = '';\n    this.success = '';\n  }\n}",
+    "stats": {
+      "github": "非常高",
+      "jobs": "高",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "掌握HTML、CSS和TypeScript基础",
+      "学习Angular核心概念（组件、模块、服务）",
+      "掌握Angular模板语法和数据绑定",
+      "学习Angular依赖注入和服务",
+      "学习Angular路由和导航",
+      "掌握Angular表单（模板驱动和响应式）",
+      "学习Angular HTTP客户端和API集成",
+      "学习状态管理（NgRx或其他方案）",
+      "学习Angular测试（单元测试和e2e测试）",
+      "了解Angular高级主题（性能优化、SSR等）"
+    ],
+    "resources": [
+      { "title": "Angular官方文档", "url": "https://angular.io/docs" },
+      { "title": "Angular入门指南", "url": "https://angular.io/guide/what-is-angular" },
+      { "title": "Angular大学（Angular University）", "url": "https://angular-university.io/" },
+      { "title": "Angular风格指南", "url": "https://angular.io/guide/styleguide" },
+      { "title": "Awesome Angular", "url": "https://github.com/PatrickJS/awesome-angular" }
+    ],
+    "relatedStacks": [
+      { "id": "typescript", "name": "TypeScript", "icon": "TS" },
+      { "id": "mean", "name": "MEAN Stack", "icon": "🅰️" },
+      { "id": "rxjs", "name": "RxJS", "icon": "🔄" },
+      { "id": "nodejs", "name": "Node.js", "icon": "⬢" },
+      { "id": "ngrx", "name": "NgRx", "icon": "🔄" }
+    ]
+  },
+  "typescript": {
+    "id": "typescript",
+    "name": "TypeScript",
+    "icon": "TS",
+    "tags": ["编程语言", "JavaScript超集", "静态类型"],
+    "popularity": 5,
+    "description": "微软开发的JavaScript超集，添加了静态类型系统和其他面向对象的特性。",
+    "longDescription": "TypeScript是由微软开发和维护的开源编程语言，于2012年首次发布。它是JavaScript的超集，这意味着任何有效的JavaScript代码也是有效的TypeScript代码。TypeScript通过添加静态类型检查、类、接口、枚举等特性，弥补了JavaScript在大型应用开发中的不足。TypeScript代码经过编译后会转换为纯JavaScript，可以在任何支持JavaScript的环境中运行。它的类型系统在开发阶段提供错误检查和智能提示，大大提高了开发效率和代码质量。TypeScript已被广泛应用于前端和后端开发，尤其是在大型项目和团队协作中。Angular、Vue 3、Deno等知名框架和工具都使用TypeScript构建。",
+    "components": [
+      { "name": "类型系统", "icon": "🧩", "description": "提供基本类型、接口、类型别名、联合类型、交叉类型等丰富的类型定义方式。" },
+      { "name": "类和接口", "icon": "📐", "description": "支持面向对象编程范式，提供类、接口、继承、抽象类等特性。" },
+      { "name": "泛型", "icon": "🧬", "description": "允许创建可重用的组件，支持多种数据类型，同时保持类型安全。" },
+      { "name": "模块系统", "icon": "📦", "description": "支持ES模块和命名空间，用于组织和封装代码。" },
+      { "name": "装饰器", "icon": "🎀", "description": "提供声明性语法，用于修改类、方法、属性和参数的行为。" }
+    ],
+    "advantages": [
+      { "icon": "🛡️", "title": "静态类型检查", "description": "在开发阶段捕获类型错误，减少运行时错误，提高代码可靠性。" },
+      { "icon": "📝", "title": "代码智能提示", "description": "类型信息使IDE能提供更准确的自动完成、重构和导航功能。" },
+      { "icon": "📚", "title": "更好的文档", "description": "类型声明作为内置文档，帮助开发者理解代码结构和API用法。" },
+      { "icon": "🔍", "title": "更容易重构", "description": "类型系统使大规模代码重构更安全，编译器能够捕获潜在问题。" },
+      { "icon": "🔄", "title": "JavaScript兼容性", "description": "作为JavaScript的超集，现有JavaScript代码可以逐步迁移到TypeScript。" }
+    ],
+    "codeExample": "// TypeScript高级类型示例\n\n// 定义用户接口\ninterface User {\n  id: number;\n  name: string;\n  email: string;\n  role: UserRole;\n  preferences?: UserPreferences; // 可选属性\n  meta: Record<string, any>; // 动态键值对\n}\n\n// 枚举类型\nenum UserRole {\n  ADMIN = 'admin',\n  EDITOR = 'editor',\n  VIEWER = 'viewer'\n}\n\n// 接口继承\ninterface UserPreferences {\n  theme: 'light' | 'dark' | 'system'; // 字符串字面量联合类型\n  notifications: boolean;\n  language: string;\n}\n\n// 泛型接口\ninterface ApiResponse<T> {\n  data: T;\n  status: number;\n  message: string;\n  timestamp: number;\n}\n\n// 泛型函数\nasync function fetchData<T>(url: string): Promise<ApiResponse<T>> {\n  try {\n    const response = await fetch(url);\n    const data: ApiResponse<T> = await response.json();\n    return data;\n  } catch (error) {\n    throw new Error(`API request failed: ${error instanceof Error ? error.message : String(error)}`);\n  }\n}\n\n// 类型守卫函数\nfunction isAdmin(user: User): user is User & { role: UserRole.ADMIN } {\n  return user.role === UserRole.ADMIN;\n}\n\n// 工具类型使用\ntype UserSummary = Pick<User, 'id' | 'name' | 'role'>; // 选择特定属性\ntype ReadonlyUser = Readonly<User>; // 所有属性只读\n\n// 映射类型\ntype Nullable<T> = { [P in keyof T]: T[P] | null };\ntype PartialUser = Partial<User>; // 所有属性变为可选\n\n// 条件类型\ntype ExtractRoleType<T> = T extends { role: infer R } ? R : never;\ntype UserRoleType = ExtractRoleType<User>; // 结果是 UserRole\n\n// 装饰器示例（需要启用experimentalDecorators）\nfunction log(target: any, propertyKey: string, descriptor: PropertyDescriptor) {\n  const originalMethod = descriptor.value;\n  \n  descriptor.value = function(...args: any[]) {\n    console.log(`Calling ${propertyKey} with:`, args);\n    const result = originalMethod.apply(this, args);\n    console.log(`Method ${propertyKey} returned:`, result);\n    return result;\n  };\n  \n  return descriptor;\n}\n\n// 类实现接口\nclass UserService {\n  private apiUrl = 'https://api.example.com/users';\n  \n  @log\n  async getUser(id: number): Promise<User> {\n    const response = await fetchData<User>(`${this.apiUrl}/${id}`);\n    return response.data;\n  }\n  \n  async updateUser(id: number, updates: PartialUser): Promise<User> {\n    // 实现更新逻辑\n    const currentUser = await this.getUser(id);\n    const updatedUser = { ...currentUser, ...updates };\n    \n    // 在更新前进行权限检查\n    if (updates.role && currentUser.role !== updates.role) {\n      throw new Error('Role changes require admin privileges');\n    }\n    \n    // API调用实现...\n    return updatedUser;\n  }\n}\n\n// 交叉类型\ntype AdminUser = User & { permissions: string[] };\n\n// 异步代码使用\nasync function initializeApp() {\n  try {\n    const userService = new UserService();\n    const currentUser = await userService.getUser(123);\n    \n    // 使用类型守卫进行条件处理\n    if (isAdmin(currentUser)) {\n      console.log('Admin user detected:', currentUser.permissions);\n    }\n    \n    // 类型断言（当开发者比TypeScript更了解类型时使用）\n    const adminUser = currentUser as AdminUser;\n    \n    // 使用可选链和空值合并操作符（TypeScript 3.7+特性）\n    const theme = currentUser.preferences?.theme ?? 'system';\n    console.log(`Using theme: ${theme}`);\n    \n  } catch (error) {\n    console.error('Application initialization failed:', error);\n  }\n}",
+    "stats": {
+      "github": "非常高",
+      "jobs": "非常高",
+      "community": "非常活跃"
+    },
+    "learningPath": [
+      "掌握JavaScript基础和ES6+特性",
+      "学习TypeScript基本类型系统",
+      "学习接口和类型别名",
+      "掌握函数类型和泛型",
+      "学习类、接口和继承",
+      "学习高级类型（联合类型、交叉类型等）",
+      "学习模块系统",
+      "学习泛型高级用法",
+      "了解装饰器和反射元数据",
+      "学习类型声明文件（.d.ts）"
+    ],
+    "resources": [
+      { "title": "TypeScript官方文档", "url": "https://www.typescriptlang.org/docs/" },
+      { "title": "TypeScript手册", "url": "https://www.typescriptlang.org/docs/handbook/intro.html" },
+      { "title": "TypeScript深入指南", "url": "https://basarat.gitbook.io/typescript/" },
+      { "title": "TypeScript Playground", "url": "https://www.typescriptlang.org/play" },
+      { "title": "Definitely Typed", "url": "https://github.com/DefinitelyTyped/DefinitelyTyped" }
+    ],
+    "relatedStacks": [
+      { "id": "javascript", "name": "JavaScript", "icon": "JS" },
+      { "id": "nodejs", "name": "Node.js", "icon": "⬢" },
+      { "id": "angular", "name": "Angular", "icon": "🅰️" },
+      { "id": "react", "name": "React", "icon": "⚛️" },
+      { "id": "deno", "name": "Deno", "icon": "🦕" }
+    ]
+  },
+  "nuxt": {
+    "id": "nuxt",
+    "name": "Nuxt.js",
+    "icon": "🟩",
+    "tags": ["前端框架", "Vue.js", "SSR", "静态站点"],
+    "popularity": 4,
+    "description": "基于Vue.js的通用应用框架，支持服务端渲染和静态站点生成。",
+    "longDescription": "Nuxt.js是一个基于Vue.js的高级框架，简化了服务器端渲染(SSR)、静态站点生成(SSG)和单页应用(SPA)的开发。Nuxt自2016年发布以来，通过提供项目结构、配置默认值和性能优化，大大减少了开发者的工作量。它采用了约定优于配置的理念，提供了自动路由生成、布局系统、中间件支持等功能。Nuxt 3版本基于Vue 3和Vite构建，带来了更好的性能和开发体验。Nuxt被广泛用于构建内容丰富的网站、电子商务平台、企业网站和Web应用，它的混合渲染能力使开发者能够灵活选择最适合每个页面的渲染模式。",
+    "components": [
+      { "name": "页面系统", "icon": "📄", "description": "基于文件系统的自动路由生成，在pages目录中创建的Vue组件会自动映射为路由。" },
+      { "name": "布局系统", "icon": "🏗️", "description": "提供可重用的布局组件，支持默认布局和自定义布局，便于构建一致的用户界面。" },
+      { "name": "渲染模式", "icon": "🔄", "description": "支持多种渲染模式，包括服务端渲染(SSR)、静态站点生成(SSG)、客户端渲染(CSR)和混合渲染。" },
+      { "name": "数据获取", "icon": "📊", "description": "提供强大的数据获取钩子如useAsyncData、useFetch，支持服务器端和客户端数据获取。" },
+      { "name": "模块系统", "icon": "🧩", "description": "可扩展的模块系统，允许集成第三方功能和库，如内容管理、认证、分析等。" }
+    ],
+    "advantages": [
+      { "icon": "🚀", "title": "性能优化", "description": "内置的代码分割、缓存和优化策略，提供出色的加载性能和用户体验。" },
+      { "icon": "🔍", "title": "SEO友好", "description": "服务端渲染和静态生成模式对搜索引擎更友好，改善内容索引和排名。" },
+      { "icon": "📱", "title": "开发体验", "description": "热模块替换、自动导入和强大的CLI工具，提供流畅的开发体验。" },
+      { "icon": "🛠️", "title": "约定优于配置", "description": "预设的项目结构和配置，减少样板代码，让开发者专注于业务逻辑。" },
+      { "icon": "🔌", "title": "生态系统", "description": "丰富的模块和集成，可与常用服务和工具无缝协作，如内容管理系统、API服务等。" }
+    ],
+    "codeExample": "// Nuxt 3应用示例\n\n// pages/index.vue - 首页组件\n<template>\n  <div>\n    <header class=\"header\">\n      <h1>{{ welcomeMessage }}</h1>\n      <p>Nuxt 3博客示例</p>\n    </header>\n    \n    <main>\n      <div v-if=\"pending\" class=\"loading\">加载文章中...</div>\n      <div v-else-if=\"error\" class=\"error\">{{ error.message }}</div>\n      <div v-else class=\"articles\">\n        <ArticleCard \n          v-for=\"article in articles\" \n          :key=\"article.id\" \n          :article=\"article\" \n        />\n      </div>\n    </main>\n  </div>\n</template>\n\n<script setup>\n// 响应式状态\nconst welcomeMessage = ref('欢迎访问我的博客');\n\n// 使用Nuxt的数据获取\nconst { data: articles, pending, error } = await useFetch('/api/articles');\n\n// 页面元数据\nuseHead({\n  title: '我的Nuxt博客',\n  meta: [\n    { name: 'description', content: '使用Nuxt 3构建的博客网站示例' }\n  ]\n});\n</script>\n\n// components/ArticleCard.vue - 文章卡片组件\n<template>\n  <div class=\"article-card\">\n    <NuxtImg \n      v-if=\"article.coverImage\" \n      :src=\"article.coverImage\" \n      :alt=\"article.title\" \n      class=\"article-image\" \n      width=\"300\" \n      height=\"200\" \n    />\n    <div class=\"article-content\">\n      <h2 class=\"article-title\">\n        <NuxtLink :to=\"`/article/${article.slug}`\">{{ article.title }}</NuxtLink>\n      </h2>\n      <div class=\"article-meta\">\n        <span>{{ formatDate(article.publishedAt) }}</span>\n        <span>{{ article.readingTime }} 分钟阅读</span>\n      </div>\n      <p class=\"article-excerpt\">{{ article.excerpt }}</p>\n      <NuxtLink :to=\"`/article/${article.slug}`\" class=\"read-more\">\n        阅读更多\n      </NuxtLink>\n    </div>\n  </div>\n</template>\n\n<script setup>\nimport { formatDate } from '~/utils/dates';\n\n// 定义组件props\nconst props = defineProps({\n  article: {\n    type: Object,\n    required: true\n  }\n});\n</script>\n\n// pages/article/[slug].vue - 动态路由页面\n<template>\n  <div v-if=\"article\" class=\"article-detail\">\n    <header>\n      <h1>{{ article.title }}</h1>\n      <div class=\"article-meta\">\n        <span>{{ formatDate(article.publishedAt) }}</span> • \n        <span>{{ article.readingTime }} 分钟阅读</span>\n      </div>\n    </header>\n    \n    <NuxtImg \n      v-if=\"article.coverImage\" \n      :src=\"article.coverImage\" \n      :alt=\"article.title\" \n      class=\"cover-image\" \n      width=\"800\" \n      height=\"400\" \n    />\n    \n    <div class=\"article-content content\">\n      <!-- 使用v-html需要确保内容安全 -->\n      <div v-html=\"article.content\"></div>\n    </div>\n    \n    <div class=\"article-footer\">\n      <div class=\"tags\">\n        <span v-for=\"tag in article.tags\" :key=\"tag\" class=\"tag\">\n          #{{ tag }}\n        </span>\n      </div>\n      \n      <div class=\"share\">\n        <h3>分享文章</h3>\n        <div class=\"share-buttons\">\n          <!-- 社交分享按钮 -->\n        </div>\n      </div>\n    </div>\n    \n    <div v-if=\"relatedArticles.length\" class=\"related-articles\">\n      <h3>相关文章</h3>\n      <div class=\"articles-grid\">\n        <ArticleCard \n          v-for=\"related in relatedArticles\" \n          :key=\"related.id\" \n          :article=\"related\" \n        />\n      </div>\n    </div>\n  </div>\n  <div v-else-if=\"pending\" class=\"loading\">\n    加载文章中...\n  </div>\n  <div v-else class=\"not-found\">\n    文章不存在\n  </div>\n</template>\n\n<script setup>\nimport { formatDate } from '~/utils/dates';\n\nconst route = useRoute();\n\n// 获取文章详情\nconst { data: article, pending } = await useFetch(\n  `/api/articles/${route.params.slug}`\n);\n\n// 设置动态SEO元数据\nuseHead(() => ({\n  title: article.value?.title,\n  meta: [\n    { name: 'description', content: article.value?.excerpt || '' },\n    // Open Graph标签\n    { property: 'og:title', content: article.value?.title },\n    { property: 'og:description', content: article.value?.excerpt },\n    { property: 'og:image', content: article.value?.coverImage },\n    { property: 'og:type', content: 'article' }\n  ]\n}));\n\n// 获取相关文章\nconst { data: relatedArticles } = await useFetch(\n  () => article.value ? `/api/articles/related/${article.value.id}` : null,\n  { watch: [article] }\n);\n</script>\n\n// nuxt.config.ts - Nuxt配置文件\nexport default defineNuxtConfig({\n  // 应用元数据\n  app: {\n    head: {\n      titleTemplate: '%s - My Nuxt Blog',\n      meta: [\n        { charset: 'utf-8' },\n        { name: 'viewport', content: 'width=device-width, initial-scale=1' },\n        { name: 'format-detection', content: 'telephone=no' }\n      ],\n      link: [\n        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }\n      ]\n    }\n  },\n  \n  // 模块\n  modules: [\n    '@nuxtjs/tailwindcss',\n    '@nuxt/image',\n    '@nuxtjs/color-mode',\n    '@nuxt/content'\n  ],\n  \n  // 内容模块配置\n  content: {\n    highlight: {\n      theme: 'github-dark'\n    },\n    markdown: {\n      toc: {\n        depth: 3,\n        searchDepth: 3\n      }\n    }\n  },\n  \n  // 图片模块配置\n  image: {\n    provider: 'ipx',\n    quality: 80,\n    screens: {\n      xs: 320,\n      sm: 640,\n      md: 768,\n      lg: 1024,\n      xl: 1280,\n      xxl: 1536\n    }\n  },\n  \n  // 颜色模式配置\n  colorMode: {\n    classSuffix: ''\n  },\n  \n  // 自动导入\n  imports: {\n    dirs: ['./utils']\n  },\n  \n  // 构建配置\n  nitro: {\n    prerender: {\n      routes: ['/sitemap.xml', '/rss.xml']\n    }\n  }\n})",
+    "stats": {
+      "github": "高",
+      "jobs": "中高",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "掌握Vue.js和JavaScript/TypeScript基础",
+      "学习Nuxt基本概念和项目结构",
+      "掌握Nuxt路由系统和页面创建",
+      "学习数据获取方法（useAsyncData、useFetch等）",
+      "掌握布局和组件系统",
+      "学习Nuxt中间件和插件",
+      "理解不同的渲染模式（SSR、SSG、CSR）",
+      "学习状态管理和数据持久化",
+      "掌握Nuxt模块集成",
+      "学习部署和优化Nuxt应用"
+    ],
+    "resources": [
+      { "title": "Nuxt官方文档", "url": "https://nuxt.com/docs" },
+      { "title": "Nuxt Content文档", "url": "https://content.nuxtjs.org/" },
+      { "title": "Nuxt教程", "url": "https://masteringnuxt.com/" },
+      { "title": "Nuxt模块目录", "url": "https://nuxt.com/modules" },
+      { "title": "Vue Mastery的Nuxt课程", "url": "https://www.vuemastery.com/courses/nuxt-fundamentals/" }
+    ],
+    "relatedStacks": [
+      { "id": "vue", "name": "Vue.js", "icon": "🟩" },
+      { "id": "jamstack", "name": "JAMStack", "icon": "🚀" },
+      { "id": "typescript", "name": "TypeScript", "icon": "TS" },
+      { "id": "mevn", "name": "MEVN Stack", "icon": "🎨" },
+      { "id": "tailwind", "name": "Tailwind CSS", "icon": "🌬️" }
+    ]
+  },
+  "hugo": {
+    "id": "hugo",
+    "name": "Hugo",
+    "icon": "🏎️",
+    "tags": ["静态站点生成器", "Go", "JAMStack"],
+    "popularity": 4,
+    "description": "使用Go语言构建的超快速静态网站生成器，专注于速度和灵活性。",
+    "longDescription": "Hugo是一个由Go语言编写的开源静态网站生成器，2013年由Steve Francia创建，以其卓越的构建速度和灵活性而闻名。Hugo可以将Markdown内容转换为完整的HTML网站，整个过程速度极快，即使是包含数千页面的大型站点也能在几秒内完成构建。Hugo采用简单的目录结构组织内容，使用强大的模板系统，并支持多种内容格式。它不需要数据库或依赖复杂的运行时，生成的网站可以部署在任何Web服务器或托管平台上。Hugo特别适合博客、文档站点、企业网站和作品集等内容驱动的网站，是JAMStack架构的理想选择。",
+    "components": [
+      { "name": "内容系统", "icon": "📄", "description": "基于文件的内容管理，使用Markdown和前置元数据组织结构化内容。" },
+      { "name": "模板引擎", "icon": "🧩", "description": "基于Go模板的强大模板系统，支持部分模板、短代码和自定义输出格式。" },
+      { "name": "分类系统", "icon": "🏷️", "description": "内置的分类法（taxonomy）系统，支持标签、分类和自定义内容组织方式。" },
+      { "name": "短代码", "icon": "📎", "description": "类似于宏的短代码功能，可在Markdown中嵌入复杂内容或自定义HTML。" },
+      { "name": "资源处理", "icon": "🖼️", "description": "内置的图像处理和资源管理功能，支持图像裁剪、调整大小和优化。" }
+    ],
+    "advantages": [
+      { "icon": "⚡", "title": "极速性能", "description": "业界领先的构建速度，大型站点也能在几秒内完成生成，开发周期更短。" },
+      { "icon": "🔌", "title": "零依赖", "description": "单一二进制文件，无需安装运行时或依赖，容易安装和使用。" },
+      { "icon": "📱", "title": "内置主题", "description": "丰富的主题生态系统，可快速启动项目，支持响应式设计。" },
+      { "icon": "🛠️", "title": "高度可定制", "description": "灵活的模板系统和内容组织，可以构建从简单博客到复杂网站的各种项目。" },
+      { "icon": "🔒", "title": "安全可靠", "description": "生成静态HTML文件，无动态执行，减少安全风险和维护成本。" }
+    ],
+    "codeExample": "// Hugo站点示例\n\n// config.toml - 配置文件\nbaseURL = \"https://example.com/\"\nlanguageCode = \"zh-cn\"\ntitle = \"我的Hugo网站\"\ntheme = \"mytheme\"\n\n# 站点参数\n[params]\n  description = \"使用Hugo构建的个人博客\"\n  author = \"您的名字\"\n  mainSections = [\"posts\"]\n  dateFormat = \"2006年01月02日\"\n  \n  # 社交媒体链接\n  [params.social]\n    github = \"yourusername\"\n    twitter = \"yourusername\"\n    linkedin = \"yourusername\"\n\n# 菜单配置\n[menu]\n  [[menu.main]]\n    identifier = \"home\"\n    name = \"首页\"\n    url = \"/\"\n    weight = 1\n  [[menu.main]]\n    identifier = \"posts\"\n    name = \"文章\"\n    url = \"/posts/\"\n    weight = 2\n  [[menu.main]]\n    identifier = \"about\"\n    name = \"关于\"\n    url = \"/about/\"\n    weight = 3\n\n# 分类配置\n[taxonomies]\n  category = \"categories\"\n  tag = \"tags\"\n  series = \"series\"\n\n# 站点地图配置\n[sitemap]\n  changefreq = \"weekly\"\n  priority = 0.5\n\n// layouts/_default/baseof.html - 基础模板\n<!DOCTYPE html>\n<html lang=\"{{ .Site.LanguageCode }}\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}</title>\n  <meta name=\"description\" content=\"{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}\">\n  {{ if .Keywords }}\n  <meta name=\"keywords\" content=\"{{ delimit .Keywords \", \" }}\">\n  {{ end }}\n  <link rel=\"stylesheet\" href=\"{{ \"css/main.css\" | relURL }}\">\n  {{ block \"head\" . }}{{ end }}\n</head>\n<body>\n  <header class=\"site-header\">\n    <div class=\"container\">\n      <a href=\"{{ .Site.BaseURL }}\" class=\"site-title\">{{ .Site.Title }}</a>\n      <nav class=\"site-nav\">\n        {{ range .Site.Menus.main }}\n        <a href=\"{{ .URL }}\" class=\"nav-link\">{{ .Name }}</a>\n        {{ end }}\n      </nav>\n    </div>\n  </header>\n\n  <main class=\"site-content\">\n    <div class=\"container\">\n      {{ block \"main\" . }}{{ end }}\n    </div>\n  </main>\n\n  <footer class=\"site-footer\">\n    <div class=\"container\">\n      <p>&copy; {{ now.Format \"2006\" }} {{ .Site.Params.author }}. All rights reserved.</p>\n      <div class=\"social-links\">\n        {{ with .Site.Params.social.github }}\n        <a href=\"https://github.com/{{ . }}\" target=\"_blank\">GitHub</a>\n        {{ end }}\n        {{ with .Site.Params.social.twitter }}\n        <a href=\"https://twitter.com/{{ . }}\" target=\"_blank\">Twitter</a>\n        {{ end }}\n      </div>\n    </div>\n  </footer>\n\n  {{ block \"scripts\" . }}{{ end }}\n</body>\n</html>\n\n// layouts/_default/list.html - 列表模板\n{{ define \"main\" }}\n<header class=\"page-header\">\n  <h1>{{ .Title }}</h1>\n  {{ with .Description }}\n  <div class=\"description\">{{ . }}</div>\n  {{ end }}\n</header>\n\n<div class=\"posts-list\">\n  {{ range .Pages }}\n  <article class=\"post-card\">\n    <h2 class=\"post-title\"><a href=\"{{ .Permalink }}\">{{ .Title }}</a></h2>\n    <div class=\"post-meta\">\n      <time>{{ .Date.Format .Site.Params.dateFormat }}</time>\n      {{ with .Params.categories }}\n      <span class=\"categories\">\n        {{ range . }}\n        <a href=\"{{ \"categories/\" | relLangURL }}{{ . | urlize }}\">{{ . }}</a>\n        {{ end }}\n      </span>\n      {{ end }}\n    </div>\n    {{ with .Summary }}\n    <div class=\"post-summary\">{{ . }}</div>\n    {{ end }}\n    <a href=\"{{ .Permalink }}\" class=\"read-more\">阅读全文 &rarr;</a>\n  </article>\n  {{ end }}\n</div>\n{{ end }}\n\n// layouts/_default/single.html - 单页模板\n{{ define \"main\" }}\n<article class=\"post\">\n  <header class=\"post-header\">\n    <h1 class=\"post-title\">{{ .Title }}</h1>\n    <div class=\"post-meta\">\n      <time>{{ .Date.Format .Site.Params.dateFormat }}</time>\n      {{ with .Params.author }}\n      <span class=\"post-author\">作者: {{ . }}</span>\n      {{ end }}\n      {{ with .Params.categories }}\n      <span class=\"categories\">\n        分类:\n        {{ range . }}\n        <a href=\"{{ \"categories/\" | relLangURL }}{{ . | urlize }}\">{{ . }}</a>\n        {{ end }}\n      </span>\n      {{ end }}\n      <span class=\"reading-time\">{{ .ReadingTime }} 分钟阅读</span>\n    </div>\n  </header>\n\n  {{ with .Params.featured_image }}\n  <div class=\"featured-image\">\n    <img src=\"{{ . | relURL }}\" alt=\"{{ $.Title }}\">\n  </div>\n  {{ end }}\n\n  <div class=\"post-content\">\n    {{ .Content }}\n  </div>\n\n  {{ with .Params.tags }}\n  <div class=\"post-tags\">\n    <span>标签:</span>\n    {{ range . }}\n    <a href=\"{{ \"tags/\" | relLangURL }}{{ . | urlize }}\">#{{ . }}</a>\n    {{ end }}\n  </div>\n  {{ end }}\n\n  <div class=\"post-navigation\">\n    {{ with .PrevInSection }}\n    <a href=\"{{ .Permalink }}\" class=\"prev\">&larr; {{ .Title }}</a>\n    {{ end }}\n    {{ with .NextInSection }}\n    <a href=\"{{ .Permalink }}\" class=\"next\">{{ .Title }} &rarr;</a>\n    {{ end }}\n  </div>\n</article>\n{{ end }}\n\n// content/posts/my-first-post.md - 内容示例\n---\ntitle: \"我的第一篇博客文章\"\ndate: 2023-01-15T10:30:00+08:00\ndraft: false\ncategories: [\"技术\"]\ntags: [\"Hugo\", \"静态网站\"]\nfeatured_image: \"/images/my-first-post.jpg\"\ndescription: \"这是我使用Hugo创建的第一篇博客文章\"\n---\n\n## 欢迎使用Hugo\n\n这是使用Hugo创建的第一篇博客文章。Hugo是一个强大的静态网站生成器，使用Go语言编写，以其惊人的速度和灵活性而闻名。\n\n### 为什么选择Hugo\n\n- **速度极快**: Hugo可能是最快的静态网站生成器，即使是大型网站也能在几秒内完成构建\n- **简单易用**: 单一二进制文件，无需复杂的依赖管理\n- **功能丰富**: 强大的模板系统、内容管理和分类功能\n\n{{< highlight go >}}\nfunc main() {\n    fmt.Println(\"Hello, Hugo!\")\n}\n{{< /highlight >}}\n\n## 下一步计划\n\n在接下来的文章中，我将分享更多关于Hugo的使用技巧和最佳实践。如果您有任何问题或建议，请在评论中告诉我。",
+    "stats": {
+      "github": "高",
+      "jobs": "中",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "了解静态网站生成器的基本概念",
+      "安装Hugo并理解基础项目结构",
+      "学习内容创建和Markdown格式",
+      "理解Hugo的模板系统和Go模板语法",
+      "掌握分类系统（标签、分类等）",
+      "学习短代码的创建和使用",
+      "掌握Hugo的资源处理功能（图像处理等）",
+      "学习创建和定制Hugo主题",
+      "掌握Hugo的高级功能（数据模板、动态API等）",
+      "学习部署和托管Hugo站点"
+    ],
+    "resources": [
+      { "title": "Hugo官方文档", "url": "https://gohugo.io/documentation/" },
+      { "title": "Hugo主题库", "url": "https://themes.gohugo.io/" },
+      { "title": "Hugo论坛", "url": "https://discourse.gohugo.io/" },
+      { "title": "Hugo快速入门指南", "url": "https://gohugo.io/getting-started/quick-start/" },
+      { "title": "Hugo示例站点", "url": "https://github.com/gohugoio/hugoBasicExample" }
+    ],
+    "relatedStacks": [
+      { "id": "jamstack", "name": "JAMStack", "icon": "🚀" },
+      { "id": "golang", "name": "Go", "icon": "🐹" },
+      { "id": "netlify", "name": "Netlify", "icon": "🌐" },
+      { "id": "github-pages", "name": "GitHub Pages", "icon": "📄" },
+      { "id": "markdown", "name": "Markdown", "icon": "📝" }
     ]
   }
 } 

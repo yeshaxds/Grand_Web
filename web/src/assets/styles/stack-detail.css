@@ -373,11 +373,13 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  transform-origin: center;
   float: right;
 }
 
 .refresh-quote:hover {
   background-color: #3aa876;
+  /* transform: rotate(180deg); */
 }
 
 @media (max-width: 900px) {

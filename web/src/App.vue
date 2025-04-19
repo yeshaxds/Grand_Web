@@ -9,12 +9,12 @@
     </div>
 
     <!-- 励志语句显示在导航栏中间 -->
-    <div class="nav-quote">
-      <div class="quote-content">
-        <span class="quote-text">"{{ randomQuote.text }}"</span>
-        <span class="quote-author">— {{ randomQuote.author }}</span>
+    <div class="nav-quote-h">
+      <div class="quote-h-content">
+        <span class="quote-h-text">"{{ randomQuote.text }}"</span>
+        <span class="quote-h-author">— {{ randomQuote.author }}</span>
       </div>
-      <button class="refresh-quote" @click="refreshQuote" title="换一条">
+      <button class="refresh-quote-h" @click="refreshQuote" title="换一条">
         <span>↻</span>
       </button>
     </div>
@@ -55,7 +55,7 @@ export default {
 
 <style>
 /* 导航栏中的励志语句样式 */
-.nav-quote {
+.nav-quote-h {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -68,7 +68,7 @@ export default {
   overflow: hidden;
 }
 
-.quote-content {
+.quote-h-content {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -77,20 +77,20 @@ export default {
   text-overflow: ellipsis;
 }
 
-.quote-text {
+.quote-h-text {
   font-style: italic;
   color: #2c3e50;
   font-size: 0.9rem;
 }
 
-.quote-author {
+.quote-h-author {
   opacity: 0.8;
   color: #42b983;
   font-size: 0.85rem;
   font-weight: 500;
 }
 
-.refresh-quote {
+.refresh-quote-h {
   background: transparent;
   border: none;
   color: #42b983;
@@ -102,13 +102,14 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: background 0.3s ease, transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform-origin: center;
   flex-shrink: 0;
 }
 
-.refresh-quote:hover {
+.refresh-quote-h:hover {
   background: rgba(66, 185, 131, 0.1);
-  transform: rotate(180deg);
+  transform: rotate(360deg);
 }
 
 .nav-links {
@@ -117,8 +118,9 @@ export default {
   flex-shrink: 0;
   margin-left: 1rem;
 }
+
 @media (max-width: 1200px) {
-  .nav-quote {
+  .refresh-quote-h {
     display: none;
   }
 

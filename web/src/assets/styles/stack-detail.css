@@ -152,7 +152,7 @@
 }
 
 .code-block {
-  background-color: #2d2d2d;
+  background-color: #1e2433;
   border-radius: 8px;
   padding: 1.5rem;
   overflow-x: auto;
@@ -163,10 +163,10 @@
 }
 
 .code-block code {
-  color: #f8f8f2;
+  color: #e6ecf5;
   font-family: 'Courier New', Courier, monospace;
   font-size: 0.9rem;
-  line-height: 1.5;
+  line-height: 1.6;
   white-space: pre;
 }
 
@@ -321,6 +321,63 @@
   padding: 5rem 0;
   font-size: 1.5rem;
   color: #666;
+}
+
+.quote-card {
+  background-color: #f4f7fd;
+  border-left: 4px solid #42b983;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.quote-card:hover {
+  transform: translateY(-5px);
+}
+
+.quote-card h3 {
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+}
+
+.quote-content {
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.quote-text {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.quote-author {
+  font-size: 0.9rem;
+  text-align: right;
+  color: #666;
+}
+
+.refresh-quote {
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  float: right;
+}
+
+.refresh-quote:hover {
+  background-color: #3aa876;
 }
 
 @media (max-width: 900px) {

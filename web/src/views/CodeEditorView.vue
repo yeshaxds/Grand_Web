@@ -372,7 +372,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 /* 全局样式，不使用scoped以便覆盖Monaco编辑器样式 */
 /* 浅色主题 */
 .monaco-editor.vs {

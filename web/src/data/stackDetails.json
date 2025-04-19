@@ -1,0 +1,492 @@
+{
+  "mern": {
+    "id": "mern",
+    "name": "MERN Stack",
+    "icon": "📱",
+    "tags": ["全栈", "JavaScript"],
+    "popularity": 4,
+    "description": "MongoDB, Express, React, Node.js 组成的JavaScript全栈开发技术栈。",
+    "longDescription": "MERN是一个由MongoDB, Express.js, React和Node.js组成的JavaScript技术栈。这四种技术都基于JavaScript语言，使开发人员可以使用单一的编程语言构建完整的Web应用，包括前端界面和后端服务。MERN栈的每个组件都是开源的，有大量的社区支持和资源，适合构建现代的、响应式的、高性能的Web应用。",
+    "components": [
+      { "name": "MongoDB", "icon": "🍃", "description": "一个文档型NoSQL数据库，使用JSON格式存储数据，适合处理大量非结构化数据。" },
+      { "name": "Express", "icon": "🚂", "description": "基于Node.js的Web应用框架，提供了一组强大的功能来构建单页和多页Web应用。" },
+      { "name": "React", "icon": "⚛️", "description": "由Facebook开发的JavaScript库，用于构建用户界面，特别是单页应用程序。" },
+      { "name": "Node.js", "icon": "🟢", "description": "一个基于Chrome V8引擎的JavaScript运行时，用于构建可扩展的网络应用和后端服务。" }
+    ],
+    "advantages": [
+      { "icon": "🔄", "title": "全JavaScript栈", "description": "前后端统一的JavaScript语言，减少了技术切换成本，提高开发效率。" },
+      { "icon": "⚡", "title": "高性能", "description": "Node.js的非阻塞I/O和MongoDB的文档存储模型提供了优秀的性能表现。" },
+      { "icon": "📦", "title": "JSON数据流", "description": "从数据库到客户端全程使用JSON数据格式，无需进行数据转换。" },
+      { "icon": "🛠️", "title": "大型社区支持", "description": "所有组件都有庞大的社区和丰富的资源，生态系统成熟健全。" }
+    ],
+    "codeExample": "// 基本的MERN应用架构示例\n\n// 前端React组件\nimport React, { useState, useEffect } from 'react';\nimport axios from 'axios';\n\nfunction App() {\n  const [data, setData] = useState([]);\n  \n  useEffect(() => {\n    // 从Express API获取数据\n    axios.get('/api/data')\n      .then(response => setData(response.data))\n      .catch(error => console.error(error));\n  }, []);\n  \n  return (\n    <div className=\"App\">\n      {data.map(item => (\n        <div key={item._id}>{item.name}</div>\n      ))}\n    </div>\n  );\n}\n\n// 后端Express API\nconst express = require('express');\nconst mongoose = require('mongoose');\nconst app = express();\n\n// 连接MongoDB\nmongoose.connect('mongodb://localhost/mern_app', {\n  useNewUrlParser: true,\n  useUnifiedTopology: true\n});\n\n// 定义数据模型\nconst Item = mongoose.model('Item', {\n  name: String,\n  date: { type: Date, default: Date.now }\n});\n\n// API路由\napp.get('/api/data', async (req, res) => {\n  try {\n    const items = await Item.find();\n    res.json(items);\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\napp.listen(5000, () => console.log('Server running on port 5000'));",
+    "stats": {
+      "github": "高",
+      "jobs": "非常高",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "学习JavaScript和ES6+语法",
+      "学习React基础和Hooks",
+      "学习Node.js和Express框架",
+      "学习MongoDB数据库操作",
+      "构建RESTful API",
+      "整合前后端进行全栈开发",
+      "学习部署和DevOps相关知识"
+    ],
+    "resources": [
+      { "title": "React官方文档", "url": "https://reactjs.org/" },
+      { "title": "Node.js官方文档", "url": "https://nodejs.org/" },
+      { "title": "Express指南", "url": "https://expressjs.com/" },
+      { "title": "MongoDB教程", "url": "https://docs.mongodb.com/" },
+      { "title": "MERN Stack前后端工程师指南", "url": "#" }
+    ],
+    "relatedStacks": [
+      { "id": "mean", "name": "MEAN Stack", "icon": "🌐" },
+      { "id": "mevn", "name": "MEVN Stack", "icon": "🎨" },
+      { "id": "jamstack", "name": "JAMStack", "icon": "🚀" },
+      { "id": "nextjs", "name": "Next.js", "icon": "⏭️" }
+    ]
+  },
+  "lamp": {
+    "id": "lamp",
+    "name": "LAMP Stack",
+    "icon": "💻",
+    "tags": ["后端栈", "PHP"],
+    "popularity": 3,
+    "description": "Linux, Apache, MySQL, PHP 组成的传统Web开发技术栈。",
+    "longDescription": "LAMP是一个经典的Web开发技术栈，由Linux（操作系统）、Apache（Web服务器）、MySQL（数据库）和PHP（编程语言）组成。LAMP栈已经存在多年，是许多流行Web应用如WordPress、Drupal等的基础。尽管有新兴技术栈的竞争，LAMP仍然是一个可靠、经济且支持良好的选择，特别适合中小型Web应用。",
+    "components": [
+      { "name": "Linux", "icon": "🐧", "description": "开源操作系统，提供安全稳定的服务器环境。" },
+      { "name": "Apache", "icon": "🌐", "description": "世界上最流行的Web服务器软件之一，拥有强大的模块化架构和扩展性。" },
+      { "name": "MySQL", "icon": "🗄️", "description": "流行的开源关系型数据库管理系统，适合Web应用的数据存储需求。" },
+      { "name": "PHP", "icon": "🐘", "description": "专为Web开发设计的服务器端脚本语言，易于学习和使用。" }
+    ],
+    "advantages": [
+      { "icon": "🏆", "title": "成熟稳定", "description": "技术组合经过多年验证，有大量成功案例和最佳实践。" },
+      { "icon": "🔓", "title": "开源免费", "description": "所有组件都是开源的，降低了开发和部署成本。" },
+      { "icon": "📚", "title": "资源丰富", "description": "大量的文档、教程和社区支持，学习曲线平缓。" },
+      { "icon": "🔧", "title": "灵活可扩展", "description": "可以根据需求轻松替换或添加组件，如用Nginx替代Apache。" }
+    ],
+    "codeExample": "<?php\n// 基本的LAMP应用示例\n\n// 数据库连接\n$servername = \"localhost\";\n$username = \"username\";\n$password = \"password\";\n$dbname = \"myDB\";\n\n// 创建连接\n$conn = new mysqli($servername, $username, $password, $dbname);\n\n// 检查连接\nif ($conn->connect_error) {\n  die(\"Connection failed: \" . $conn->connect_error);\n}\n\n// 执行查询\n$sql = \"SELECT id, name, email FROM users\";\n$result = $conn->query($sql);\n\n// 显示数据\nif ($result->num_rows > 0) {\n  echo \"<table>\";\n  echo \"<tr><th>ID</th><th>姓名</th><th>邮箱</th></tr>\";\n  \n  while($row = $result->fetch_assoc()) {\n    echo \"<tr>\";\n    echo \"<td>\" . $row[\"id\"] . \"</td>\";\n    echo \"<td>\" . $row[\"name\"] . \"</td>\";\n    echo \"<td>\" . $row[\"email\"] . \"</td>\";\n    echo \"</tr>\";\n  }\n  \n  echo \"</table>\";\n} else {\n  echo \"0 results\";\n}\n\n$conn->close();\n?>",
+    "stats": {
+      "github": "中等",
+      "jobs": "高",
+      "community": "稳定"
+    },
+    "learningPath": [
+      "了解Linux基础命令和服务器管理",
+      "学习Apache Web服务器配置",
+      "掌握PHP编程基础",
+      "学习MySQL数据库设计和操作",
+      "PHP与MySQL交互开发",
+      "学习安全性最佳实践",
+      "构建和部署完整应用"
+    ],
+    "resources": [
+      { "title": "PHP官方文档", "url": "https://www.php.net/docs.php" },
+      { "title": "MySQL参考手册", "url": "https://dev.mysql.com/doc/" },
+      { "title": "Apache HTTP服务器文档", "url": "https://httpd.apache.org/docs/" },
+      { "title": "Linux命令大全", "url": "https://www.linuxcool.com/" },
+      { "title": "PHP和MySQL Web开发（第5版）", "url": "#" }
+    ],
+    "relatedStacks": [
+      { "id": "lemp", "name": "LEMP Stack", "icon": "🔧" },
+      { "id": "wamp", "name": "WAMP Stack", "icon": "🪟" },
+      { "id": "wordpress", "name": "WordPress", "icon": "📝" },
+      { "id": "laravel", "name": "Laravel", "icon": "🚗" }
+    ]
+  },
+  "mean": {
+    "id": "mean",
+    "name": "MEAN Stack",
+    "icon": "🌐",
+    "tags": ["全栈", "JavaScript"],
+    "popularity": 3,
+    "description": "MongoDB, Express, Angular, Node.js 组成的JavaScript全栈开发技术栈。",
+    "longDescription": "MEAN是由MongoDB、Express.js、Angular和Node.js组成的JavaScript技术栈。与MERN栈类似，MEAN栈使用JavaScript作为唯一的编程语言，使开发人员能够构建完整的全栈Web应用。其中Angular是一个由Google维护的完整框架，提供了强大的工具和结构化的开发方法，特别适合构建大型企业级应用。",
+    "components": [
+      { "name": "MongoDB", "icon": "🍃", "description": "一个文档型NoSQL数据库，使用JSON格式存储数据，适合处理大量非结构化数据。" },
+      { "name": "Express", "icon": "🚂", "description": "基于Node.js的Web应用框架，提供了一组强大的功能来构建单页和多页Web应用。" },
+      { "name": "Angular", "icon": "🔺", "description": "由Google开发的前端框架，提供完整的MVC架构和强大的数据绑定功能。" },
+      { "name": "Node.js", "icon": "🟢", "description": "一个基于Chrome V8引擎的JavaScript运行时，用于构建可扩展的网络应用和后端服务。" }
+    ],
+    "advantages": [
+      { "icon": "🔄", "title": "全JavaScript栈", "description": "前后端统一的JavaScript语言，减少了技术切换成本，提高开发效率。" },
+      { "icon": "🏗️", "title": "强类型支持", "description": "Angular的TypeScript基础提供了强类型支持，适合大型应用开发和团队协作。" },
+      { "icon": "🧩", "title": "模块化架构", "description": "Angular提供了完整的模块化架构，便于组织和维护大型应用代码。" },
+      { "icon": "🔧", "title": "丰富的工具生态", "description": "Angular CLI和其他开发工具提供了便捷的开发体验和标准化的项目结构。" }
+    ],
+    "codeExample": "// 基本的MEAN应用架构示例\n\n// Angular前端组件\nimport { Component, OnInit } from '@angular/core';\nimport { HttpClient } from '@angular/common/http';\n\n@Component({\n  selector: 'app-root',\n  template: `\n    <div>\n      <h1>MEAN Stack 示例</h1>\n      <ul>\n        <li *ngFor=\"let item of items\">{{ item.name }}</li>\n      </ul>\n    </div>\n  `\n})\nexport class AppComponent implements OnInit {\n  items = [];\n\n  constructor(private http: HttpClient) {}\n\n  ngOnInit() {\n    // 从Express API获取数据\n    this.http.get('/api/data').subscribe(\n      (data: any[]) => this.items = data,\n      error => console.error(error)\n    );\n  }\n}\n\n// 后端Express API\nconst express = require('express');\nconst mongoose = require('mongoose');\nconst app = express();\n\n// 连接MongoDB\nmongoose.connect('mongodb://localhost/mean_app', {\n  useNewUrlParser: true,\n  useUnifiedTopology: true\n});\n\n// 定义数据模型\nconst Item = mongoose.model('Item', {\n  name: String,\n  date: { type: Date, default: Date.now }\n});\n\n// API路由\napp.get('/api/data', async (req, res) => {\n  try {\n    const items = await Item.find();\n    res.json(items);\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\napp.listen(5000, () => console.log('Server running on port 5000'));",
+    "stats": {
+      "github": "高",
+      "jobs": "高",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "学习JavaScript和TypeScript基础",
+      "掌握Angular框架核心概念",
+      "学习Angular组件和服务",
+      "学习Node.js和Express框架",
+      "学习MongoDB数据库操作",
+      "构建RESTful API",
+      "整合前后端进行全栈开发"
+    ],
+    "resources": [
+      { "title": "Angular官方文档", "url": "https://angular.io/docs" },
+      { "title": "Node.js官方文档", "url": "https://nodejs.org/" },
+      { "title": "Express指南", "url": "https://expressjs.com/" },
+      { "title": "MongoDB教程", "url": "https://docs.mongodb.com/" },
+      { "title": "MEAN Stack完全指南", "url": "#" }
+    ],
+    "relatedStacks": [
+      { "id": "mern", "name": "MERN Stack", "icon": "📱" },
+      { "id": "mevn", "name": "MEVN Stack", "icon": "🎨" },
+      { "id": "ionic", "name": "Ionic + Angular", "icon": "⚡" }
+    ]
+  },
+  "jamstack": {
+    "id": "jamstack",
+    "name": "JAMStack",
+    "icon": "🚀",
+    "tags": ["前端栈", "静态网站"],
+    "popularity": 4,
+    "description": "JavaScript, API, Markup 组成的现代静态网站开发技术栈。",
+    "longDescription": "JAMStack是一种现代Web开发架构，其名称来源于JavaScript、API和Markup（标记语言）的首字母。这种架构强调将前端与后端服务解耦，通过静态生成的HTML文件提供内容，再通过客户端JavaScript和API增强功能。JAMStack应用具有快速加载、安全性高和易于扩展的特点，特别适合内容型网站、博客和文档站点。",
+    "components": [
+      { "name": "JavaScript", "icon": "📝", "description": "用于处理客户端交互和动态功能的脚本语言。" },
+      { "name": "APIs", "icon": "🔌", "description": "通过API调用获取动态数据，可以是第三方服务或自定义函数。" },
+      { "name": "Markup", "icon": "📄", "description": "在构建时预渲染的标记语言(HTML)，通常通过静态站点生成器生成。" }
+    ],
+    "advantages": [
+      { "icon": "⚡", "title": "性能卓越", "description": "预渲染的静态文件提供极快的首屏加载速度和良好的用户体验。" },
+      { "icon": "🔒", "title": "安全性高", "description": "减少了服务器端攻击面，没有数据库或应用服务器可被攻击。" },
+      { "icon": "💰", "title": "成本效益", "description": "静态文件托管成本低，可以利用CDN进行全球分发。" },
+      { "icon": "🔄", "title": "易于扩展", "description": "静态文件可以轻松部署到CDN，轻松应对流量峰值。" }
+    ],
+    "codeExample":"// 基本的JAMStack应用架构示例\n// 使用Gatsby作为静态站点生成器\n\n// gatsby-config.js\nmodule.exports = {\n  siteMetadata: {\n    title: 'JAMStack示例网站',\n    description: '使用Gatsby构建的JAMStack网站'\n  },\n  plugins: [\n    'gatsby-plugin-react-helmet',\n    {\n      resolve: 'gatsby-source-filesystem',\n      options: {\n        name: 'content',\n        path: `\\${__dirname}/content`\n      }\n    },\n    'gatsby-transformer-remark'\n  ]\n};\n\n// src/pages/index.js\nimport React from 'react';\nimport { graphql } from 'gatsby';\n\nexport default function Home({ data }) {\n  const posts = data.allMarkdownRemark.edges;\n  \n  return (\n    <div>\n      <h1>JAMStack博客</h1>\n      <div className=\\\"posts\\\">\n        {posts.map(({ node }) => (\n          <div key={node.id} className=\\\"post\\\">\n            <h2>{node.frontmatter.title}</h2>\n            <p>{node.excerpt}</p>\n            <small>{node.frontmatter.date}</small>\n          </div>\n        ))}\n      </div>\n      \n      {/* API集成示例 */}\n      <NewsletterForm />\n    </div>\n  );\n}\n\n// 客户端API集成组件\nfunction NewsletterForm() {\n  const [email, setEmail] = React.useState('');\n  \n  const handleSubmit = async (e) => {\n    e.preventDefault();\n    // 调用Netlify函数或第三方API\n    try {\n      await fetch('/.netlify/functions/subscribe', {\n        method: 'POST',\n        body: JSON.stringify({ email })\n      });\n      alert('订阅成功！');\n    } catch (error) {\n      console.error('订阅失败', error);\n    }\n  };\n  \n  return (\n    <form onSubmit={handleSubmit}>\n      <h3>订阅我们的通讯</h3>\n      <input \n        type=\\\"email\\\" \n        value={email} \n        onChange={(e) => setEmail(e.target.value)} \n        placeholder=\\\"输入您的邮箱\\\" \n        required \n      />\n      <button type=\\\"submit\\\">订阅</button>\n    </form>\n  );\n}\n\n// GraphQL查询\nexport const query = graphql`\n  query {\n    allMarkdownRemark(sort: { fields: frontmatter___date, order: DESC }) {\n      edges {\n        node {\n          id\n          excerpt\n          frontmatter {\n            title\n            date(formatString: \\\"YYYY年MM月DD日\\\")\n          }\n        }\n      }\n    }\n  }\n`;",   
+      "stats": {
+      "github": "高",
+      "jobs": "增长中",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "了解静态站点生成的基本概念",
+      "选择合适的静态站点生成器(Gatsby, Next.js, Hugo等)",
+      "学习内容管理和Markdown",
+      "掌握前端JavaScript框架(React, Vue等)",
+      "学习API集成和无服务器函数",
+      "掌握CI/CD和自动化部署",
+      "学习性能优化和CDN分发"
+    ],
+    "resources": [
+      { "title": "JAMStack官方网站", "url": "https://jamstack.org/" },
+      { "title": "Gatsby文档", "url": "https://www.gatsbyjs.com/docs/" },
+      { "title": "Next.js文档", "url": "https://nextjs.org/docs" },
+      { "title": "Netlify平台", "url": "https://www.netlify.com/" },
+      { "title": "Vercel平台", "url": "https://vercel.com/" }
+    ],
+    "relatedStacks": [
+      { "id": "nextjs", "name": "Next.js", "icon": "⏭️" },
+      { "id": "gatsby", "name": "Gatsby", "icon": "💜" },
+      { "id": "nuxt", "name": "Nuxt.js", "icon": "🟩" },
+      { "id": "hugo", "name": "Hugo", "icon": "🔵" }
+    ]
+  },
+  "lemp": {
+    "id": "lemp",
+    "name": "LEMP Stack",
+    "icon": "🔧",
+    "tags": ["后端栈", "PHP"],
+    "popularity": 3,
+    "description": "Linux, Nginx, MySQL, PHP 组成的高性能Web开发技术栈。",
+    "longDescription": "LEMP栈是LAMP栈的一个变种，用Nginx替代了Apache作为Web服务器。LEMP代表Linux（操作系统）、Nginx（发音为\"Engine X\"，因此是E）、MySQL（数据库）和PHP（编程语言）。Nginx以其高性能、低内存占用和强大的并发处理能力而闻名，使LEMP栈在处理高流量网站时表现出色。这个技术栈广泛用于构建从小型网站到大型Web应用的各种项目。",
+    "components": [
+      { "name": "Linux", "icon": "🐧", "description": "开源操作系统，提供安全稳定的服务器环境。" },
+      { "name": "Nginx", "icon": "🔄", "description": "高性能的HTTP和反向代理服务器，以其稳定性、丰富的功能、低资源消耗和高并发连接处理而闻名。" },
+      { "name": "MySQL", "icon": "🗄️", "description": "流行的开源关系型数据库管理系统，适合Web应用的数据存储需求。" },
+      { "name": "PHP", "icon": "🐘", "description": "专为Web开发设计的服务器端脚本语言，易于学习和使用。" }
+    ],
+    "advantages": [
+      { "icon": "⚡", "title": "高性能", "description": "Nginx比Apache更高效地处理并发连接，提供更好的性能表现。" },
+      { "icon": "📈", "title": "可扩展性", "description": "能够轻松扩展以处理高流量负载，适合高访问量网站。" },
+      { "icon": "🔓", "title": "开源免费", "description": "所有组件都是开源的，降低了开发和部署成本。" },
+      { "icon": "🔄", "title": "优秀的负载均衡", "description": "Nginx提供强大的负载均衡功能，可以分发流量到多个服务器。" }
+    ],
+    "codeExample": "<?php\n// 基本的LEMP应用示例\n\n// 数据库连接\n$servername = \"localhost\";\n$username = \"username\";\n$password = \"password\";\n$dbname = \"myDB\";\n\n// 创建连接\n$conn = new mysqli($servername, $username, $password, $dbname);\n\n// 检查连接\nif ($conn->connect_error) {\n  die(\"Connection failed: \" . $conn->connect_error);\n}\n\n// 执行查询\n$sql = \"SELECT id, name, email FROM users\";\n$result = $conn->query($sql);\n\n// 显示数据\nif ($result->num_rows > 0) {\n  echo \"<table>\";\n  echo \"<tr><th>ID</th><th>姓名</th><th>邮箱</th></tr>\";\n  \n  while($row = $result->fetch_assoc()) {\n    echo \"<tr>\";\n    echo \"<td>\" . $row[\"id\"] . \"</td>\";\n    echo \"<td>\" . $row[\"name\"] . \"</td>\";\n    echo \"<td>\" . $row[\"email\"] . \"</td>\";\n    echo \"</tr>\";\n  }\n  \n  echo \"</table>\";\n} else {\n  echo \"0 results\";\n}\n\n$conn->close();\n?>\n\n// Nginx配置示例（/etc/nginx/sites-available/default）\nserver {\n  listen 80 default_server;\n  listen [::]:80 default_server;\n  \n  root /var/www/html;\n  index index.php index.html index.htm;\n  server_name _;\n  \n  location / {\n    try_files $uri $uri/ /index.php?$query_string;\n  }\n  \n  location ~ \\.php$ {\n    include snippets/fastcgi-php.conf;\n    fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;\n  }\n  \n  location ~ /\\.ht {\n    deny all;\n  }\n}",
+    "stats": {
+      "github": "中等",
+      "jobs": "高",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "了解Linux基础命令和服务器管理",
+      "学习Nginx Web服务器配置",
+      "掌握PHP编程基础",
+      "学习MySQL数据库设计和操作",
+      "PHP与MySQL交互开发",
+      "学习Nginx性能优化和缓存策略",
+      "掌握安全性最佳实践"
+    ],
+    "resources": [
+      { "title": "Nginx官方文档", "url": "https://nginx.org/en/docs/" },
+      { "title": "PHP官方文档", "url": "https://www.php.net/docs.php" },
+      { "title": "MySQL参考手册", "url": "https://dev.mysql.com/doc/" },
+      { "title": "Linux命令大全", "url": "https://www.linuxcool.com/" },
+      { "title": "LEMP栈搭建指南", "url": "#" }
+    ],
+    "relatedStacks": [
+      { "id": "lamp", "name": "LAMP Stack", "icon": "💻" },
+      { "id": "wamp", "name": "WAMP Stack", "icon": "🪟" },
+      { "id": "wordpress", "name": "WordPress", "icon": "📝" },
+      { "id": "laravel", "name": "Laravel", "icon": "🚗" }
+    ]
+  },
+  "mevn": {
+    "id": "mevn",
+    "name": "MEVN Stack",
+    "icon": "🎨",
+    "tags": ["全栈", "JavaScript"],
+    "popularity": 3,
+    "description": "MongoDB, Express, Vue.js, Node.js 组成的JavaScript全栈开发技术栈。",
+    "longDescription": "MEVN是由MongoDB、Express.js、Vue.js和Node.js组成的JavaScript技术栈。作为MERN和MEAN栈的替代方案，MEVN使用Vue.js作为前端框架，以其渐进式的特性和易学易用而受到开发者欢迎。Vue.js具有较低的学习曲线和灵活的集成能力，使MEVN栈成为初创企业和小型团队的理想选择，同时也适用于大型应用程序开发。",
+    "components": [
+      { "name": "MongoDB", "icon": "🍃", "description": "一个文档型NoSQL数据库，使用JSON格式存储数据，适合处理大量非结构化数据。" },
+      { "name": "Express", "icon": "🚂", "description": "基于Node.js的Web应用框架，提供了一组强大的功能来构建单页和多页Web应用。" },
+      { "name": "Vue.js", "icon": "🟩", "description": "一个渐进式的JavaScript前端框架，用于构建用户界面，易于学习和集成。" },
+      { "name": "Node.js", "icon": "🟢", "description": "一个基于Chrome V8引擎的JavaScript运行时，用于构建可扩展的网络应用和后端服务。" }
+    ],
+    "advantages": [
+      { "icon": "🔄", "title": "全JavaScript栈", "description": "前后端统一的JavaScript语言，减少了技术切换成本，提高开发效率。" },
+      { "icon": "📚", "title": "低学习曲线", "description": "Vue.js具有详细的文档和较低的学习曲线，适合初学者和快速开发。" },
+      { "icon": "🧩", "title": "渐进式框架", "description": "Vue.js可以逐步采用，从简单应用到复杂项目都能胜任。" },
+      { "icon": "⚡", "title": "高性能", "description": "Vue.js的虚拟DOM和响应式系统提供了出色的性能表现。" }
+    ],
+    "codeExample": "// 基本的MEVN应用架构示例\n\n// Vue.js前端组件\n<template>\n  <div id=\"app\">\n    <h1>MEVN Stack示例</h1>\n    <ul>\n      <li v-for=\"item in items\" :key=\"item._id\">{{ item.name }}</li>\n    </ul>\n  </div>\n</template>\n\n<script>\nimport axios from 'axios';\n\nexport default {\n  name: 'App',\n  data() {\n    return {\n      items: []\n    }\n  },\n  mounted() {\n    // 从Express API获取数据\n    axios.get('/api/data')\n      .then(response => {\n        this.items = response.data;\n      })\n      .catch(error => {\n        console.error(error);\n      });\n  }\n}\n</script>\n\n// 后端Express API\nconst express = require('express');\nconst mongoose = require('mongoose');\nconst app = express();\n\n// 连接MongoDB\nmongoose.connect('mongodb://localhost/mevn_app', {\n  useNewUrlParser: true,\n  useUnifiedTopology: true\n});\n\n// 定义数据模型\nconst Item = mongoose.model('Item', {\n  name: String,\n  date: { type: Date, default: Date.now }\n});\n\n// API路由\napp.get('/api/data', async (req, res) => {\n  try {\n    const items = await Item.find();\n    res.json(items);\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\napp.listen(5000, () => console.log('Server running on port 5000'));",
+    "stats": {
+      "github": "中高",
+      "jobs": "增长中",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "学习JavaScript和ES6+语法",
+      "学习Vue.js基础和组件开发",
+      "掌握Vuex状态管理和Vue Router",
+      "学习Node.js和Express框架",
+      "学习MongoDB数据库操作",
+      "构建RESTful API",
+      "整合前后端进行全栈开发"
+    ],
+    "resources": [
+      { "title": "Vue.js官方文档", "url": "https://vuejs.org/guide/introduction.html" },
+      { "title": "Node.js官方文档", "url": "https://nodejs.org/" },
+      { "title": "Express指南", "url": "https://expressjs.com/" },
+      { "title": "MongoDB教程", "url": "https://docs.mongodb.com/" },
+      { "title": "MEVN Stack完全指南", "url": "#" }
+    ],
+    "relatedStacks": [
+      { "id": "mern", "name": "MERN Stack", "icon": "📱" },
+      { "id": "mean", "name": "MEAN Stack", "icon": "🌐" },
+      { "id": "nuxt", "name": "Nuxt.js", "icon": "🟩" }
+    ]
+  },
+  "dotnet": {
+    "id": "dotnet",
+    "name": ".NET Stack",
+    "icon": "🔷",
+    "tags": ["全栈", "C#"],
+    "popularity": 4,
+    "description": "ASP.NET, C#, SQL Server 组成的微软生态系统全栈开发技术栈。",
+    "longDescription": ".NET Stack是微软生态系统中的全栈开发技术栈，主要由ASP.NET Core（Web框架）、C#（编程语言）和SQL Server（数据库）组成。这个技术栈提供了完整的企业级应用开发解决方案，从前端到后端，从桌面到云端，都有相应的技术支持。.NET栈以其高性能、安全性和跨平台能力而闻名，特别适合企业级应用和需要长期维护的大型项目。",
+    "components": [
+      { "name": "ASP.NET Core", "icon": "🌐", "description": "开源的跨平台Web框架，用于构建现代、云优化的互联网连接应用程序。" },
+      { "name": "C#", "icon": "📝", "description": "强类型编程语言，结合了高性能、面向对象和功能性编程范式。" },
+      { "name": "SQL Server", "icon": "🗄️", "description": "微软的关系型数据库管理系统，提供企业级数据存储和管理功能。" },
+      { "name": "Entity Framework", "icon": "🔄", "description": "ORM框架，简化了C#代码和数据库之间的交互。" }
+    ],
+    "advantages": [
+      { "icon": "🏢", "title": "企业级支持", "description": "微软提供全面的技术支持、详细文档和长期维护，适合企业环境。" },
+      { "icon": "🔒", "title": "安全可靠", "description": "内置的安全功能和定期更新，提供高水平的安全保障。" },
+      { "icon": "🌍", "title": "跨平台支持", "description": ".NET Core支持Windows、Linux和macOS，打破了平台限制。" },
+      { "icon": "🚀", "title": "高性能", "description": "ASP.NET Core是最快的Web框架之一，适合高性能要求的应用。" }
+    ],
+    "codeExample": "// 基本的.NET应用架构示例\n\n// ASP.NET Core控制器\nusing Microsoft.AspNetCore.Mvc;\nusing System.Collections.Generic;\nusing System.Threading.Tasks;\nusing DotNetApp.Models;\nusing DotNetApp.Services;\n\nnamespace DotNetApp.Controllers\n{\n    [ApiController]\n    [Route(\"api/[controller]\")]\n    public class ItemsController : ControllerBase\n    {\n        private readonly IItemService _itemService;\n\n        public ItemsController(IItemService itemService)\n        {\n            _itemService = itemService;\n        }\n\n        [HttpGet]\n        public async Task<ActionResult<IEnumerable<Item>>> GetItems()\n        {\n            var items = await _itemService.GetItemsAsync();\n            return Ok(items);\n        }\n\n        [HttpGet(\"{id}\")]\n        public async Task<ActionResult<Item>> GetItem(int id)\n        {\n            var item = await _itemService.GetItemAsync(id);\n            if (item == null)\n            {\n                return NotFound();\n            }\n            return item;\n        }\n\n        [HttpPost]\n        public async Task<ActionResult<Item>> CreateItem(Item item)\n        {\n            await _itemService.AddItemAsync(item);\n            return CreatedAtAction(nameof(GetItem), new { id = item.Id }, item);\n        }\n    }\n}\n\n// 数据模型\nusing System;\n\nnamespace DotNetApp.Models\n{\n    public class Item\n    {\n        public int Id { get; set; }\n        public string Name { get; set; }\n        public DateTime CreatedDate { get; set; } = DateTime.Now;\n    }\n}\n\n// 数据库上下文\nusing Microsoft.EntityFrameworkCore;\nusing DotNetApp.Models;\n\nnamespace DotNetApp.Data\n{\n    public class AppDbContext : DbContext\n    {\n        public AppDbContext(DbContextOptions<AppDbContext> options)\n            : base(options)\n        {\n        }\n\n        public DbSet<Item> Items { get; set; }\n    }\n}",
+    "stats": {
+      "github": "高",
+      "jobs": "非常高",
+      "community": "成熟"
+    },
+    "learningPath": [
+      "学习C#基础和面向对象编程",
+      "了解.NET框架基本概念",
+      "学习ASP.NET Core基础",
+      "掌握Entity Framework Core",
+      "学习SQL Server和数据访问",
+      "学习Web API开发",
+      "掌握前端框架与.NET的集成",
+      "学习云部署和DevOps实践"
+    ],
+    "resources": [
+      { "title": ".NET官方文档", "url": "https://docs.microsoft.com/dotnet/" },
+      { "title": "C#指南", "url": "https://docs.microsoft.com/dotnet/csharp/" },
+      { "title": "ASP.NET Core文档", "url": "https://docs.microsoft.com/aspnet/core/" },
+      { "title": "Entity Framework Core文档", "url": "https://docs.microsoft.com/ef/core/" },
+      { "title": "Microsoft Learn平台", "url": "https://learn.microsoft.com/" }
+    ],
+    "relatedStacks": [
+      { "id": "azure", "name": "Azure Cloud", "icon": "☁️" },
+      { "id": "blazor", "name": "Blazor", "icon": "🔥" },
+      { "id": "xamarin", "name": "Xamarin", "icon": "📱" },
+      { "id": "maui", "name": ".NET MAUI", "icon": "🌈" }
+    ]
+  },
+  "ruby-on-rails": {
+    "id": "ruby-on-rails",
+    "name": "Ruby on Rails",
+    "icon": "💎",
+    "tags": ["全栈", "Ruby"],
+    "popularity": 3,
+    "description": "Ruby, Rails, PostgreSQL 组成的全栈开发技术栈，以约定优于配置著称。",
+    "longDescription": "Ruby on Rails（简称Rails）是一个使用Ruby语言编写的开源Web应用框架，它遵循MVC（模型-视图-控制器）架构模式，强调\"约定优于配置\"的理念。这个框架提供了从数据库交互到HTML生成的全栈解决方案，大大提高了Web应用的开发速度。Rails特别适合快速原型开发和创业公司，因为它注重开发者体验和生产效率。许多知名网站如GitHub、Shopify、Airbnb等都是使用Rails构建的。",
+    "components": [
+      { "name": "Ruby", "icon": "💎", "description": "一种优雅、简洁的面向对象编程语言，以开发者友好和表达力强而著称。" },
+      { "name": "Rails框架", "icon": "🛤️", "description": "基于Ruby的Web应用框架，提供了完整的MVC架构和丰富的库。" },
+      { "name": "PostgreSQL", "icon": "🐘", "description": "强大的开源关系型数据库，具有高度可扩展性和符合标准的SQL实现。" },
+      { "name": "Active Record", "icon": "📊", "description": "Rails的ORM（对象关系映射）系统，简化了数据库操作。" }
+    ],
+    "advantages": [
+      { "icon": "⚡", "title": "开发速度快", "description": "约定优于配置的理念和丰富的内置功能大大缩短了开发周期。" },
+      { "icon": "🧪", "title": "测试友好", "description": "内置测试框架和BDD/TDD支持，鼓励高质量代码和测试驱动开发。" },
+      { "icon": "🔧", "title": "强大的生态系统", "description": "拥有大量的Gem（Ruby包）和插件，可以轻松扩展功能。" },
+      { "icon": "🛠️", "title": "完整的工具集", "description": "从数据库迁移到资产管理，Rails提供了全面的开发工具。" }
+    ],
+    "codeExample": "# 基本的Ruby on Rails应用架构示例\n\n# 模型 (app/models/item.rb)\nclass Item < ApplicationRecord\n  validates :name, presence: true\n  scope :recent, -> { order(created_at: :desc) }\n  \n  def formatted_date\n    created_at.strftime(\"%Y-%m-%d\")\n  end\nend\n\n# 控制器 (app/controllers/items_controller.rb)\nclass ItemsController < ApplicationController\n  before_action :set_item, only: [:show, :edit, :update, :destroy]\n  \n  # GET /items\n  def index\n    @items = Item.recent\n    respond_to do |format|\n      format.html\n      format.json { render json: @items }\n    end\n  end\n  \n  # GET /items/1\n  def show\n  end\n  \n  # GET /items/new\n  def new\n    @item = Item.new\n  end\n  \n  # POST /items\n  def create\n    @item = Item.new(item_params)\n    \n    if @item.save\n      redirect_to @item, notice: 'Item was successfully created.'\n    else\n      render :new\n    end\n  end\n  \n  private\n  \n  def set_item\n    @item = Item.find(params[:id])\n  end\n  \n  def item_params\n    params.require(:item).permit(:name, :description)\n  end\nend\n\n# 视图 (app/views/items/index.html.erb)\n<h1>Items</h1>\n\n<table>\n  <thead>\n    <tr>\n      <th>Name</th>\n      <th>Created At</th>\n      <th colspan=\"3\"></th>\n    </tr>\n  </thead>\n  \n  <tbody>\n    <% @items.each do |item| %>\n      <tr>\n        <td><%= item.name %></td>\n        <td><%= item.formatted_date %></td>\n        <td><%= link_to 'Show', item %></td>\n        <td><%= link_to 'Edit', edit_item_path(item) %></td>\n        <td><%= link_to 'Destroy', item, method: :delete, data: { confirm: 'Are you sure?' } %></td>\n      </tr>\n    <% end %>\n  </tbody>\n</table>\n\n<%= link_to 'New Item', new_item_path %>",
+    "stats": {
+      "github": "高",
+      "jobs": "中等",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "学习Ruby语言基础",
+      "了解Rails框架的核心概念和MVC模式",
+      "学习Active Record和数据库交互",
+      "掌握路由系统和控制器开发",
+      "学习视图层和前端集成",
+      "学习测试驱动开发（TDD）",
+      "掌握Rails应用部署和优化"
+    ],
+    "resources": [
+      { "title": "Ruby on Rails官方指南", "url": "https://guides.rubyonrails.org/" },
+      { "title": "Ruby文档", "url": "https://ruby-doc.org/" },
+      { "title": "RubyGems", "url": "https://rubygems.org/" },
+      { "title": "Ruby on Rails教程", "url": "https://www.railstutorial.org/" },
+      { "title": "Rails API文档", "url": "https://api.rubyonrails.org/" }
+    ],
+    "relatedStacks": [
+      { "id": "sinatra", "name": "Sinatra", "icon": "🎵" },
+      { "id": "rspec", "name": "RSpec", "icon": "🧪" },
+      { "id": "shopify", "name": "Shopify", "icon": "🛒" },
+      { "id": "jekyll", "name": "Jekyll", "icon": "📄" }
+    ]
+  },
+  "spring-boot": {
+    "id": "spring-boot",
+    "name": "Spring Boot",
+    "icon": "☕",
+    "tags": ["后端栈", "Java"],
+    "popularity": 5,
+    "description": "Java, Spring Boot, Hibernate, MySQL 组成的企业级后端开发技术栈。",
+    "longDescription": "Spring Boot是基于Spring框架的快速开发工具，旨在简化Java应用的初始设置和开发过程。它采用\"约定优于配置\"的理念，大幅减少了样板代码，内置了嵌入式服务器，并提供了自动配置特性。Spring Boot特别适合构建微服务和企业级应用，它有强大的生态系统支持，包括安全认证、数据访问、消息队列等各方面的组件。作为企业级开发的首选技术栈之一，Spring Boot在金融、电商、政企等各行业有广泛应用。",
+    "components": [
+      { "name": "Java", "icon": "☕", "description": "强大的面向对象编程语言，跨平台、高性能，广泛应用于企业级应用开发。" },
+      { "name": "Spring Boot", "icon": "🍃", "description": "基于Spring框架的快速开发工具，自动配置和内置服务器，减少了配置工作。" },
+      { "name": "Hibernate/JPA", "icon": "🔄", "description": "Java持久层框架，用于对象关系映射(ORM)，简化数据库操作。" },
+      { "name": "MySQL/PostgreSQL", "icon": "🗄️", "description": "关系型数据库，用于存储和管理应用数据。" }
+    ],
+    "advantages": [
+      { "icon": "🏢", "title": "企业级支持", "description": "强大的生态系统和商业支持，适合大型企业应用和长期维护。" },
+      { "icon": "🔌", "title": "易于集成", "description": "丰富的starter和自动配置，轻松集成各种第三方服务和组件。" },
+      { "icon": "🧩", "title": "模块化架构", "description": "支持微服务架构，易于扩展和维护复杂应用。" },
+      { "icon": "🔒", "title": "安全可靠", "description": "成熟的安全框架和稳定的性能表现，适合关键业务系统。" }
+    ],
+    "codeExample": "// Spring Boot应用架构示例\n\n// 主应用类\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\n\n@SpringBootApplication\npublic class Application {\n    public static void main(String[] args) {\n        SpringApplication.run(Application.class, args);\n    }\n}\n\n// 实体类\nimport javax.persistence.*;\nimport java.time.LocalDateTime;\n\n@Entity\n@Table(name = \"items\")\npublic class Item {\n    \n    @Id\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n    \n    private String name;\n    \n    private String description;\n    \n    private LocalDateTime createdAt = LocalDateTime.now();\n    \n    // Getters and setters\n    // ...\n}\n\n// 存储库接口\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.stereotype.Repository;\n\n@Repository\npublic interface ItemRepository extends JpaRepository<Item, Long> {\n    List<Item> findByNameContaining(String name);\n}\n\n// 服务层\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.stereotype.Service;\nimport java.util.List;\n\n@Service\npublic class ItemService {\n    \n    private final ItemRepository itemRepository;\n    \n    @Autowired\n    public ItemService(ItemRepository itemRepository) {\n        this.itemRepository = itemRepository;\n    }\n    \n    public List<Item> findAllItems() {\n        return itemRepository.findAll();\n    }\n    \n    public Item findItemById(Long id) {\n        return itemRepository.findById(id)\n            .orElseThrow(() -> new RuntimeException(\"Item not found\"));\n    }\n    \n    public Item saveItem(Item item) {\n        return itemRepository.save(item);\n    }\n}\n\n// REST控制器\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.ResponseEntity;\nimport org.springframework.web.bind.annotation.*;\nimport java.util.List;\n\n@RestController\n@RequestMapping(\"/api/items\")\npublic class ItemController {\n    \n    private final ItemService itemService;\n    \n    @Autowired\n    public ItemController(ItemService itemService) {\n        this.itemService = itemService;\n    }\n    \n    @GetMapping\n    public List<Item> getAllItems() {\n        return itemService.findAllItems();\n    }\n    \n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Item> getItemById(@PathVariable Long id) {\n        Item item = itemService.findItemById(id);\n        return ResponseEntity.ok(item);\n    }\n    \n    @PostMapping\n    public ResponseEntity<Item> createItem(@RequestBody Item item) {\n        Item savedItem = itemService.saveItem(item);\n        return ResponseEntity.ok(savedItem);\n    }\n}",
+    "stats": {
+      "github": "非常高",
+      "jobs": "非常高",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "学习Java基础和面向对象编程",
+      "了解Spring框架核心概念",
+      "学习Spring Boot基础和自动配置",
+      "掌握Spring Data JPA和数据库交互",
+      "学习RESTful API设计和开发",
+      "掌握Spring Security安全框架",
+      "学习微服务架构和Spring Cloud",
+      "掌握测试和部署最佳实践"
+    ],
+    "resources": [
+      { "title": "Spring官方文档", "url": "https://spring.io/projects/spring-boot" },
+      { "title": "Spring Guides", "url": "https://spring.io/guides" },
+      { "title": "Baeldung Spring教程", "url": "https://www.baeldung.com/spring-tutorial" },
+      { "title": "Spring Boot实战", "url": "https://www.manning.com/books/spring-boot-in-action" },
+      { "title": "Java文档", "url": "https://docs.oracle.com/en/java/" }
+    ],
+    "relatedStacks": [
+      { "id": "spring-cloud", "name": "Spring Cloud", "icon": "☁️" },
+      { "id": "spring-security", "name": "Spring Security", "icon": "🔒" },
+      { "id": "spring-batch", "name": "Spring Batch", "icon": "📦" },
+      { "id": "microservices", "name": "微服务架构", "icon": "🧩" }
+    ]
+  },
+  "flask-python": {
+    "id": "flask-python",
+    "name": "Flask + Python",
+    "icon": "🐍",
+    "tags": ["后端栈", "Python"],
+    "popularity": 4,
+    "description": "Python, Flask, SQLAlchemy 组成的轻量级后端开发技术栈。",
+    "longDescription": "Flask是一个轻量级的Python Web框架，以其简洁、灵活和易于上手而著称。它被称为\"微框架\"，因为它不强制要求特定的工具或库，开发者可以自由选择最适合项目的组件。Flask通常与SQLAlchemy（ORM库）和Jinja2（模板引擎）搭配使用，形成一个完整的后端技术栈。这个技术栈特别适合小型到中型项目、API开发、原型设计和学术研究，因为Python在数据科学和机器学习领域有着广泛应用。",
+    "components": [
+      { "name": "Python", "icon": "🐍", "description": "易学易用的高级编程语言，拥有丰富的标准库和庞大的社区支持。" },
+      { "name": "Flask", "icon": "🧪", "description": "轻量级的Python Web框架，灵活且易于扩展，遵循简约设计原则。" },
+      { "name": "SQLAlchemy", "icon": "🗄️", "description": "Python的SQL工具包和ORM框架，提供了高效且灵活的数据库访问。" },
+      { "name": "Jinja2", "icon": "📝", "description": "快速、表达能力强、可扩展的模板引擎，与Flask紧密集成。" }
+    ],
+    "advantages": [
+      { "icon": "🚀", "title": "快速开发", "description": "简单的API和低学习曲线，允许快速构建和迭代应用。" },
+      { "icon": "🧩", "title": "灵活可定制", "description": "微框架设计允许开发者自由选择组件和库，高度定制化。" },
+      { "icon": "📊", "title": "数据科学友好", "description": "与Python数据科学生态系统（如Pandas、NumPy、SciPy）无缝集成。" },
+      { "icon": "🌱", "title": "轻量级", "description": "核心简单精炼，只提供基本功能，可根据需要扩展，减少不必要的开销。" }
+    ],
+    "codeExample": "# Flask应用架构示例\n\n# 导入必要的包\nfrom flask import Flask, request, jsonify\nfrom flask_sqlalchemy import SQLAlchemy\nfrom datetime import datetime\n\n# 初始化Flask应用\napp = Flask(__name__)\n\n# 配置数据库\napp.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///items.db'\napp.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False\ndb = SQLAlchemy(app)\n\n# 定义模型\nclass Item(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    name = db.Column(db.String(100), nullable=False)\n    description = db.Column(db.Text)\n    created_at = db.Column(db.DateTime, default=datetime.utcnow)\n    \n    def __repr__(self):\n        return f'<Item {self.name}>'\n    \n    def to_dict(self):\n        return {\n            'id': self.id,\n            'name': self.name,\n            'description': self.description,\n            'created_at': self.created_at.isoformat()\n        }\n\n# 创建数据库表\n@app.before_first_request\ndef create_tables():\n    db.create_all()\n\n# 定义路由\n@app.route('/api/items', methods=['GET'])\ndef get_items():\n    items = Item.query.all()\n    return jsonify([item.to_dict() for item in items])\n\n@app.route('/api/items/<int:item_id>', methods=['GET'])\ndef get_item(item_id):\n    item = Item.query.get_or_404(item_id)\n    return jsonify(item.to_dict())\n\n@app.route('/api/items', methods=['POST'])\ndef create_item():\n    data = request.json\n    if not data or not data.get('name'):\n        return jsonify({'error': 'Name is required'}), 400\n    \n    item = Item(\n        name=data.get('name'),\n        description=data.get('description')\n    )\n    \n    db.session.add(item)\n    db.session.commit()\n    \n    return jsonify(item.to_dict()), 201\n\n@app.route('/api/items/<int:item_id>', methods=['PUT', 'PATCH'])\ndef update_item(item_id):\n    item = Item.query.get_or_404(item_id)\n    data = request.json\n    \n    if data.get('name'):\n        item.name = data['name']\n    if data.get('description'):\n        item.description = data['description']\n    \n    db.session.commit()\n    return jsonify(item.to_dict())\n\n@app.route('/api/items/<int:item_id>', methods=['DELETE'])\ndef delete_item(item_id):\n    item = Item.query.get_or_404(item_id)\n    db.session.delete(item)\n    db.session.commit()\n    return jsonify({'message': 'Item deleted'})\n\n# 启动应用\nif __name__ == '__main__':\n    app.run(debug=True)",
+    "stats": {
+      "github": "高",
+      "jobs": "高",
+      "community": "活跃"
+    },
+    "learningPath": [
+      "学习Python基础编程",
+      "了解HTTP协议和REST API概念",
+      "学习Flask框架基础",
+      "掌握SQLAlchemy和数据库操作",
+      "学习Jinja2模板引擎",
+      "学习Flask扩展（如Flask-Login、Flask-RESTful）",
+      "掌握API开发和测试",
+      "学习部署和服务器配置"
+    ],
+    "resources": [
+      { "title": "Flask官方文档", "url": "https://flask.palletsprojects.com/" },
+      { "title": "Python官方文档", "url": "https://docs.python.org/" },
+      { "title": "SQLAlchemy文档", "url": "https://docs.sqlalchemy.org/" },
+      { "title": "Flask Mega-Tutorial", "url": "https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world" },
+      { "title": "Flask Web开发实战", "url": "https://helloflask.com/" }
+    ],
+    "relatedStacks": [
+      { "id": "django", "name": "Django", "icon": "🦄" },
+      { "id": "fastapi", "name": "FastAPI", "icon": "⚡" },
+      { "id": "data-science", "name": "数据科学", "icon": "📊" },
+      { "id": "ml", "name": "机器学习", "icon": "🤖" }
+    ]
+  }
+} 

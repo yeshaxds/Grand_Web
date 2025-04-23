@@ -88,6 +88,9 @@ CodeLearn是一个现代化的编程学习平台，旨在为开发者提供丰�
 - npm (v6.0.0+)
 
 ### 安装依赖
+```bash
+ npm install monaco-editor-vue3 --save
+```
 
 ```bash
 npm install

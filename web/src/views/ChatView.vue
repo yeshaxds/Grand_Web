@@ -1,8 +1,11 @@
 <template>
+  <!-- 聊天容器 - 整体聊天界面 -->
   <div class="chat-container">
+    <!-- 聊天头部 - 包含标题和操作按钮 -->
     <div class="chat-header">
       <h1>AI助手对话</h1>
       <p>在这里与AI助手进行对话，获取编程问题的解答</p>
+      <!-- 操作按钮区域 - 下载和清除聊天记录 -->
       <div class="chat-actions">
         <button @click="downloadChatHistory" class="download-history-button">
           <span class="download-icon">💾</span> 下载记录
@@ -13,18 +16,24 @@
       </div>
     </div>
 
+    <!-- 聊天消息区域 - 显示所有对话内容 -->
     <div class="chat-messages" ref="messagesContainer">
+      <!-- 消息循环 - 遍历并显示所有聊天消息 -->
       <div v-for="(message, index) in messages" :key="index"
         :class="['message', message.role === 'user' ? 'user-message' : 'assistant-message']">
         <div class="message-content">
+          <!-- 消息头像 -->
           <div class="message-avatar">
             <img
               :src="message.role === 'user' ? require('@/assets/user-avatar.png') : require('@/assets/assistant-avatar.png')"
               alt="Avatar" />
           </div>
+          <!-- 消息文本内容 -->
           <div class="message-text">
             <div class="message-role">{{ message.role === 'user' ? '你' : 'AI助手' }}</div>
+            <!-- 使用v-html渲染格式化后的消息内容，支持代码块等格式 -->
             <div class="message-body" v-html="formatMessageContent(message.content)"></div>
+            <!-- 错误消息的重试选项 -->
             <div v-if="message.isError" class="retry-container">
               <button @click="retryLastMessage" class="retry-button">重试请求</button>
               <button @click="toggleModel" class="model-toggle-button">
@@ -33,8 +42,10 @@
             </div>
           </div>
         </div>
+        <!-- 消息时间戳 -->
         <div class="message-time">{{ message.time }}</div>
       </div>
+      <!-- 加载中状态显示 -->
       <div v-if="isLoading" class="message assistant-message">
         <div class="message-content">
           <div class="message-avatar">
@@ -48,6 +59,7 @@
       </div>
     </div>
 
+    <!-- 聊天输入区域 - 用户输入和发送按钮 -->
     <div class="chat-input">
       <textarea v-model="userInput" placeholder="输入你的问题..." @keyup.enter.exact="sendMessage"
         :disabled="isLoading"></textarea>
@@ -60,16 +72,22 @@
 </template>
 
 <script>
+// 导入Gemini API服务
 import { getGeminiResponse, setUseAlternateModel } from '@/services/geminiService';
 
 export default {
   name: 'ChatView',
   data() {
     return {
+      // 用户输入内容
       userInput: '',
+      // 是否正在加载（等待AI响应）
       isLoading: false,
+      // 是否使用备用模型
       useAlternateModel: false,
+      // 记录最后一条用户消息，用于重试功能
       lastUserMessage: '',
+      // 消息数组，存储所有对话历史
       messages: [
         {
           role: 'assistant',
@@ -90,6 +108,7 @@ export default {
       请用简洁、准确、易于理解的方式回答问题，尽量提供代码示例。如果问题不清楚，可以礼貌地请求更多信息。回答尽量使用中文。`
     }
   },
+  // 组件挂载完成后的钩子
   mounted() {
     // 尝试从localStorage恢复聊天历史
     this.loadChatHistory();
@@ -98,16 +117,20 @@ export default {
     this.initSystemPrompt();
   },
   methods: {
+    // 初始化AI系统提示 - 设置AI助手的角色和行为
     initSystemPrompt() {
       // 在初始化时，向AI发送系统提示，但不显示在UI中
       setTimeout(() => {
         this.getAIResponse(this.systemPrompt, false);
       }, 500);
     },
+
+    // 发送用户消息
     async sendMessage() {
+      // 验证输入是否有效，以及是否正在处理上一条消息
       if (!this.userInput.trim() || this.isLoading) return;
 
-      // 添加用户消息
+      // 添加用户消息到消息列表
       const userMessage = this.userInput.trim();
       this.lastUserMessage = userMessage; // 保存最后一条用户消息，用于重试
 
@@ -118,9 +141,10 @@ export default {
         isError: false
       });
 
+      // 清空输入框
       this.userInput = '';
 
-      // 滚动到底部
+      // 滚动到底部显示最新消息
       this.$nextTick(() => {
         this.scrollToBottom();
       });
@@ -132,7 +156,9 @@ export default {
       this.saveChatHistory();
     },
 
+    // 获取AI响应
     async getAIResponse(message, showInChat = true) {
+      // 设置加载状态
       this.isLoading = true;
 
       try {
@@ -152,13 +178,16 @@ export default {
       } catch (error) {
         console.error('获取AI响应失败:', error);
         if (showInChat) {
+          // 显示错误消息
           this.receiveResponse(`抱歉，获取AI响应时出现错误：${error.message || '未知错误'}。您可以尝试重试或切换模型。`, true);
         }
       } finally {
+        // 无论成功或失败，都结束加载状态
         this.isLoading = false;
       }
     },
 
+    // 获取消息历史记录用于API调用
     getMessageHistoryForAPI() {
       // 只获取最近的10条消息作为上下文，避免超出token限制
       return this.messages.slice(-10).map(msg => ({
@@ -167,6 +196,7 @@ export default {
       }));
     },
 
+    // 接收AI响应并添加到消息列表
     receiveResponse(response, isError = false) {
       this.messages.push({
         role: 'assistant',
@@ -175,7 +205,7 @@ export default {
         isError: isError
       });
 
-      // 滚动到底部
+      // 滚动到底部显示最新消息
       this.$nextTick(() => {
         this.scrollToBottom();
       });
@@ -184,30 +214,33 @@ export default {
       this.saveChatHistory();
     },
 
+    // 滚动到消息容器底部
     scrollToBottom() {
       const container = this.$refs.messagesContainer;
       container.scrollTop = container.scrollHeight;
     },
 
+    // 获取当前时间格式化为HH:MM
     getCurrentTime() {
       const now = new Date();
       return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
     },
 
+    // 格式化消息内容 - 处理代码块和换行符
     formatMessageContent(content) {
-      // 将代码块格式化
+      // 验证内容是否存在
       if (!content) return '';
 
-      // 替换```code```格式的代码块
+      // 替换```code```格式的代码块为HTML预格式化代码
       let formattedContent = content.replace(/```([\s\S]*?)```/g, '<pre class="code-block">$1</pre>');
 
-      // 替换换行符为<br>
+      // 替换换行符为HTML换行标签
       formattedContent = formattedContent.replace(/\n/g, '<br>');
 
       return formattedContent;
     },
 
-    // 重试上一条消息
+    // 重试上一条消息 - 当AI响应失败时使用
     async retryLastMessage() {
       if (this.lastUserMessage && !this.isLoading) {
         await this.getAIResponse(this.lastUserMessage);
@@ -264,6 +297,7 @@ export default {
     clearChatHistory() {
       // 确认对话框
       if (confirm('确定要清除所有聊天记录吗？此操作不可恢复。')) {
+        // 重置消息为初始欢迎消息
         this.messages = [
           {
             role: 'assistant',
@@ -272,13 +306,14 @@ export default {
             isError: false
           }
         ];
+        // 移除localStorage中的聊天历史
         localStorage.removeItem('chatHistory');
         localStorage.removeItem('chatHistoryTimestamp');
         console.log('聊天历史已清除');
       }
     },
 
-    // 下载聊天历史为文本文件
+    // 下载聊天历史为Markdown文件
     downloadChatHistory() {
       try {
         // 准备下载内容
@@ -326,7 +361,7 @@ export default {
 </script>
 
 <style scoped>
-/* 补充样式，处理代码块显示 */
+/* 代码块样式 */
 :deep(.code-block) {
   background-color: #f5f5f5;
   border-radius: 4px;
@@ -341,6 +376,7 @@ export default {
   border-left: 3px solid #42b983;
 }
 
+/* 链接样式 */
 :deep(a) {
   color: #42b983;
   text-decoration: none;
@@ -350,12 +386,14 @@ export default {
   text-decoration: underline;
 }
 
+/* 重试功能容器样式 */
 .retry-container {
   margin-top: 10px;
   display: flex;
   gap: 10px;
 }
 
+/* 重试按钮和模型切换按钮样式 */
 .retry-button,
 .model-toggle-button {
   padding: 5px 10px;
@@ -382,11 +420,13 @@ export default {
   background-color: #cceeff;
 }
 
+/* 聊天头部样式 */
 .chat-header {
   text-align: center;
   margin-bottom: 20px;
 }
 
+/* 聊天操作按钮容器 */
 .chat-actions {
   display: flex;
   justify-content: center;
@@ -394,35 +434,97 @@ export default {
   margin-top: 10px;
 }
 
+/* 清除历史和下载历史按钮样式 */
 .clear-history-button,
 .download-history-button {
   background-color: #f5f5f5;
-  border: 1px solid #ddd;
+  border: none;
   border-radius: 4px;
-  padding: 5px 10px;
+  padding: 8px 12px;
   font-size: 0.9rem;
-  color: #555;
   cursor: pointer;
   display: flex;
   align-items: center;
-  transition: all 0.2s ease;
+  gap: 5px;
+  transition: background-color 0.2s;
 }
 
 .clear-history-button:hover {
-  background-color: #f8d7da;
-  border-color: #f5c6cb;
-  color: #721c24;
+  background-color: #ffebee;
 }
 
 .download-history-button:hover {
-  background-color: #d4edda;
-  border-color: #c3e6cb;
-  color: #155724;
+  background-color: #e3f2fd;
 }
 
 .delete-icon,
 .download-icon {
-  margin-right: 5px;
   font-size: 1.1rem;
+}
+
+/* 输入框样式 */
+.chat-input {
+  display: flex;
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+/* 聊天文本区域样式 */
+.chat-input textarea {
+  flex: 1;
+  height: 80px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: none;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+/* 发送按钮样式 */
+.chat-input button {
+  width: 100px;
+  margin-left: 10px;
+  background-color: #42b983;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+.chat-input button:hover {
+  background-color: #3aa876;
+}
+
+.chat-input button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* 打字动画效果 */
+.typing-animation::after {
+  content: '';
+  animation: typing 1.5s infinite;
+}
+
+@keyframes typing {
+  0% {
+    content: '';
+  }
+
+  25% {
+    content: '.';
+  }
+
+  50% {
+    content: '..';
+  }
+
+  75% {
+    content: '...';
+  }
 }
 </style>

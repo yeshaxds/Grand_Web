@@ -26,6 +26,16 @@
       <router-link to="/resources">学习资源</router-link>
       <router-link to="/code-editor">代码编辑器</router-link>
       <router-link to="/chat">AI对话</router-link>
+      <div class="nav-links-exm">
+        <span>示例</span>
+        <div class="nav-links-exm-content">
+          <p><router-link to="/rtc">WebRTC</router-link></p>
+          <p><router-link to="/counter">Vuex示例</router-link></p>
+          <p><router-link to="/pinia-counter">Pinia示例</router-link></p>
+          <p><router-link to="/html-demo">v-html示例</router-link></p>
+        </div>
+      </div>
+
       <router-link to="/about">关于我们</router-link>
     </div>
   </nav>

@@ -46,6 +46,26 @@ const routes = [
     path: '/code-editor',
     name: 'codeEditor',
     component: () => import('../views/CodeEditorView.vue')
+  },
+  {
+    path: '/counter',
+    name: 'counter',
+    component: () => import('../views/CounterView.vue')
+  },
+  {
+    path: '/pinia-counter',
+    name: 'piniaCounter',
+    component: () => import('../views/PiniaCounterView.vue')
+  },
+  {
+    path: '/html-demo',
+    name: 'htmlDemo',
+    component: () => import('../components/HtmlDemo.vue')
+  },
+  {
+    path: '/rtc',
+    name: 'rtc',
+    component: () => import('../views/RTCView.vue')
   }
 ]
 

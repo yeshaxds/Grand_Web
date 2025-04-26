@@ -1,24 +1,28 @@
 <template>
-  <!-- 全局背景图层 -->
+  <!-- 全局背景图层 - 为整个应用提供背景效果 -->
   <div class="global-background-layer"></div>
 
+  <!-- 顶部导航栏{html5 新增的语义化标签} -->
   <nav>
+    <!-- 网站Logo和标题 -->
     <div class="logo">
       <img src="@/assets/logo.webp" alt="网站Logo">
       <span>CodeLearn</span>
     </div>
 
-    <!-- 励志语句显示在导航栏中间 -->
+    <!-- 励志语句显示区域 - 位于导航栏中间 -->
     <div class="nav-quote-h">
       <div class="quote-h-content">
         <span class="quote-h-text">"{{ randomQuote.text }}"</span>
         <span class="quote-h-author">— {{ randomQuote.author }}</span>
       </div>
+      <!-- 更换励志语句的按钮 -->
       <button class="refresh-quote-h" @click="refreshQuote" title="换一条">
         <span>↻</span>
       </button>
     </div>
 
+    <!-- 导航链接列表 -->
     <div class="nav-links">
       <router-link to="/">首页</router-link>
       <router-link to="/languages">编程语言</router-link>
@@ -39,23 +43,31 @@
       <router-link to="/about">关于我们</router-link>
     </div>
   </nav>
+
+  <!-- 路由视图 - 根据当前路由显示对应的组件 -->
   <router-view />
 </template>
 
 <script>
+// 导入获取随机励志语句的函数
 import { getRandomQuote } from '@/data/motivationalQuotes.js'
 
 export default {
+  // 组件数据
   data() {
     return {
+      // 随机励志语句对象，包含文本和作者
       randomQuote: { text: '', author: '' }
     }
   },
+  // 组件挂载完成后的生命周期钩子
   mounted() {
-    // 获取随机励志语句
+    // 获取一条随机励志语句显示在导航栏
     this.randomQuote = getRandomQuote();
   },
+  // 组件方法
   methods: {
+    // 刷新励志语句 - 当用户点击刷新按钮时调用
     refreshQuote() {
       this.randomQuote = getRandomQuote();
     }
@@ -64,97 +76,5 @@ export default {
 </script>
 
 <style>
-/* 导航栏中的励志语句样式 */
-.nav-quote-h {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  justify-content: center;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 0 10px;
-  flex-wrap: nowrap;
-  overflow: hidden;
-}
-
-.quote-h-content {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.quote-h-text {
-  font-style: italic;
-  color: #2c3e50;
-  font-size: 0.9rem;
-}
-
-.quote-h-author {
-  opacity: 0.8;
-  color: #42b983;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.refresh-quote-h {
-  background: transparent;
-  border: none;
-  color: #42b983;
-  cursor: pointer;
-  font-size: 1.1rem;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.3s ease, transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
-  transform-origin: center;
-  flex-shrink: 0;
-}
-
-.refresh-quote-h:hover {
-  background: rgba(66, 185, 131, 0.1);
-  transform: rotate(360deg);
-}
-
-.nav-links {
-  display: flex;
-  gap: 1.5rem;
-  flex-shrink: 0;
-  margin-left: 1rem;
-}
-
-@media (max-width: 1200px) {
-  .refresh-quote-h {
-    display: none;
-  }
-
-  nav {
-    justify-content: space-between;
-  }
-}
-
-@media (max-width: 768px) {
-  nav {
-    flex-direction: column;
-    padding: 1rem;
-  }
-
-  .logo {
-    margin-bottom: 1rem;
-    margin-right: 0;
-  }
-
-  .nav-links {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem;
-    margin-left: 0;
-  }
-}
+@import url('./assets/styles/quote.css');
 </style>

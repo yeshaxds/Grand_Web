@@ -1,0 +1,89 @@
+# SpringBoot 应用配置文件
+spring:
+  # 应用基本信息
+  application:
+    name: codelearn-backend
+  
+  # 数据源配置 - H2内存数据库
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password: password
+    h2:
+      console:
+        enabled: true  # 启用H2控制台，访问 http://localhost:8080/h2-console
+        path: /h2-console
+  
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # 启动时创建表，关闭时删除
+    show-sql: true  # 显示SQL语句
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true  # 格式化SQL
+
+  # Redis配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      timeout: 2000ms
+      database: 0
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+  # Web配置
+  web:
+    cors:
+      allowed-origins: "*"  # 允许跨域
+      allowed-methods: "*"
+      allowed-headers: "*"
+
+  # 安全配置（暂时禁用，方便演示）
+  security:
+    user:
+      name: admin
+      password: admin123
+      roles: ADMIN
+
+# 服务器配置
+server:
+  port: 8080
+  # servlet:
+  #   context-path: /api  # API前缀 - 注释掉，因为控制器中已手动添加
+
+# 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,beans,env,configprops
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+
+# 日志配置
+logging:
+  level:
+    com.codelearn: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 自定义配置
+app:
+  name: CodeLearn Backend API
+  version: 1.0.0
+  description: SpringBoot功能演示项目 

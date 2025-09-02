@@ -124,279 +124,286 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'RTCView',
-  data() {
-    return {
-      localStream: null,
-      peerConnection: null,
-      localStreamActive: false,
-      connectionEstablished: false,
-      sdpExchange: false,
-      localSdp: '',
-      remoteSdp: '',
-      isLoading: false,
-      errorMessage: '',
-      errorSolutions: [],
-      showPermissionNotice: true,
-      protocol: window.location.protocol,
-      isSecureContext: window.isSecureContext,
-      supportsGetUserMedia: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
-    }
-  },
-  mounted() {
-    this.checkEnvironment();
-  },
-  methods: {
-    checkEnvironment() {
-      // 检查环境是否支持WebRTC
-      if (!this.supportsGetUserMedia) {
-        this.errorMessage = '您的浏览器不支持 getUserMedia API';
-        this.errorSolutions = [
-          '请使用现代浏览器（Chrome 53+、Firefox 36+、Safari 11+、Edge 79+）',
-          '确保浏览器版本是最新的'
-        ];
-        return;
-      }
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-      if (!this.isSecureContext) {
-        this.errorMessage = '不安全的上下文，无法访问摄像头和麦克风';
-        this.errorSolutions = [
-          '请使用 HTTPS 协议访问网站',
-          '或者在 localhost 环境下测试',
-          '在生产环境中必须使用 HTTPS'
-        ];
-        return;
-      }
-    },
+// 响应式数据
+const localVideo = ref(null)
+const remoteVideo = ref(null)
+const localStream = ref(null)
+const peerConnection = ref(null)
+const localStreamActive = ref(false)
+const connectionEstablished = ref(false)
+const sdpExchange = ref(false)
+const localSdp = ref('')
+const remoteSdp = ref('')
+const isLoading = ref(false)
+const errorMessage = ref('')
+const errorSolutions = ref([])
+const showPermissionNotice = ref(true)
+const protocol = ref(window.location.protocol)
+const isSecureContext = ref(window.isSecureContext)
+const supportsGetUserMedia = ref(!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia))
 
-    async startLocalStream() {
-      this.isLoading = true;
-      this.errorMessage = '';
-      this.errorSolutions = [];
-      
-      try {
-        // 首先检查权限状态
-        if (navigator.permissions) {
-          try {
-            const cameraPermission = await navigator.permissions.query({ name: 'camera' });
-            const microphonePermission = await navigator.permissions.query({ name: 'microphone' });
-            
-            if (cameraPermission.state === 'denied' || microphonePermission.state === 'denied') {
-              throw new Error('权限被永久拒绝，请在浏览器设置中重新允许');
-            }
-          } catch (permissionError) {
-            console.log('权限查询不支持，继续尝试获取媒体流');
-          }
-        }
+// 环境检查
+const checkEnvironment = () => {
+  // 检查环境是否支持WebRTC
+  if (!supportsGetUserMedia.value) {
+    errorMessage.value = '您的浏览器不支持 getUserMedia API'
+    errorSolutions.value = [
+      '请使用现代浏览器（Chrome 53+、Firefox 36+、Safari 11+、Edge 79+）',
+      '确保浏览器版本是最新的'
+    ]
+    return
+  }
 
-        this.localStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-            facingMode: 'user'
-          },
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true
-          }
-        });
-        
-        const localVideo = this.$refs.localVideo;
-        if (localVideo) {
-          localVideo.srcObject = this.localStream;
-        }
-        
-        this.localStreamActive = true;
-        this.showPermissionNotice = false;
-        console.log('成功获取媒体流');
-        
-      } catch (error) {
-        console.error('获取用户媒体失败:', error);
-        this.handleMediaError(error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
-
-    handleMediaError(error) {
-      console.log('Error details:', error);
-      
-      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-        this.errorMessage = '摄像头和麦克风访问被拒绝';
-        this.errorSolutions = [
-          '点击浏览器地址栏左侧的摄像头图标，选择"允许"',
-          '刷新页面后重新尝试',
-          '检查浏览器设置中的摄像头和麦克风权限',
-          '确保没有其他应用正在使用摄像头'
-        ];
-      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-        this.errorMessage = '未找到摄像头或麦克风设备';
-        this.errorSolutions = [
-          '确保设备已连接摄像头和麦克风',
-          '检查设备管理器中是否正确识别了设备',
-          '尝试重新连接外接摄像头或麦克风'
-        ];
-      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-        this.errorMessage = '摄像头或麦克风被其他应用占用';
-        this.errorSolutions = [
-          '关闭其他正在使用摄像头的应用程序（如QQ、微信、Zoom等）',
-          '重启浏览器后重试',
-          '检查是否有其他网页标签正在使用摄像头'
-        ];
-      } else if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
-        this.errorMessage = '摄像头配置不支持当前设置';
-        this.errorSolutions = [
-          '尝试降低视频质量要求',
-          '使用默认摄像头设置'
-        ];
-        // 尝试使用基本配置重新获取
-        this.retryWithBasicConstraints();
-      } else if (error.name === 'TypeError') {
-        this.errorMessage = '浏览器不支持getUserMedia API';
-        this.errorSolutions = [
-          '请更新到最新版本的浏览器',
-          '使用支持WebRTC的现代浏览器'
-        ];
-      } else {
-        this.errorMessage = '获取媒体流失败: ' + error.message;
-        this.errorSolutions = [
-          '检查网络连接是否正常',
-          '刷新页面重试',
-          '尝试使用不同的浏览器'
-        ];
-      }
-    },
-
-    async retryWithBasicConstraints() {
-      try {
-        this.localStream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true
-        });
-        
-        const localVideo = this.$refs.localVideo;
-        if (localVideo) {
-          localVideo.srcObject = this.localStream;
-        }
-        
-        this.localStreamActive = true;
-        this.errorMessage = '';
-        this.errorSolutions = [];
-        this.showPermissionNotice = false;
-        
-      } catch (retryError) {
-        console.error('基本配置重试也失败:', retryError);
-      }
-    },
-
-    retryAccess() {
-      this.errorMessage = '';
-      this.errorSolutions = [];
-      this.startLocalStream();
-    },
-    
-    stopLocalStream() {
-      if (this.localStream) {
-        this.localStream.getTracks().forEach(track => {
-          track.stop();
-          console.log('停止轨道:', track.kind);
-        });
-        this.localStream = null;
-        this.localStreamActive = false;
-        
-        if (this.$refs.localVideo) {
-          this.$refs.localVideo.srcObject = null;
-        }
-      }
-    },
-    
-    async createOffer() {
-      try {
-        this.peerConnection = new RTCPeerConnection({
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
-        });
-        
-        // 添加本地流到连接
-        this.localStream.getTracks().forEach(track => {
-          this.peerConnection.addTrack(track, this.localStream);
-        });
-        
-        // 监听远程流
-        this.peerConnection.ontrack = (event) => {
-          console.log('收到远程流:', event.streams[0]);
-          if (this.$refs.remoteVideo) {
-            this.$refs.remoteVideo.srcObject = event.streams[0];
-          }
-        };
-        
-        // 监听连接状态
-        this.peerConnection.onconnectionstatechange = () => {
-          console.log('连接状态:', this.peerConnection.connectionState);
-        };
-        
-        // 创建提议
-        const offer = await this.peerConnection.createOffer();
-        await this.peerConnection.setLocalDescription(offer);
-        
-        // 在实际应用中，这里会将offer发送给信令服务器
-        this.localSdp = JSON.stringify(this.peerConnection.localDescription);
-        this.sdpExchange = true;
-        
-      } catch (error) {
-        console.error('创建连接失败:', error);
-        alert('创建WebRTC连接失败: ' + error.message);
-      }
-    },
-    
-    async setRemoteDescription() {
-      if (!this.peerConnection) {
-        alert('请先创建连接');
-        return;
-      }
-      
-      try {
-        const remoteDesc = JSON.parse(this.remoteSdp);
-        await this.peerConnection.setRemoteDescription(new RTCSessionDescription(remoteDesc));
-        
-        if (remoteDesc.type === 'offer') {
-          const answer = await this.peerConnection.createAnswer();
-          await this.peerConnection.setLocalDescription(answer);
-          this.localSdp = JSON.stringify(this.peerConnection.localDescription);
-        }
-        
-        this.connectionEstablished = true;
-      } catch (error) {
-        console.error('设置远程描述失败:', error);
-        alert('设置远程描述失败: ' + error.message);
-      }
-    },
-    
-    closeConnection() {
-      if (this.peerConnection) {
-        this.peerConnection.close();
-        this.peerConnection = null;
-      }
-      
-      this.connectionEstablished = false;
-      this.sdpExchange = false;
-      this.localSdp = '';
-      this.remoteSdp = '';
-      
-      if (this.$refs.remoteVideo) {
-        this.$refs.remoteVideo.srcObject = null;
-      }
-    }
-  },
-  beforeUnmount() {
-    this.stopLocalStream();
-    this.closeConnection();
+  if (!isSecureContext.value) {
+    errorMessage.value = '不安全的上下文，无法访问摄像头和麦克风'
+    errorSolutions.value = [
+      '请使用 HTTPS 协议访问网站',
+      '或者在 localhost 环境下测试',
+      '在生产环境中必须使用 HTTPS'
+    ]
+    return
   }
 }
+
+// 启动本地流
+const startLocalStream = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+  errorSolutions.value = []
+  
+  try {
+    // 首先检查权限状态
+    if (navigator.permissions) {
+      try {
+        const cameraPermission = await navigator.permissions.query({ name: 'camera' })
+        const microphonePermission = await navigator.permissions.query({ name: 'microphone' })
+        
+        if (cameraPermission.state === 'denied' || microphonePermission.state === 'denied') {
+          throw new Error('权限被永久拒绝，请在浏览器设置中重新允许')
+        }
+      } catch (permissionError) {
+        console.log('权限查询不支持，继续尝试获取媒体流')
+      }
+    }
+
+    localStream.value = await navigator.mediaDevices.getUserMedia({
+      video: {
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        facingMode: 'user'
+      },
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true
+      }
+    })
+    
+    if (localVideo.value) {
+      localVideo.value.srcObject = localStream.value
+    }
+    
+    localStreamActive.value = true
+    showPermissionNotice.value = false
+    console.log('成功获取媒体流')
+    
+  } catch (error) {
+    console.error('获取用户媒体失败:', error)
+    handleMediaError(error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 处理媒体错误
+const handleMediaError = (error) => {
+  console.log('Error details:', error)
+  
+  if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+    errorMessage.value = '摄像头和麦克风访问被拒绝'
+    errorSolutions.value = [
+      '点击浏览器地址栏左侧的摄像头图标，选择"允许"',
+      '刷新页面后重新尝试',
+      '检查浏览器设置中的摄像头和麦克风权限',
+      '确保没有其他应用正在使用摄像头'
+    ]
+  } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+    errorMessage.value = '未找到摄像头或麦克风设备'
+    errorSolutions.value = [
+      '确保设备已连接摄像头和麦克风',
+      '检查设备管理器中是否正确识别了设备',
+      '尝试重新连接外接摄像头或麦克风'
+    ]
+  } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+    errorMessage.value = '摄像头或麦克风被其他应用占用'
+    errorSolutions.value = [
+      '关闭其他正在使用摄像头的应用程序（如QQ、微信、Zoom等）',
+      '重启浏览器后重试',
+      '检查是否有其他网页标签正在使用摄像头'
+    ]
+  } else if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
+    errorMessage.value = '摄像头配置不支持当前设置'
+    errorSolutions.value = [
+      '尝试降低视频质量要求',
+      '使用默认摄像头设置'
+    ]
+    // 尝试使用基本配置重新获取
+    retryWithBasicConstraints()
+  } else if (error.name === 'TypeError') {
+    errorMessage.value = '浏览器不支持getUserMedia API'
+    errorSolutions.value = [
+      '请更新到最新版本的浏览器',
+      '使用支持WebRTC的现代浏览器'
+    ]
+  } else {
+    errorMessage.value = '获取媒体流失败: ' + error.message
+    errorSolutions.value = [
+      '检查网络连接是否正常',
+      '刷新页面重试',
+      '尝试使用不同的浏览器'
+    ]
+  }
+}
+
+// 使用基本配置重试
+const retryWithBasicConstraints = async () => {
+  try {
+    localStream.value = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    })
+    
+    if (localVideo.value) {
+      localVideo.value.srcObject = localStream.value
+    }
+    
+    localStreamActive.value = true
+    errorMessage.value = ''
+    errorSolutions.value = []
+    showPermissionNotice.value = false
+    
+  } catch (retryError) {
+    console.error('基本配置重试也失败:', retryError)
+  }
+}
+
+// 重试访问
+const retryAccess = () => {
+  errorMessage.value = ''
+  errorSolutions.value = []
+  startLocalStream()
+}
+
+// 停止本地流
+const stopLocalStream = () => {
+  if (localStream.value) {
+    localStream.value.getTracks().forEach(track => {
+      track.stop()
+      console.log('停止轨道:', track.kind)
+    })
+    localStream.value = null
+    localStreamActive.value = false
+    
+    if (localVideo.value) {
+      localVideo.value.srcObject = null
+    }
+  }
+}
+
+// 创建连接提议
+const createOffer = async () => {
+  try {
+    peerConnection.value = new RTCPeerConnection({
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    })
+    
+    // 添加本地流到连接
+    localStream.value.getTracks().forEach(track => {
+      peerConnection.value.addTrack(track, localStream.value)
+    })
+    
+    // 监听远程流
+    peerConnection.value.ontrack = (event) => {
+      console.log('收到远程流:', event.streams[0])
+      if (remoteVideo.value) {
+        remoteVideo.value.srcObject = event.streams[0]
+      }
+    }
+    
+    // 监听连接状态
+    peerConnection.value.onconnectionstatechange = () => {
+      console.log('连接状态:', peerConnection.value.connectionState)
+    }
+    
+    // 创建提议
+    const offer = await peerConnection.value.createOffer()
+    await peerConnection.value.setLocalDescription(offer)
+    
+    // 在实际应用中，这里会将offer发送给信令服务器
+    localSdp.value = JSON.stringify(peerConnection.value.localDescription)
+    sdpExchange.value = true
+    
+  } catch (error) {
+    console.error('创建连接失败:', error)
+    alert('创建WebRTC连接失败: ' + error.message)
+  }
+}
+
+// 设置远程描述
+const setRemoteDescription = async () => {
+  if (!peerConnection.value) {
+    alert('请先创建连接')
+    return
+  }
+  
+  try {
+    const remoteDesc = JSON.parse(remoteSdp.value)
+    await peerConnection.value.setRemoteDescription(new RTCSessionDescription(remoteDesc))
+    
+    if (remoteDesc.type === 'offer') {
+      const answer = await peerConnection.value.createAnswer()
+      await peerConnection.value.setLocalDescription(answer)
+      localSdp.value = JSON.stringify(peerConnection.value.localDescription)
+    }
+    
+    connectionEstablished.value = true
+  } catch (error) {
+    console.error('设置远程描述失败:', error)
+    alert('设置远程描述失败: ' + error.message)
+  }
+}
+
+// 关闭连接
+const closeConnection = () => {
+  if (peerConnection.value) {
+    peerConnection.value.close()
+    peerConnection.value = null
+  }
+  
+  connectionEstablished.value = false
+  sdpExchange.value = false
+  localSdp.value = ''
+  remoteSdp.value = ''
+  
+  if (remoteVideo.value) {
+    remoteVideo.value.srcObject = null
+  }
+}
+
+// 生命周期钩子
+onMounted(() => {
+  checkEnvironment()
+})
+
+onBeforeUnmount(() => {
+  stopLocalStream()
+  closeConnection()
+})
 </script>
 
 <style scoped>

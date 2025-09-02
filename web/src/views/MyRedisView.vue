@@ -1,138 +1,210 @@
 <template>
-  <div class="redis-container">
-    <!-- 页面标题 -->
-    <header class="page-header">
-      <h1>🔴 Redis 数据库演示</h1>
-      <p>展示Redis作为高性能数据库和缓存的强大功能</p>
-    </header>
-
-    <!-- 服务状态检查 -->
-    <section class="server-status">
+  <div class="redis-view">
+    <!-- 头部状态栏 -->
+    <div class="header-status">
       <div class="status-card">
-        <h3>📡 Redis服务器状态</h3>
-        <div class="status-indicator" :class="{ 'online': redisOnline, 'offline': !redisOnline }">
-          <span class="status-dot"></span>
-          {{ redisOnline ? '在线' : '离线' }}
+        <div class="status-indicator" :class="{ online: redisOnline, offline: !redisOnline }">
+          {{ redisOnline ? '🟢' : '🔴' }}
         </div>
-        <button @click="checkRedisStatus" class="btn btn-primary">检查状态</button>
+        <div class="status-text">
+          <h3>Redis 服务器</h3>
+          <p>{{ redisOnline ? '在线' : '离线' }}</p>
+        </div>
+        <button @click="checkRedisStatus" class="refresh-btn">刷新状态</button>
       </div>
-    </section>
+    </div>
 
-    <!-- 功能导航 -->
-    <nav class="feature-nav">
-      <button 
-        v-for="tab in tabs" 
-        :key="tab.id"
-        @click="activeTab = tab.id"
-        :class="{ 'active': activeTab === tab.id }"
-        class="nav-btn"
-      >
-        {{ tab.icon }} {{ tab.name }}
-      </button>
-    </nav>
+    <!-- 标签导航 -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <button 
+          v-for="tab in tabs" 
+          :key="tab.id"
+          @click="activeTab = tab.id"
+          :class="{ active: activeTab === tab.id }"
+          class="tab-button"
+        >
+          <span class="tab-icon">{{ tab.icon }}</span>
+          <span class="tab-name">{{ tab.name }}</span>
+        </button>
+      </div>
+    </div>
 
-    <!-- 内容区域 -->
-    <main class="content-area">
+    <!-- 主要内容区域 -->
+    <div class="content-area">
       <!-- 系统概览 -->
-      <div v-show="activeTab === 'overview'" class="tab-content">
-        <div class="overview-grid">
-          <div class="overview-card" v-if="systemOverview">
-            <h4>🖥️ 服务器信息</h4>
-            <div class="info-content">
-              <p><strong>Redis版本:</strong> {{ systemOverview.server?.version || 'N/A' }}</p>
-              <p><strong>运行模式:</strong> {{ systemOverview.server?.mode || 'N/A' }}</p>
-              <p><strong>运行时间:</strong> {{ systemOverview.server?.uptime || 'N/A' }}</p>
-              <p><strong>端口:</strong> {{ systemOverview.server?.port || 'N/A' }}</p>
+      <div v-if="activeTab === 'overview'" class="tab-content">
+        <div class="section-header">
+          <h2>🔍 Redis 系统概览</h2>
+          <button @click="loadSystemOverview" class="load-btn" :disabled="!redisOnline">
+            {{ isLoading ? '加载中...' : '刷新数据' }}
+          </button>
+        </div>
+
+        <div v-if="systemOverview" class="overview-grid">
+          <div class="info-card">
+            <h3>📊 基本信息</h3>
+            <div class="info-list">
+              <div class="info-item">
+                <span class="label">Redis 版本:</span>
+                <span class="value">{{ systemOverview.version }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">运行模式:</span>
+                <span class="value">{{ systemOverview.mode }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">运行时间:</span>
+                <span class="value">{{ systemOverview.uptime }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">配置文件:</span>
+                <span class="value">{{ systemOverview.configFile || '默认配置' }}</span>
+              </div>
             </div>
           </div>
 
-          <div class="overview-card" v-if="systemOverview">
-            <h4>💾 数据库状态</h4>
-            <div class="info-content">
-              <p><strong>总键数:</strong> {{ systemOverview.database?.totalKeys || 0 }}</p>
-              <p><strong>命中率:</strong> {{ systemOverview.database?.hitRate || 'N/A' }}</p>
-              <p><strong>键空间命中:</strong> {{ systemOverview.database?.keyspaceHits || 0 }}</p>
-              <p><strong>键空间未命中:</strong> {{ systemOverview.database?.keyspaceMisses || 0 }}</p>
+          <div class="info-card">
+            <h3>💾 内存使用</h3>
+            <div class="memory-stats">
+              <div class="memory-item">
+                <span class="label">已使用内存:</span>
+                <span class="value">{{ systemOverview.usedMemory }}</span>
+              </div>
+              <div class="memory-item">
+                <span class="label">内存峰值:</span>
+                <span class="value">{{ systemOverview.peakMemory }}</span>
+              </div>
+              <div class="memory-item">
+                <span class="label">内存碎片率:</span>
+                <span class="value">{{ systemOverview.fragmentation }}%</span>
+              </div>
             </div>
           </div>
 
-          <div class="overview-card" v-if="systemOverview">
-            <h4>📊 内存使用</h4>
-            <div class="info-content">
-              <p><strong>已使用:</strong> {{ systemOverview.memory?.used || 'N/A' }}</p>
-              <p><strong>峰值:</strong> {{ systemOverview.memory?.peak || 'N/A' }}</p>
-              <p><strong>系统总计:</strong> {{ systemOverview.memory?.system || 'N/A' }}</p>
+          <div class="info-card">
+            <h3>📈 性能指标</h3>
+            <div class="performance-stats">
+              <div class="perf-item">
+                <span class="label">总连接数:</span>
+                <span class="value">{{ systemOverview.connections }}</span>
+              </div>
+              <div class="perf-item">
+                <span class="label">总命令数:</span>
+                <span class="value">{{ systemOverview.totalCommands }}</span>
+              </div>
+              <div class="perf-item">
+                <span class="label">命令/秒:</span>
+                <span class="value">{{ systemOverview.commandsPerSec }}</span>
+              </div>
             </div>
           </div>
 
-          <div class="overview-card" v-if="systemOverview">
-            <h4>👥 客户端连接</h4>
-            <div class="info-content">
-              <p><strong>已连接:</strong> {{ systemOverview.clients?.connected || 0 }}</p>
-              <p><strong>阻塞中:</strong> {{ systemOverview.clients?.blocked || 0 }}</p>
-              <p><strong>最大连接:</strong> {{ systemOverview.clients?.maxClients || 0 }}</p>
+          <div class="info-card">
+            <h3>🗃️ 数据库信息</h3>
+            <div class="db-stats">
+              <div v-for="(db, index) in systemOverview.databases" :key="index" class="db-item">
+                <span class="label">DB{{ index }}:</span>
+                <span class="value">{{ db.keys }} keys, {{ db.expires }} expires</span>
+              </div>
             </div>
           </div>
         </div>
-        
-        <button @click="loadSystemOverview" class="btn btn-primary">刷新概览</button>
       </div>
 
       <!-- 数据类型演示 -->
-      <div v-show="activeTab === 'datatypes'" class="tab-content">
-        <div class="datatypes-section">
-          <h4>🗃️ Redis数据类型演示</h4>
-          
-          <div class="datatype-grid">
-            <div v-for="datatype in datatypes" :key="datatype.type" class="datatype-card">
-              <div class="datatype-header">
-                <h5>{{ datatype.icon }} {{ datatype.name }}</h5>
-                <span class="datatype-badge">{{ datatype.type }}</span>
+      <div v-if="activeTab === 'datatypes'" class="tab-content">
+        <div class="section-header">
+          <h2>🗃️ Redis 数据类型演示</h2>
+        </div>
+
+        <div class="datatypes-grid">
+          <!-- String 类型 -->
+          <div class="datatype-card">
+            <h3>📝 String 类型</h3>
+            <div class="demo-section">
+              <div class="input-group">
+                <input v-model="stringKey" placeholder="键名" class="input-field">
+                <input v-model="stringValue" placeholder="值" class="input-field">
               </div>
-              
-              <p class="datatype-desc">{{ datatype.description }}</p>
-              
-              <div class="datatype-demo" v-if="datatype.demoData">
-                <h6>演示数据:</h6>
-                <div class="demo-content">
-                  <div v-if="datatype.type === 'strings'" class="demo-strings">
-                    <div v-for="item in datatype.demoData.slice(0, 3)" :key="item.key" class="demo-item">
-                      <code>{{ item.key }}</code> → {{ item.value.length > 30 ? item.value.substring(0, 30) + '...' : item.value }}
-                    </div>
-                  </div>
-                  
-                  <div v-else-if="datatype.type === 'hashes'" class="demo-hashes">
-                    <div v-for="(hash, key) in datatype.demoData" :key="key" class="demo-item">
-                      <code>{{ key }}</code>
-                      <div class="hash-fields">
-                        <span v-for="(value, field) in hash.fields" :key="field" class="field-tag">
-                          {{ field }}: {{ value }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div v-else-if="datatype.type === 'lists'" class="demo-lists">
-                    <div v-for="(list, key) in datatype.demoData" :key="key" class="demo-item">
-                      <code>{{ key }}</code>
-                      <div class="list-elements">
-                        <span v-for="(element, index) in list.elements.slice(0, 5)" :key="index" class="element-tag">
-                          {{ element }}
-                        </span>
-                        <span v-if="list.elements.length > 5" class="more-indicator">+{{ list.elements.length - 5 }} more</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div v-else class="demo-generic">
-                    <pre>{{ JSON.stringify(datatype.demoData, null, 2).substring(0, 200) }}...</pre>
+              <div class="button-group">
+                <button @click="setString" class="action-btn">SET</button>
+                <button @click="getString" class="action-btn">GET</button>
+                <button @click="deleteString" class="action-btn danger">DEL</button>
+              </div>
+              <div v-if="stringResult" class="result-display">
+                结果: {{ stringResult }}
+              </div>
+            </div>
+          </div>
+
+          <!-- List 类型 -->
+          <div class="datatype-card">
+            <h3>📋 List 类型</h3>
+            <div class="demo-section">
+              <div class="input-group">
+                <input v-model="listKey" placeholder="列表名" class="input-field">
+                <input v-model="listValue" placeholder="值" class="input-field">
+              </div>
+              <div class="button-group">
+                <button @click="pushList" class="action-btn">LPUSH</button>
+                <button @click="popList" class="action-btn">LPOP</button>
+                <button @click="getList" class="action-btn">LRANGE</button>
+              </div>
+              <div v-if="listResult" class="result-display">
+                <div v-if="Array.isArray(listResult)">
+                  <div v-for="(item, index) in listResult" :key="index">
+                    {{ index }}: {{ item }}
                   </div>
                 </div>
+                <div v-else>{{ listResult }}</div>
               </div>
-              
-              <div class="datatype-actions">
-                <button @click="loadDemoData(datatype.type)" class="btn btn-small">加载演示</button>
-                <button @click="testDatatype(datatype.type)" class="btn btn-small btn-secondary">测试操作</button>
+            </div>
+          </div>
+
+          <!-- Set 类型 -->
+          <div class="datatype-card">
+            <h3>🎯 Set 类型</h3>
+            <div class="demo-section">
+              <div class="input-group">
+                <input v-model="setKey" placeholder="集合名" class="input-field">
+                <input v-model="setValue" placeholder="成员" class="input-field">
+              </div>
+              <div class="button-group">
+                <button @click="addSet" class="action-btn">SADD</button>
+                <button @click="getSet" class="action-btn">SMEMBERS</button>
+                <button @click="removeSet" class="action-btn danger">SREM</button>
+              </div>
+              <div v-if="setResult" class="result-display">
+                <div v-if="Array.isArray(setResult)">
+                  成员: {{ setResult.join(', ') }}
+                </div>
+                <div v-else>{{ setResult }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hash 类型 -->
+          <div class="datatype-card">
+            <h3>🗂️ Hash 类型</h3>
+            <div class="demo-section">
+              <div class="input-group">
+                <input v-model="hashKey" placeholder="哈希名" class="input-field">
+                <input v-model="hashField" placeholder="字段" class="input-field">
+                <input v-model="hashValue" placeholder="值" class="input-field">
+              </div>
+              <div class="button-group">
+                <button @click="setHash" class="action-btn">HSET</button>
+                <button @click="getHash" class="action-btn">HGET</button>
+                <button @click="getAllHash" class="action-btn">HGETALL</button>
+              </div>
+              <div v-if="hashResult" class="result-display">
+                <div v-if="typeof hashResult === 'object' && hashResult !== null">
+                  <div v-for="(value, field) in hashResult" :key="field">
+                    {{ field }}: {{ value }}
+                  </div>
+                </div>
+                <div v-else>{{ hashResult }}</div>
               </div>
             </div>
           </div>
@@ -140,87 +212,153 @@
       </div>
 
       <!-- 高级功能 -->
-      <div v-show="activeTab === 'advanced'" class="tab-content">
-        <div class="advanced-section">
-          <h4>⚡ Redis高级功能</h4>
-          
-          <div class="feature-tabs">
-            <button 
-              v-for="feature in advancedFeatures" 
-              :key="feature.id"
-              @click="activeAdvancedFeature = feature.id"
-              :class="{ 'active': activeAdvancedFeature === feature.id }"
-              class="feature-tab"
-            >
-              {{ feature.icon }} {{ feature.name }}
+      <div v-if="activeTab === 'advanced'" class="tab-content">
+        <div class="section-header">
+          <h2>⚡ Redis 高级功能</h2>
+        </div>
+
+        <div class="advanced-grid">
+          <!-- 发布订阅 -->
+          <div class="feature-card">
+            <h3>📡 发布订阅 (Pub/Sub)</h3>
+            <div class="pubsub-section">
+              <div class="input-group">
+                <input v-model="pubsubChannel" placeholder="频道名" class="input-field">
+                <textarea v-model="pubsubMessage" placeholder="消息内容" class="textarea-field"></textarea>
+              </div>
+              <div class="button-group">
+                <button @click="publishMessage" class="action-btn">发布消息</button>
+                <button @click="subscribeChannel" class="action-btn">订阅频道</button>
+                <button @click="unsubscribeChannel" class="action-btn danger">取消订阅</button>
+              </div>
+              <div v-if="pubsubResults.length > 0" class="pubsub-messages">
+                <h4>收到的消息:</h4>
+                <div v-for="(msg, index) in pubsubResults" :key="index" class="message-item">
+                  <span class="timestamp">{{ msg.timestamp }}</span>
+                  <span class="channel">{{ msg.channel }}</span>
+                  <span class="content">{{ msg.message }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 事务演示 -->
+          <div class="feature-card">
+            <h3>💳 事务 (Transactions)</h3>
+            <div class="transaction-section">
+              <div class="transaction-commands">
+                <h4>事务命令队列:</h4>
+                <div class="command-list">
+                  <div v-for="(cmd, index) in transactionCommands" :key="index" class="command-item">
+                    {{ cmd }}
+                    <button @click="removeCommand(index)" class="remove-btn">×</button>
+                  </div>
+                </div>
+              </div>
+              <div class="input-group">
+                <input v-model="newCommand" placeholder="添加命令 (如: SET key value)" class="input-field">
+                <button @click="addCommand" class="action-btn">添加命令</button>
+              </div>
+              <div class="button-group">
+                <button @click="executeTransaction" class="action-btn success">执行事务</button>
+                <button @click="clearCommands" class="action-btn danger">清空队列</button>
+              </div>
+              <div v-if="transactionResult" class="result-display">
+                <h4>事务结果:</h4>
+                <pre>{{ JSON.stringify(transactionResult, null, 2) }}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 过期时间 -->
+          <div class="feature-card">
+            <h3>⏰ 过期时间 (TTL)</h3>
+            <div class="ttl-section">
+              <div class="input-group">
+                <input v-model="ttlKey" placeholder="键名" class="input-field">
+                <input v-model="ttlValue" placeholder="值" class="input-field">
+                <input v-model="ttlSeconds" type="number" placeholder="过期秒数" class="input-field">
+              </div>
+              <div class="button-group">
+                <button @click="setWithTTL" class="action-btn">设置带过期时间</button>
+                <button @click="getTTL" class="action-btn">查看剩余时间</button>
+                <button @click="removeTTL" class="action-btn">移除过期时间</button>
+              </div>
+              <div v-if="ttlResult" class="result-display">
+                {{ ttlResult }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 性能测试 -->
+      <div v-if="activeTab === 'performance'" class="tab-content">
+        <div class="section-header">
+          <h2>📈 性能测试</h2>
+        </div>
+
+        <div class="performance-section">
+          <div class="test-config">
+            <h3>测试配置</h3>
+            <div class="config-group">
+              <label>测试类型:</label>
+              <select v-model="testType" class="select-field">
+                <option value="simple">简单读写</option>
+                <option value="batch">批量操作</option>
+                <option value="concurrent">并发测试</option>
+                <option value="pipeline">管道测试</option>
+              </select>
+            </div>
+            <div class="config-group">
+              <label>测试次数:</label>
+              <input v-model.number="testCount" type="number" min="10" max="10000" class="input-field">
+            </div>
+            <button @click="runPerformanceTest" class="action-btn" :disabled="isLoading || !redisOnline">
+              {{ isLoading ? '测试中...' : '开始测试' }}
             </button>
           </div>
 
-          <div class="feature-content">
-            <!-- 事务演示 -->
-            <div v-show="activeAdvancedFeature === 'transactions'" class="feature-panel">
-              <h5>💳 事务演示</h5>
-              <div v-if="transactionDemo" class="transaction-demo">
-                <div class="demo-scenarios">
-                  <div v-for="scenario in transactionDemo.scenarios" :key="scenario.name" class="scenario-card">
-                    <h6>{{ scenario.name }}</h6>
-                    <p>{{ scenario.description }}</p>
-                    <div class="scenario-example">
-                      <strong>示例:</strong>
-                      <pre>{{ JSON.stringify(scenario.example, null, 2) }}</pre>
-                    </div>
-                    <button @click="runTransactionDemo(scenario)" class="btn btn-small">运行演示</button>
-                  </div>
+          <div v-if="testResults" class="test-results">
+            <h3>测试结果</h3>
+            <div class="results-grid">
+              <div class="result-card">
+                <h4>⏱️ 性能指标</h4>
+                <div class="metric-item">
+                  <span class="label">总耗时:</span>
+                  <span class="value">{{ testResults.totalTime }}ms</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">平均延迟:</span>
+                  <span class="value">{{ testResults.avgLatency }}ms</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">操作/秒:</span>
+                  <span class="value">{{ testResults.opsPerSecond }}</span>
+                </div>
+                <div class="metric-item">
+                  <span class="label">成功率:</span>
+                  <span class="value">{{ testResults.successRate }}%</span>
                 </div>
               </div>
-              <button @click="loadTransactionDemo" class="btn btn-primary">加载事务演示</button>
-            </div>
-
-            <!-- Lua脚本演示 -->
-            <div v-show="activeAdvancedFeature === 'scripts'" class="feature-panel">
-              <h5>📜 Lua脚本演示</h5>
-              <div v-if="scriptDemo" class="script-demo">
-                <div class="script-examples">
-                  <div v-for="example in scriptDemo.data.scriptExamples" :key="example.name" class="script-card">
-                    <h6>{{ example.name }}</h6>
-                    <p>{{ example.description }}</p>
-                    <div class="script-example">
-                      <strong>示例参数:</strong>
-                      <pre>{{ JSON.stringify(example.example, null, 2) }}</pre>
-                    </div>
-                    <button @click="runScriptDemo(example)" class="btn btn-small">执行脚本</button>
-                  </div>
+              
+              <div class="result-card">
+                <h4>📊 统计信息</h4>
+                <div class="stat-item">
+                  <span class="label">最小延迟:</span>
+                  <span class="value">{{ testResults.minLatency }}ms</span>
                 </div>
-              </div>
-              <button @click="loadScriptDemo" class="btn btn-primary">加载脚本演示</button>
-            </div>
-
-            <!-- 发布订阅演示 -->
-            <div v-show="activeAdvancedFeature === 'pubsub'" class="feature-panel">
-              <h5>📢 发布订阅演示</h5>
-              <div class="pubsub-demo">
-                <div class="pubsub-controls">
-                  <div class="control-group">
-                    <label>频道名称:</label>
-                    <input v-model="pubsubChannel" placeholder="demo:notifications">
-                  </div>
-                  <div class="control-group">
-                    <label>消息内容:</label>
-                    <textarea v-model="pubsubMessage" placeholder='{"type":"info","message":"测试消息"}'></textarea>
-                  </div>
-                  <div class="control-actions">
-                    <button @click="publishMessage" class="btn btn-primary">发布消息</button>
-                    <button @click="loadPubSubDemo" class="btn btn-secondary">加载演示</button>
-                  </div>
+                <div class="stat-item">
+                  <span class="label">最大延迟:</span>
+                  <span class="value">{{ testResults.maxLatency }}ms</span>
                 </div>
-                
-                <div v-if="pubsubResults.length > 0" class="pubsub-results">
-                  <h6>发布结果:</h6>
-                  <div v-for="result in pubsubResults" :key="result.timestamp" class="pubsub-result">
-                    <span class="timestamp">{{ formatTime(result.timestamp) }}</span>
-                    <span class="channel">{{ result.channel }}</span>
-                    <span class="subscribers">{{ result.subscribers }} 订阅者</span>
-                  </div>
+                <div class="stat-item">
+                  <span class="label">成功操作:</span>
+                  <span class="value">{{ testResults.successCount }}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="label">失败操作:</span>
+                  <span class="value">{{ testResults.errorCount }}</span>
                 </div>
               </div>
             </div>
@@ -228,1032 +366,1542 @@
         </div>
       </div>
 
-      <!-- 实际应用 -->
-      <div v-show="activeTab === 'applications'" class="tab-content">
-        <div class="applications-section">
-          <h4>💼 实际应用场景</h4>
-          
-          <div class="application-grid">
-            <div v-for="app in applications" :key="app.name" class="application-card">
-              <div class="app-header">
-                <h5>{{ app.icon }} {{ app.name }}</h5>
-                <span class="app-category">{{ app.category }}</span>
+      <!-- 实际应用场景 -->
+      <div v-if="activeTab === 'applications'" class="tab-content">
+        <div class="section-header">
+          <h2>💼 实际应用场景</h2>
+        </div>
+
+        <div class="applications-grid">
+          <!-- 缓存演示 -->
+          <div class="app-card">
+            <h3>🚀 缓存系统</h3>
+            <div class="cache-demo">
+              <div class="input-group">
+                <input v-model="cacheKey" placeholder="缓存键" class="input-field">
+                <input v-model="cacheExpiry" type="number" placeholder="过期时间(秒)" class="input-field">
               </div>
-              
-              <p class="app-description">{{ app.description }}</p>
-              
-              <div class="app-features">
-                <h6>核心功能:</h6>
-                <ul>
-                  <li v-for="feature in app.features" :key="feature">{{ feature }}</li>
-                </ul>
+              <div class="button-group">
+                <button @click="simulateCache" class="action-btn">模拟缓存查询</button>
+                <button @click="clearCache" class="action-btn danger">清空缓存</button>
               </div>
-              
-              <div class="app-demo" v-if="app.demoData">
-                <h6>演示数据:</h6>
-                <div class="demo-stats">
-                  <div v-for="(value, key) in app.demoData" :key="key" class="stat-item">
-                    <span class="stat-label">{{ key }}:</span>
-                    <span class="stat-value">{{ value }}</span>
+              <div v-if="cacheResult" class="result-display">
+                <div class="cache-result">
+                  <div class="result-type" :class="cacheResult.fromCache ? 'from-cache' : 'from-db'">
+                    {{ cacheResult.fromCache ? '🟢 缓存命中' : '🔴 数据库查询' }}
                   </div>
+                  <div class="result-time">耗时: {{ cacheResult.responseTime }}ms</div>
+                  <div class="result-data">数据: {{ JSON.stringify(cacheResult.data) }}</div>
                 </div>
               </div>
-              
-              <button @click="loadApplicationDemo(app.endpoint)" class="btn btn-primary">体验演示</button>
+            </div>
+          </div>
+
+          <!-- 分布式锁 -->
+          <div class="app-card">
+            <h3>🔒 分布式锁</h3>
+            <div class="lock-demo">
+              <div class="input-group">
+                <input v-model="lockKey" placeholder="锁名称" class="input-field">
+                <input v-model="lockTimeout" type="number" placeholder="超时时间(秒)" class="input-field">
+              </div>
+              <div class="button-group">
+                <button @click="acquireLock" class="action-btn">获取锁</button>
+                <button @click="releaseLock" class="action-btn danger">释放锁</button>
+                <button @click="checkLock" class="action-btn">检查锁状态</button>
+              </div>
+              <div v-if="lockResult" class="result-display">
+                <div class="lock-status" :class="lockResult.acquired ? 'acquired' : 'failed'">
+                  状态: {{ lockResult.acquired ? '🔓 已获取' : '🔒 获取失败' }}
+                </div>
+                <div v-if="lockResult.message" class="lock-message">
+                  {{ lockResult.message }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 会话存储 -->
+          <div class="app-card">
+            <h3>👤 会话存储</h3>
+            <div class="session-demo">
+              <div class="input-group">
+                <input v-model="sessionId" placeholder="会话ID" class="input-field">
+                <textarea v-model="sessionData" placeholder="会话数据 (JSON)" class="textarea-field"></textarea>
+              </div>
+              <div class="button-group">
+                <button @click="saveSession" class="action-btn">保存会话</button>
+                <button @click="getSession" class="action-btn">获取会话</button>
+                <button @click="deleteSession" class="action-btn danger">删除会话</button>
+              </div>
+              <div v-if="sessionResult" class="result-display">
+                <pre>{{ JSON.stringify(sessionResult, null, 2) }}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 排行榜 -->
+          <div class="app-card">
+            <h3>🏆 排行榜 (Sorted Set)</h3>
+            <div class="leaderboard-demo">
+              <div class="input-group">
+                <input v-model="playerName" placeholder="玩家名" class="input-field">
+                <input v-model="playerScore" type="number" placeholder="分数" class="input-field">
+              </div>
+              <div class="button-group">
+                <button @click="addScore" class="action-btn">添加分数</button>
+                <button @click="getLeaderboard" class="action-btn">获取排行榜</button>
+                <button @click="getPlayerRank" class="action-btn">查询排名</button>
+              </div>
+              <div v-if="leaderboardResult" class="result-display">
+                <div v-if="Array.isArray(leaderboardResult)">
+                  <h4>🏆 排行榜 TOP 10</h4>
+                  <div v-for="(player, index) in leaderboardResult" :key="index" class="rank-item">
+                    <span class="rank">{{ index + 1 }}</span>
+                    <span class="player">{{ player.name }}</span>
+                    <span class="score">{{ player.score }}</span>
+                  </div>
+                </div>
+                <div v-else>{{ leaderboardResult }}</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 性能监控 -->
-      <div v-show="activeTab === 'monitoring'" class="tab-content">
-        <div class="monitoring-section">
-          <h4>📈 性能监控</h4>
-          
-          <div class="metrics-grid">
-            <div class="metric-card" v-if="performanceMetrics">
-              <h5>🚀 操作性能</h5>
-              <div class="metric-content">
-                <div class="metric-item">
-                  <span class="metric-label">总命令数:</span>
-                  <span class="metric-value">{{ performanceMetrics.totalCommands || 'N/A' }}</span>
-                </div>
-                <div class="metric-item">
-                  <span class="metric-label">每秒命令数:</span>
-                  <span class="metric-value">{{ performanceMetrics.commandsPerSecond || 'N/A' }}</span>
-                </div>
-                <div class="metric-item">
-                  <span class="metric-label">总连接数:</span>
-                  <span class="metric-value">{{ performanceMetrics.totalConnections || 'N/A' }}</span>
-                </div>
+      <!-- 监控面板 -->
+      <div v-if="activeTab === 'monitoring'" class="tab-content">
+        <div class="section-header">
+          <h2>📊 性能监控</h2>
+          <button @click="loadPerformanceMetrics" class="load-btn" :disabled="!redisOnline">
+            刷新监控数据
+          </button>
+        </div>
+
+        <div v-if="performanceMetrics" class="monitoring-grid">
+          <div class="metric-card">
+            <h3>🔢 命令统计</h3>
+            <div class="commands-stats">
+              <div v-for="(count, command) in performanceMetrics.commands" :key="command" class="command-stat">
+                <span class="command-name">{{ command }}:</span>
+                <span class="command-count">{{ count }}</span>
               </div>
             </div>
+          </div>
 
-            <div class="metric-card">
-              <h5>⏱️ 响应时间测试</h5>
-              <div class="performance-test">
-                <div class="test-controls">
-                  <select v-model="testType">
-                    <option value="simple">简单操作</option>
-                    <option value="pipeline">管道操作</option>
-                    <option value="batch">批量操作</option>
-                  </select>
-                  <input v-model.number="testCount" type="number" min="10" max="1000" placeholder="测试次数">
-                  <button @click="runPerformanceTest" class="btn btn-primary">运行测试</button>
-                </div>
-                
-                <div v-if="testResults" class="test-results">
-                  <div class="result-item">
-                    <span>执行时间:</span>
-                    <span>{{ testResults.executionTime }}</span>
-                  </div>
-                  <div class="result-item">
-                    <span>平均延迟:</span>
-                    <span>{{ testResults.avgTimePerOperation }}</span>
-                  </div>
-                  <div class="result-item">
-                    <span>操作/秒:</span>
-                    <span>{{ testResults.operationsPerSecond }}</span>
-                  </div>
-                </div>
+          <div class="metric-card">
+            <h3>⏱️ 延迟统计</h3>
+            <div class="latency-stats">
+              <div class="latency-item">
+                <span class="label">平均延迟:</span>
+                <span class="value">{{ performanceMetrics.avgLatency }}ms</span>
+              </div>
+              <div class="latency-item">
+                <span class="label">P50延迟:</span>
+                <span class="value">{{ performanceMetrics.p50Latency }}ms</span>
+              </div>
+              <div class="latency-item">
+                <span class="label">P95延迟:</span>
+                <span class="value">{{ performanceMetrics.p95Latency }}ms</span>
+              </div>
+              <div class="latency-item">
+                <span class="label">P99延迟:</span>
+                <span class="value">{{ performanceMetrics.p99Latency }}ms</span>
               </div>
             </div>
+          </div>
 
-            <div class="metric-card">
-              <h5>🔍 键空间分析</h5>
-              <div class="keyspace-analysis">
-                <button @click="analyzeKeyspace" class="btn btn-primary">分析键空间</button>
-                <div v-if="keyspaceAnalysis" class="analysis-results">
-                  <div class="analysis-item">
-                    <span>总键数:</span>
-                    <span>{{ keyspaceAnalysis.totalKeys }}</span>
-                  </div>
-                  <div class="analysis-breakdown">
-                    <h6>按类型分布:</h6>
-                    <div v-for="(count, type) in keyspaceAnalysis.keyTypes" :key="type" class="type-item">
-                      <span>{{ type }}:</span>
-                      <span>{{ count }}</span>
-                    </div>
-                  </div>
+          <div class="metric-card">
+            <h3>🔄 连接信息</h3>
+            <div class="connection-stats">
+              <div class="conn-item">
+                <span class="label">当前连接:</span>
+                <span class="value">{{ performanceMetrics.currentConnections }}</span>
+              </div>
+              <div class="conn-item">
+                <span class="label">总连接数:</span>
+                <span class="value">{{ performanceMetrics.totalConnections }}</span>
+              </div>
+              <div class="conn-item">
+                <span class="label">拒绝连接:</span>
+                <span class="value">{{ performanceMetrics.rejectedConnections }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <h3>💽 键空间统计</h3>
+            <div class="keyspace-stats">
+              <div v-for="(info, db) in performanceMetrics.keyspace" :key="db" class="keyspace-item">
+                <div class="db-name">{{ db }}</div>
+                <div class="db-stats">
+                  <span>键: {{ info.keys }}</span>
+                  <span>过期: {{ info.expires }}</span>
+                  <span>平均TTL: {{ info.avgTtl }}s</span>
                 </div>
               </div>
             </div>
           </div>
-          
-          <button @click="loadPerformanceMetrics" class="btn btn-primary">刷新监控数据</button>
         </div>
       </div>
-    </main>
+    </div>
 
-    <!-- 结果显示模态框 -->
-    <div v-if="showResultModal" class="modal-overlay" @click="showResultModal = false">
-      <div class="modal" @click.stop>
-        <div class="modal-header">
-          <h3>{{ resultModal.title }}</h3>
-          <button @click="showResultModal = false" class="modal-close">×</button>
-        </div>
-        <div class="modal-body">
-          <pre class="result-content">{{ JSON.stringify(resultModal.data, null, 2) }}</pre>
-        </div>
+    <!-- 错误提示 -->
+    <div v-if="errorMessage" class="error-container">
+      <div class="error-card">
+        <h3>❌ {{ errorMessage }}</h3>
+        <ul v-if="errorSolutions.length > 0" class="error-solutions">
+          <li v-for="(solution, index) in errorSolutions" :key="index">
+            {{ solution }}
+          </li>
+        </ul>
+        <button @click="retryConnection" class="retry-btn">重试连接</button>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'MyRedisView',
-  data() {
-    return {
-      activeTab: 'overview',
-      activeAdvancedFeature: 'transactions',
-      redisOnline: false,
-      systemOverview: null,
-      performanceMetrics: null,
-      keyspaceAnalysis: null,
-      transactionDemo: null,
-      scriptDemo: null,
-      
-      // 测试相关
-      testType: 'simple',
-      testCount: 50,
-      testResults: null,
-      
-      // 发布订阅
-      pubsubChannel: 'demo:notifications',
-      pubsubMessage: '{"type":"info","message":"测试消息"}',
-      pubsubResults: [],
-      
-      // 模态框
-      showResultModal: false,
-      resultModal: { title: '', data: null },
-      
-      tabs: [
-        { id: 'overview', name: '系统概览', icon: '📊' },
-        { id: 'datatypes', name: '数据类型', icon: '🗃️' },
-        { id: 'advanced', name: '高级功能', icon: '⚡' },
-        { id: 'applications', name: '实际应用', icon: '💼' },
-        { id: 'monitoring', name: '性能监控', icon: '📈' }
-      ],
-      
-      advancedFeatures: [
-        { id: 'transactions', name: '事务', icon: '💳' },
-        { id: 'scripts', name: 'Lua脚本', icon: '📜' },
-        { id: 'pubsub', name: '发布订阅', icon: '📢' }
-      ],
-      
-      datatypes: [
-        {
-          type: 'strings',
-          name: 'String (字符串)',
-          icon: '📝',
-          description: 'Redis最基本的数据类型，可以存储字符串、数字或二进制数据',
-          demoData: null
-        },
-        {
-          type: 'hashes',
-          name: 'Hash (哈希表)',
-          icon: '🗂️',
-          description: '键值对集合，适合存储对象',
-          demoData: null
-        },
-        {
-          type: 'lists',
-          name: 'List (列表)',
-          icon: '📋',
-          description: '有序的字符串列表，支持队列和栈操作',
-          demoData: null
-        },
-        {
-          type: 'sets',
-          name: 'Set (集合)',
-          icon: '🎯',
-          description: '无序的唯一字符串集合',
-          demoData: null
-        },
-        {
-          type: 'sorted-sets',
-          name: 'Sorted Set (有序集合)',
-          icon: '🏆',
-          description: '带分数的有序集合，适合排行榜',
-          demoData: null
-        },
-        {
-          type: 'streams',
-          name: 'Stream (流)',
-          icon: '🌊',
-          description: '消息流，支持消费者组',
-          demoData: null
-        }
-      ],
-      
-      applications: [
-        {
-          name: '缓存系统',
-          icon: '🚀',
-          category: '性能优化',
-          description: '高速数据缓存，减少数据库查询，提升应用性能',
-          features: ['用户信息缓存', '热点数据缓存', '查询结果缓存', '缓存穿透防护'],
-          endpoint: '/api/cache/demo',
-          demoData: null
-        },
-        {
-          name: '会话管理',
-          icon: '🔐',
-          category: '用户管理',
-          description: '分布式会话存储，支持多服务器共享用户状态',
-          features: ['用户登录状态', '会话自动过期', '多设备管理', '强制下线'],
-          endpoint: '/api/sessions/demo',
-          demoData: null
-        },
-        {
-          name: '实时分析',
-          icon: '📊',
-          category: '数据分析',
-          description: '用户行为分析和实时统计，支持漏斗分析和留存分析',
-          features: ['事件跟踪', '实时统计', '漏斗分析', 'A/B测试'],
-          endpoint: '/api/analytics/demo',
-          demoData: null
-        },
-        {
-          name: '消息队列',
-          icon: '📨',
-          category: '异步处理',
-          description: '基于List和Stream的消息队列系统',
-          features: ['任务队列', '消息广播', '消费者组', '消息确认'],
-          endpoint: '/api/streams/demo',
-          demoData: null
-        }
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+// 响应式数据
+const activeTab = ref('overview')
+const redisOnline = ref(false)
+const isLoading = ref(false)
+const errorMessage = ref('')
+const errorSolutions = ref([])
+
+// 系统概览数据
+const systemOverview = ref(null)
+const performanceMetrics = ref(null)
+
+// 数据类型演示
+const stringKey = ref('demo:string')
+const stringValue = ref('Hello Redis!')
+const stringResult = ref('')
+
+const listKey = ref('demo:list')
+const listValue = ref('')
+const listResult = ref(null)
+
+const setKey = ref('demo:set')
+const setValue = ref('')
+const setResult = ref(null)
+
+const hashKey = ref('demo:hash')
+const hashField = ref('')
+const hashValue = ref('')
+const hashResult = ref(null)
+
+// 高级功能
+const pubsubChannel = ref('demo:notifications')
+const pubsubMessage = ref('{"type":"info","message":"测试消息"}')
+const pubsubResults = ref([])
+
+const transactionCommands = ref([])
+const newCommand = ref('')
+const transactionResult = ref(null)
+
+const ttlKey = ref('demo:ttl')
+const ttlValue = ref('临时数据')
+const ttlSeconds = ref(60)
+const ttlResult = ref('')
+
+// 应用场景
+const cacheKey = ref('user:1001')
+const cacheExpiry = ref(300)
+const cacheResult = ref(null)
+
+const lockKey = ref('resource:lock')
+const lockTimeout = ref(30)
+const lockResult = ref(null)
+
+const sessionId = ref('sess_' + Date.now())
+const sessionData = ref('{"userId":1001,"username":"demo","loginTime":"' + new Date().toISOString() + '"}')
+const sessionResult = ref(null)
+
+const playerName = ref('Player1')
+const playerScore = ref(1000)
+const leaderboardResult = ref(null)
+
+// 性能测试
+const testType = ref('simple')
+const testCount = ref(100)
+const testResults = ref(null)
+
+// 标签配置
+const tabs = ref([
+  { id: 'overview', name: '系统概览', icon: '📊' },
+  { id: 'datatypes', name: '数据类型', icon: '🗃️' },
+  { id: 'advanced', name: '高级功能', icon: '⚡' },
+  { id: 'applications', name: '实际应用', icon: '💼' },
+  { id: 'performance', name: '性能测试', icon: '📈' },
+  { id: 'monitoring', name: '监控面板', icon: '📊' }
+])
+
+// API 请求方法
+const apiRequest = async (url, options = {}) => {
+  const baseUrl = 'http://localhost:8080'
+  try {
+    const response = await fetch(baseUrl + url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      },
+      ...options
+    })
+    return await response.json()
+  } catch (error) {
+    console.error('API请求失败:', error)
+    errorMessage.value = 'API请求失败: ' + error.message
+    errorSolutions.value = [
+      '检查 Redis 服务是否正在运行',
+      '确认后端服务器是否启动 (localhost:8080)',
+      '检查网络连接',
+      '查看浏览器控制台获取详细错误信息'
+    ]
+    return null
+  }
+}
+
+// 检查 Redis 状态
+const checkRedisStatus = async () => {
+  try {
+    const response = await apiRequest('/api/redis/health')
+    redisOnline.value = response && response.code === 200
+    if (!redisOnline.value) {
+      errorMessage.value = 'Redis 服务器连接失败'
+      errorSolutions.value = [
+        '确保 Redis 服务器正在运行',
+        '检查 Redis 配置和端口',
+        '验证后端服务器的 Redis 连接配置'
       ]
+    } else {
+      errorMessage.value = ''
+      errorSolutions.value = []
     }
-  },
+  } catch {
+    redisOnline.value = false
+  }
+}
+
+// 加载系统概览
+const loadSystemOverview = async () => {
+  isLoading.value = true
+  try {
+    const response = await apiRequest('/api/redis/info')
+    if (response && response.code === 200) {
+      systemOverview.value = response.data
+    }
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// String 操作
+const setString = async () => {
+  if (!stringKey.value || !stringValue.value) return
+  const response = await apiRequest('/api/redis/string/set', {
+    method: 'POST',
+    body: JSON.stringify({ key: stringKey.value, value: stringValue.value })
+  })
+  if (response && response.code === 200) {
+    stringResult.value = 'SET 成功'
+  }
+}
+
+const getString = async () => {
+  if (!stringKey.value) return
+  const response = await apiRequest(`/api/redis/string/get?key=${stringKey.value}`)
+  if (response && response.code === 200) {
+    stringResult.value = response.data || '(nil)'
+  }
+}
+
+const deleteString = async () => {
+  if (!stringKey.value) return
+  const response = await apiRequest(`/api/redis/string/delete?key=${stringKey.value}`, {
+    method: 'DELETE'
+  })
+  if (response && response.code === 200) {
+    stringResult.value = '删除成功'
+  }
+}
+
+// List 操作
+const pushList = async () => {
+  if (!listKey.value || !listValue.value) return
+  const response = await apiRequest('/api/redis/list/push', {
+    method: 'POST',
+    body: JSON.stringify({ key: listKey.value, value: listValue.value })
+  })
+  if (response && response.code === 200) {
+    listResult.value = `推入成功，列表长度: ${response.data}`
+    listValue.value = ''
+  }
+}
+
+const popList = async () => {
+  if (!listKey.value) return
+  const response = await apiRequest(`/api/redis/list/pop?key=${listKey.value}`, {
+    method: 'POST'
+  })
+  if (response && response.code === 200) {
+    listResult.value = response.data || '列表为空'
+  }
+}
+
+const getList = async () => {
+  if (!listKey.value) return
+  const response = await apiRequest(`/api/redis/list/range?key=${listKey.value}&start=0&end=-1`)
+  if (response && response.code === 200) {
+    listResult.value = response.data || []
+  }
+}
+
+// Set 操作
+const addSet = async () => {
+  if (!setKey.value || !setValue.value) return
+  const response = await apiRequest('/api/redis/set/add', {
+    method: 'POST',
+    body: JSON.stringify({ key: setKey.value, value: setValue.value })
+  })
+  if (response && response.code === 200) {
+    setResult.value = `添加成功，集合大小: ${response.data}`
+    setValue.value = ''
+  }
+}
+
+const getSet = async () => {
+  if (!setKey.value) return
+  const response = await apiRequest(`/api/redis/set/members?key=${setKey.value}`)
+  if (response && response.code === 200) {
+    setResult.value = response.data || []
+  }
+}
+
+const removeSet = async () => {
+  if (!setKey.value || !setValue.value) return
+  const response = await apiRequest('/api/redis/set/remove', {
+    method: 'DELETE',
+    body: JSON.stringify({ key: setKey.value, value: setValue.value })
+  })
+  if (response && response.code === 200) {
+    setResult.value = response.data ? '删除成功' : '成员不存在'
+  }
+}
+
+// Hash 操作
+const setHash = async () => {
+  if (!hashKey.value || !hashField.value || !hashValue.value) return
+  const response = await apiRequest('/api/redis/hash/set', {
+    method: 'POST',
+    body: JSON.stringify({ key: hashKey.value, field: hashField.value, value: hashValue.value })
+  })
+  if (response && response.code === 200) {
+    hashResult.value = '设置成功'
+    hashField.value = ''
+    hashValue.value = ''
+  }
+}
+
+const getHash = async () => {
+  if (!hashKey.value || !hashField.value) return
+  const response = await apiRequest(`/api/redis/hash/get?key=${hashKey.value}&field=${hashField.value}`)
+  if (response && response.code === 200) {
+    hashResult.value = response.data || '(nil)'
+  }
+}
+
+const getAllHash = async () => {
+  if (!hashKey.value) return
+  const response = await apiRequest(`/api/redis/hash/getall?key=${hashKey.value}`)
+  if (response && response.code === 200) {
+    hashResult.value = response.data || {}
+  }
+}
+
+// 发布订阅
+const publishMessage = async () => {
+  if (!pubsubChannel.value || !pubsubMessage.value) return
+  const response = await apiRequest('/api/redis/pubsub/publish', {
+    method: 'POST',
+    body: JSON.stringify({ channel: pubsubChannel.value, message: pubsubMessage.value })
+  })
+  if (response && response.code === 200) {
+    pubsubResults.value.unshift({
+      timestamp: new Date().toLocaleTimeString(),
+      channel: pubsubChannel.value,
+      message: pubsubMessage.value,
+      type: 'published'
+    })
+  }
+}
+
+const subscribeChannel = async () => {
+  if (!pubsubChannel.value) return
+  // 这里应该建立 WebSocket 连接来接收实时消息
+  // 为了演示，我们模拟一个订阅成功的消息
+  pubsubResults.value.unshift({
+    timestamp: new Date().toLocaleTimeString(),
+    channel: pubsubChannel.value,
+    message: '订阅成功',
+    type: 'subscribed'
+  })
+}
+
+const unsubscribeChannel = () => {
+  pubsubResults.value.unshift({
+    timestamp: new Date().toLocaleTimeString(),
+    channel: pubsubChannel.value,
+    message: '取消订阅',
+    type: 'unsubscribed'
+  })
+}
+
+// 事务操作
+const addCommand = () => {
+  if (newCommand.value.trim()) {
+    transactionCommands.value.push(newCommand.value.trim())
+    newCommand.value = ''
+  }
+}
+
+const removeCommand = (index) => {
+  transactionCommands.value.splice(index, 1)
+}
+
+const clearCommands = () => {
+  transactionCommands.value = []
+  transactionResult.value = null
+}
+
+const executeTransaction = async () => {
+  if (transactionCommands.value.length === 0) return
   
-  mounted() {
-    this.checkRedisStatus();
-    this.loadSystemOverview();
-  },
+  const response = await apiRequest('/api/redis/transaction/execute', {
+    method: 'POST',
+    body: JSON.stringify({ commands: transactionCommands.value })
+  })
   
-  methods: {
-    async apiRequest(url, options = {}) {
-      const baseUrl = 'http://localhost:8081';
-      try {
-        const response = await fetch(baseUrl + url, {
-          headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-          },
-          ...options
-        });
-        return await response.json();
-      } catch (error) {
-        console.error('API请求失败:', error);
-        this.$message?.error?.('API请求失败: ' + error.message) || alert('API请求失败: ' + error.message);
-        return null;
-      }
-    },
+  if (response && response.code === 200) {
+    transactionResult.value = response.data
+  }
+}
 
-    async checkRedisStatus() {
-      try {
-        const response = await this.apiRequest('/health');
-        this.redisOnline = response && response.redis === 'connected';
-      } catch {
-        this.redisOnline = false;
-      }
-    },
+// TTL 操作
+const setWithTTL = async () => {
+  if (!ttlKey.value || !ttlValue.value || !ttlSeconds.value) return
+  const response = await apiRequest('/api/redis/ttl/set', {
+    method: 'POST',
+    body: JSON.stringify({ 
+      key: ttlKey.value, 
+      value: ttlValue.value, 
+      seconds: ttlSeconds.value 
+    })
+  })
+  if (response && response.code === 200) {
+    ttlResult.value = `设置成功，${ttlSeconds.value}秒后过期`
+  }
+}
 
-    async loadSystemOverview() {
-      const response = await this.apiRequest('/api/system/overview');
-      if (response && response.success) {
-        this.systemOverview = response.overview;
-      }
-    },
-
-    async loadPerformanceMetrics() {
-      const response = await this.apiRequest('/api/system/overview');
-      if (response && response.success) {
-        this.performanceMetrics = response.overview.performance;
-      }
-    },
-
-    async loadDemoData(datatype) {
-      const response = await this.apiRequest(`/api/${datatype}/demo`);
-      if (response && response.success) {
-        const datatypeObj = this.datatypes.find(dt => dt.type === datatype);
-        if (datatypeObj) {
-          datatypeObj.demoData = response.data;
-        }
-      }
-    },
-
-    async testDatatype(datatype) {
-      const response = await this.apiRequest(`/api/${datatype}/demo`);
-      if (response) {
-        this.showResult(`${datatype} 数据类型演示`, response);
-      }
-    },
-
-    async loadTransactionDemo() {
-      const response = await this.apiRequest('/api/transactions/demo');
-      if (response && response.success) {
-        this.transactionDemo = response;
-      }
-    },
-
-    async runTransactionDemo(scenario) {
-      const response = await this.apiRequest(scenario.endpoint, {
-        method: 'POST',
-        body: JSON.stringify(scenario.example)
-      });
-      if (response) {
-        this.showResult(`事务演示: ${scenario.name}`, response);
-      }
-    },
-
-    async loadScriptDemo() {
-      const response = await this.apiRequest('/api/scripts/demo');
-      if (response && response.success) {
-        this.scriptDemo = response;
-      }
-    },
-
-    async runScriptDemo(example) {
-      const response = await this.apiRequest(example.endpoint, {
-        method: 'POST',
-        body: JSON.stringify(example.example)
-      });
-      if (response) {
-        this.showResult(`Lua脚本: ${example.name}`, response);
-      }
-    },
-
-    async loadPubSubDemo() {
-      const response = await this.apiRequest('/api/pubsub/demo');
-      if (response) {
-        this.showResult('发布订阅演示', response);
-      }
-    },
-
-    async publishMessage() {
-      if (!this.pubsubChannel || !this.pubsubMessage) {
-        alert('请填写频道名称和消息内容');
-        return;
-      }
-
-      try {
-        const message = JSON.parse(this.pubsubMessage);
-        const response = await this.apiRequest('/api/pubsub/publish', {
-          method: 'POST',
-          body: JSON.stringify({
-            channel: this.pubsubChannel,
-            message
-          })
-        });
-
-        if (response && response.success) {
-          this.pubsubResults.unshift({
-            timestamp: Date.now(),
-            channel: this.pubsubChannel,
-            subscribers: response.subscribers
-          });
-          
-          if (this.pubsubResults.length > 10) {
-            this.pubsubResults = this.pubsubResults.slice(0, 10);
-          }
-        }
-      } catch (error) {
-        alert('消息格式错误，请输入有效的JSON');
-      }
-    },
-
-    async loadApplicationDemo(endpoint) {
-      const response = await this.apiRequest(endpoint);
-      if (response) {
-        const app = this.applications.find(a => a.endpoint === endpoint);
-        if (app) {
-          app.demoData = this.extractDemoStats(response);
-        }
-        this.showResult('应用演示', response);
-      }
-    },
-
-    extractDemoStats(response) {
-      if (response.data && response.data.overview) {
-        return response.data.overview;
-      }
-      if (response.stats) {
-        return response.stats;
-      }
-      if (response.data && response.data.statistics) {
-        return response.data.statistics;
-      }
-      return { 演示数据: '已加载' };
-    },
-
-    async runPerformanceTest() {
-      let endpoint = '/api/pipelines/demo-performance';
-      let body = { commandCount: this.testCount };
-
-      if (this.testType === 'batch') {
-        endpoint = '/api/pipelines/demo-batch-operations';
-        body = { count: this.testCount, operation: 'mixed' };
-      } else if (this.testType === 'pipeline') {
-        endpoint = '/api/scripts/performance-test';
-        body = { testType: 'counter', iterations: this.testCount };
-      }
-
-      const response = await this.apiRequest(endpoint, {
-        method: 'POST',
-        body: JSON.stringify(body)
-      });
-
-      if (response && response.success) {
-        this.testResults = {
-          executionTime: response.executionTime || response.executionTime,
-          avgTimePerOperation: response.avgTimePerCommand || response.avgTimePerOperation,
-          operationsPerSecond: response.operationsPerSecond || Math.round(this.testCount / (parseInt(response.executionTime) / 1000))
-        };
-      }
-    },
-
-    async analyzeKeyspace() {
-      const response = await this.apiRequest('/api/system/keys');
-      if (response && response.success) {
-        const keyTypes = {};
-        response.keys.forEach(key => {
-          const type = key.type;
-          keyTypes[type] = (keyTypes[type] || 0) + 1;
-        });
-        
-        this.keyspaceAnalysis = {
-          totalKeys: response.keys.length,
-          keyTypes
-        };
-      }
-    },
-
-    showResult(title, data) {
-      this.resultModal = { title, data };
-      this.showResultModal = true;
-    },
-
-    formatTime(timestamp) {
-      return new Date(timestamp).toLocaleTimeString();
+const getTTL = async () => {
+  if (!ttlKey.value) return
+  const response = await apiRequest(`/api/redis/ttl/get?key=${ttlKey.value}`)
+  if (response && response.code === 200) {
+    const ttl = response.data
+    if (ttl === -1) {
+      ttlResult.value = '键存在但没有设置过期时间'
+    } else if (ttl === -2) {
+      ttlResult.value = '键不存在'
+    } else {
+      ttlResult.value = `剩余时间: ${ttl}秒`
     }
   }
 }
+
+const removeTTL = async () => {
+  if (!ttlKey.value) return
+  const response = await apiRequest(`/api/redis/ttl/persist?key=${ttlKey.value}`, {
+    method: 'POST'
+  })
+  if (response && response.code === 200) {
+    ttlResult.value = response.data ? '已移除过期时间' : '键不存在'
+  }
+}
+
+// 缓存演示
+const simulateCache = async () => {
+  if (!cacheKey.value) return
+  
+  const startTime = Date.now()
+  
+  // 先尝试从缓存获取
+  let response = await apiRequest(`/api/redis/cache/get?key=${cacheKey.value}`)
+  
+  if (response && response.code === 200 && response.data) {
+    // 缓存命中
+    cacheResult.value = {
+      fromCache: true,
+      responseTime: Date.now() - startTime,
+      data: response.data
+    }
+  } else {
+    // 缓存未命中，模拟数据库查询
+    await new Promise(resolve => setTimeout(resolve, 100)) // 模拟数据库延迟
+    
+    const mockData = {
+      id: cacheKey.value,
+      name: '用户名称',
+      email: 'user@example.com',
+      lastLogin: new Date().toISOString()
+    }
+    
+    // 保存到缓存
+    await apiRequest('/api/redis/cache/set', {
+      method: 'POST',
+      body: JSON.stringify({ 
+        key: cacheKey.value, 
+        value: JSON.stringify(mockData),
+        expiry: cacheExpiry.value
+      })
+    })
+    
+    cacheResult.value = {
+      fromCache: false,
+      responseTime: Date.now() - startTime,
+      data: mockData
+    }
+  }
+}
+
+const clearCache = async () => {
+  if (!cacheKey.value) return
+  const response = await apiRequest(`/api/redis/cache/delete?key=${cacheKey.value}`, {
+    method: 'DELETE'
+  })
+  if (response && response.code === 200) {
+    cacheResult.value = { message: '缓存已清空' }
+  }
+}
+
+// 分布式锁
+const acquireLock = async () => {
+  if (!lockKey.value) return
+  const response = await apiRequest('/api/redis/lock/acquire', {
+    method: 'POST',
+    body: JSON.stringify({ 
+      key: lockKey.value, 
+      timeout: lockTimeout.value,
+      identifier: 'client_' + Date.now()
+    })
+  })
+  
+  if (response && response.code === 200) {
+    lockResult.value = {
+      acquired: response.data.acquired,
+      message: response.data.acquired ? '锁获取成功' : '锁已被其他客户端持有'
+    }
+  }
+}
+
+const releaseLock = async () => {
+  if (!lockKey.value) return
+  const response = await apiRequest('/api/redis/lock/release', {
+    method: 'POST',
+    body: JSON.stringify({ key: lockKey.value })
+  })
+  
+  if (response && response.code === 200) {
+    lockResult.value = {
+      acquired: false,
+      message: '锁已释放'
+    }
+  }
+}
+
+const checkLock = async () => {
+  if (!lockKey.value) return
+  const response = await apiRequest(`/api/redis/lock/status?key=${lockKey.value}`)
+  
+  if (response && response.code === 200) {
+    lockResult.value = {
+      acquired: response.data.locked,
+      message: response.data.locked ? `锁被持有，剩余时间: ${response.data.ttl}秒` : '锁可用'
+    }
+  }
+}
+
+// 会话存储
+const saveSession = async () => {
+  if (!sessionId.value || !sessionData.value) return
+  
+  try {
+    const data = JSON.parse(sessionData.value)
+    const response = await apiRequest('/api/redis/session/save', {
+      method: 'POST',
+      body: JSON.stringify({ sessionId: sessionId.value, data })
+    })
+    
+    if (response && response.code === 200) {
+      sessionResult.value = { message: '会话保存成功', sessionId: sessionId.value }
+    }
+  } catch (error) {
+    sessionResult.value = { error: '会话数据格式错误，请输入有效的JSON' }
+  }
+}
+
+const getSession = async () => {
+  if (!sessionId.value) return
+  const response = await apiRequest(`/api/redis/session/get?sessionId=${sessionId.value}`)
+  
+  if (response && response.code === 200) {
+    sessionResult.value = response.data || { message: '会话不存在或已过期' }
+  }
+}
+
+const deleteSession = async () => {
+  if (!sessionId.value) return
+  const response = await apiRequest(`/api/redis/session/delete?sessionId=${sessionId.value}`, {
+    method: 'DELETE'
+  })
+  
+  if (response && response.code === 200) {
+    sessionResult.value = { message: '会话删除成功' }
+  }
+}
+
+// 排行榜操作
+const addScore = async () => {
+  if (!playerName.value || playerScore.value === undefined) return
+  
+  const response = await apiRequest('/api/redis/leaderboard/add', {
+    method: 'POST',
+    body: JSON.stringify({ 
+      leaderboard: 'game:scores',
+      member: playerName.value, 
+      score: playerScore.value 
+    })
+  })
+  
+  if (response && response.code === 200) {
+    leaderboardResult.value = `${playerName.value} 分数已更新`
+    playerName.value = ''
+    playerScore.value = 0
+  }
+}
+
+const getLeaderboard = async () => {
+  const response = await apiRequest('/api/redis/leaderboard/top?leaderboard=game:scores&count=10')
+  
+  if (response && response.code === 200) {
+    leaderboardResult.value = response.data || []
+  }
+}
+
+const getPlayerRank = async () => {
+  if (!playerName.value) return
+  const response = await apiRequest(`/api/redis/leaderboard/rank?leaderboard=game:scores&member=${playerName.value}`)
+  
+  if (response && response.code === 200) {
+    const rank = response.data
+    leaderboardResult.value = rank !== null ? `${playerName.value} 排名: ${rank + 1}` : '玩家不在排行榜中'
+  }
+}
+
+// 性能测试
+const runPerformanceTest = async () => {
+  isLoading.value = true
+  testResults.value = null
+  
+  try {
+    const response = await apiRequest('/api/redis/performance/test', {
+      method: 'POST',
+      body: JSON.stringify({ 
+        type: testType.value,
+        count: testCount.value
+      })
+    })
+    
+    if (response && response.code === 200) {
+      testResults.value = response.data
+    }
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 加载性能指标
+const loadPerformanceMetrics = async () => {
+  const response = await apiRequest('/api/redis/monitoring/metrics')
+  if (response && response.code === 200) {
+    performanceMetrics.value = response.data
+  }
+}
+
+// 重试连接
+const retryConnection = () => {
+  errorMessage.value = ''
+  errorSolutions.value = []
+  checkRedisStatus()
+}
+
+// 生命周期
+onMounted(() => {
+  checkRedisStatus()
+  loadSystemOverview()
+})
+
+onBeforeUnmount(() => {
+  // 清理资源
+})
 </script>
 
 <style scoped>
-.redis-container {
+.redis-view {
+  padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.page-header {
-  text-align: center;
-  margin-bottom: 30px;
-  padding: 20px;
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  color: white;
-  border-radius: 10px;
-}
-
-.page-header h1 {
-  margin: 0 0 10px 0;
-  font-size: 2.5em;
-}
-
-.server-status {
+/* 头部状态栏 */
+.header-status {
   margin-bottom: 30px;
 }
 
 .status-card {
-  background: white;
+  display: flex;
+  align-items: center;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  color: white;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .status-indicator {
+  font-size: 2em;
+  margin-right: 15px;
+}
+
+.status-text h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.3em;
+}
+
+.status-text p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.refresh-btn {
+  margin-left: auto;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 标签导航 */
+.tabs-container {
+  margin-bottom: 30px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  background: #f8f9fa;
+  padding: 8px;
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.tab-button {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin: 15px 0;
-  font-size: 1.2em;
-  font-weight: bold;
-}
-
-.status-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin-right: 8px;
-}
-
-.status-indicator.online .status-dot {
-  background: #10b981;
-}
-
-.status-indicator.offline .status-dot {
-  background: #ef4444;
-}
-
-.feature-nav {
-  display: flex;
-  margin-bottom: 30px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  overflow: hidden;
-  flex-wrap: wrap;
-}
-
-.nav-btn {
-  flex: 1;
-  min-width: 150px;
-  padding: 15px;
+  gap: 8px;
+  padding: 12px 20px;
+  background: transparent;
   border: none;
-  background: white;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s;
-  font-size: 1em;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  color: #666;
 }
 
-.nav-btn:hover {
-  background: #f5f5f5;
+.tab-button:hover {
+  background: rgba(0, 123, 255, 0.1);
+  color: #007bff;
 }
 
-.nav-btn.active {
-  background: #dc2626;
+.tab-button.active {
+  background: #007bff;
   color: white;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-.tab-content {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.overview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.overview-card {
-  background: #f8fafc;
-  padding: 20px;
-  border-radius: 8px;
-  border-left: 4px solid #dc2626;
-}
-
-.overview-card h4 {
-  margin-top: 0;
-  color: #333;
+.tab-icon {
   font-size: 1.1em;
 }
 
-.info-content p {
-  margin: 8px 0;
-  font-size: 0.9em;
+/* 内容区域 */
+.content-area {
+  min-height: 500px;
 }
 
-.datatype-grid {
+.tab-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.5em;
+}
+
+.load-btn {
+  padding: 10px 20px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.load-btn:hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+.load-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 概览网格 */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #007bff;
+}
+
+.info-card h3 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 1.2em;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-weight: 600;
+  color: #495057;
+}
+
+.value {
+  color: #007bff;
+  font-weight: 500;
+}
+
+/* 数据类型网格 */
+.datatypes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 20px;
 }
 
 .datatype-card {
-  background: #f8fafc;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
-.datatype-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.datatype-badge {
-  background: #dc2626;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8em;
-}
-
-.datatype-desc {
-  color: #666;
-  margin-bottom: 15px;
-}
-
-.demo-content {
   background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-top: 4px solid #28a745;
+}
+
+.datatype-card h3 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+  font-size: 1.2em;
+}
+
+.demo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-field {
+  padding: 12px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.textarea-field {
+  padding: 12px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  min-height: 80px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.textarea-field:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background: #007bff;
+  color: white;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.action-btn.success {
+  background: #28a745;
+}
+
+.action-btn.success:hover {
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.action-btn.danger {
+  background: #dc3545;
+}
+
+.action-btn.danger:hover {
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.result-display {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* 高级功能网格 */
+.advanced-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-top: 4px solid #ffc107;
+}
+
+.feature-card h3 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+  font-size: 1.2em;
+}
+
+/* 发布订阅 */
+.pubsub-messages {
+  max-height: 200px;
+  overflow-y: auto;
+  background: #f8f9fa;
+  border-radius: 8px;
   padding: 10px;
-  border-radius: 4px;
-  margin: 10px 0;
+}
+
+.message-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 0.9em;
+}
+
+.timestamp {
+  color: #6c757d;
+  min-width: 80px;
+}
+
+.channel {
+  color: #007bff;
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.content {
+  color: #495057;
+}
+
+/* 事务 */
+.command-list {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 100px;
   max-height: 150px;
   overflow-y: auto;
 }
 
-.demo-item {
-  margin-bottom: 8px;
-  padding: 5px;
-  background: #f1f5f9;
-  border-radius: 4px;
-}
-
-.demo-item code {
-  background: #e2e8f0;
-  padding: 2px 4px;
-  border-radius: 2px;
-  font-size: 0.8em;
-}
-
-.hash-fields, .list-elements {
-  margin-top: 5px;
-}
-
-.field-tag, .element-tag {
-  display: inline-block;
-  background: #dbeafe;
-  color: #1e40af;
-  padding: 2px 6px;
-  margin: 2px;
-  border-radius: 4px;
-  font-size: 0.8em;
-}
-
-.more-indicator {
-  color: #666;
-  font-style: italic;
-  font-size: 0.8em;
-}
-
-.datatype-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.feature-tabs {
-  display: flex;
-  margin-bottom: 20px;
-  background: #f1f5f9;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.feature-tab {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.feature-tab.active {
-  background: #dc2626;
-  color: white;
-}
-
-.feature-panel {
-  min-height: 300px;
-}
-
-.demo-scenarios, .script-examples {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.scenario-card, .script-card {
-  background: #f8fafc;
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
-.scenario-example, .script-example {
-  margin: 10px 0;
-}
-
-.scenario-example pre, .script-example pre {
-  background: #1f2937;
-  color: #f9fafb;
-  padding: 10px;
-  border-radius: 4px;
-  overflow-x: auto;
-  font-size: 0.8em;
-}
-
-.pubsub-controls {
-  background: #f8fafc;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.control-group {
-  margin-bottom: 15px;
-}
-
-.control-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 600;
-}
-
-.control-group input, .control-group textarea {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.control-group textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-.control-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.pubsub-results {
-  background: #f8fafc;
-  padding: 15px;
-  border-radius: 8px;
-}
-
-.pubsub-result {
+.command-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.timestamp {
-  font-size: 0.8em;
-  color: #666;
-}
-
-.channel {
-  font-family: monospace;
-  background: #e2e8f0;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.subscribers {
-  background: #10b981;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 0.8em;
-}
-
-.application-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 20px;
-}
-
-.application-card {
-  background: #f8fafc;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
-.app-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.app-category {
-  background: #3b82f6;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8em;
-}
-
-.app-description {
-  color: #666;
-  margin-bottom: 15px;
-}
-
-.app-features ul {
-  list-style: none;
-  padding: 0;
-}
-
-.app-features li {
-  padding: 4px 0;
-  color: #374151;
-}
-
-.app-features li:before {
-  content: "✓ ";
-  color: #10b981;
-  font-weight: bold;
-}
-
-.demo-stats {
+  padding: 8px;
   background: white;
-  padding: 10px;
   border-radius: 4px;
-  margin: 10px 0;
+  margin-bottom: 5px;
+  font-family: 'Courier New', monospace;
 }
 
-.stat-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.stat-label {
-  color: #666;
-}
-
-.stat-value {
-  font-weight: 600;
-}
-
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.metric-card {
-  background: #f8fafc;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
-.metric-content, .performance-test, .keyspace-analysis {
-  margin-top: 15px;
-}
-
-.metric-item, .result-item, .analysis-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.test-controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-  flex-wrap: wrap;
-}
-
-.test-controls select, .test-controls input {
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-}
-
-.analysis-breakdown {
-  margin-top: 15px;
-}
-
-.type-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-  color: #374151;
-}
-
-.btn {
-  padding: 10px 20px;
+.remove-btn {
+  background: #dc3545;
+  color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s;
-  margin: 5px;
-}
-
-.btn-primary {
-  background: #dc2626;
-  color: white;
-}
-
-.btn-secondary {
-  background: #6b7280;
-  color: white;
-}
-
-.btn-small {
-  padding: 6px 12px;
   font-size: 12px;
 }
 
-.btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+/* 应用场景网格 */
+.applications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
+.app-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-top: 4px solid #17a2b8;
+}
+
+.app-card h3 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+  font-size: 1.2em;
+}
+
+/* 缓存结果 */
+.cache-result {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.result-type {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.result-type.from-cache {
+  background: #d4edda;
+  color: #155724;
+}
+
+.result-type.from-db {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.result-time {
+  color: #6c757d;
+  font-size: 0.9em;
+}
+
+.result-data {
+  font-family: 'Courier New', monospace;
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* 锁状态 */
+.lock-status {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.lock-status.acquired {
+  background: #d4edda;
+  color: #155724;
+}
+
+.lock-status.failed {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* 排行榜 */
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 5px;
+}
+
+.rank {
+  background: #007bff;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  font-weight: bold;
 }
 
-.modal {
+.player {
+  flex: 1;
+  font-weight: 500;
+}
+
+.score {
+  color: #28a745;
+  font-weight: bold;
+}
+
+/* 性能测试 */
+.performance-section {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 30px;
+}
+
+.test-config {
   background: white;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  height: fit-content;
 }
 
-.modal-header {
+.test-config h3 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+}
+
+.config-group {
+  margin-bottom: 15px;
+}
+
+.config-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.select-field {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.test-results {
+  background: white;
+  border-radius: 12px;
   padding: 20px;
-  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.test-results h3 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.result-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.result-card h4 {
+  margin: 0 0 15px 0;
+  color: #495057;
+}
+
+.metric-item, .stat-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #dee2e6;
 }
 
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  cursor: pointer;
+.metric-item:last-child, .stat-item:last-child {
+  border-bottom: none;
 }
 
-.modal-body {
+/* 监控面板 */
+.monitoring-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.metric-card {
+  background: white;
+  border-radius: 12px;
   padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-top: 4px solid #fd7e14;
 }
 
-.result-content {
-  background: #1f2937;
-  color: #f9fafb;
-  padding: 15px;
-  border-radius: 4px;
-  overflow-x: auto;
+.metric-card h3 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+}
+
+.commands-stats, .latency-stats, .connection-stats, .keyspace-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.command-stat, .latency-item, .conn-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.command-name, .label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.command-count, .value {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.keyspace-item {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.db-name {
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.db-stats {
+  display: flex;
+  gap: 15px;
   font-size: 0.9em;
-  max-height: 400px;
+  color: #6c757d;
 }
 
+/* 错误提示 */
+.error-container {
+  margin-top: 30px;
+}
+
+.error-card {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 12px;
+  padding: 20px;
+  color: #721c24;
+}
+
+.error-card h3 {
+  margin: 0 0 15px 0;
+}
+
+.error-solutions {
+  margin: 15px 0;
+  padding-left: 20px;
+}
+
+.error-solutions li {
+  margin-bottom: 8px;
+}
+
+.retry-btn {
+  padding: 10px 20px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+}
+
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .redis-container {
-    padding: 10px;
+  .redis-view {
+    padding: 15px;
   }
   
-  .feature-nav {
+  .tabs {
     flex-direction: column;
   }
   
-  .nav-btn {
-    min-width: auto;
-  }
-  
-  .overview-grid, .datatype-grid, .application-grid, .metrics-grid {
+  .overview-grid,
+  .datatypes-grid,
+  .advanced-grid,
+  .applications-grid,
+  .monitoring-grid {
     grid-template-columns: 1fr;
   }
   
-  .demo-scenarios, .script-examples {
+  .performance-section {
     grid-template-columns: 1fr;
   }
   
-  .test-controls {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .button-group {
     flex-direction: column;
   }
   
-  .control-actions {
-    flex-direction: column;
+  .action-btn {
+    width: 100%;
   }
+}
+
+/* 内存和性能统计样式 */
+.memory-stats, .performance-stats, .db-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.memory-item, .perf-item, .db-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.memory-item:last-child, .perf-item:last-child, .db-item:last-child {
+  border-bottom: none;
+}
+
+/* 加载动画 */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.loading {
+  animation: pulse 1.5s ease-in-out infinite;
 }
 </style> 

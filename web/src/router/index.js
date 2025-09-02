@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import { useAuthStore } from '@/stores/authStore'
 
 const routes = [
   {
@@ -97,6 +96,12 @@ const routes = [
     name: 'myRedis',
     component: () => import('../views/MyRedisView.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/spring-cloud',
+    name: 'springCloud',
+    component: () => import('../views/SpringCloudView.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 
@@ -105,11 +110,12 @@ const router = createRouter({
   routes
 })
 
-// 路由守卫
-router.beforeEach((to, from, next) => {
+// 路由守卫 - Vue 3优化版本
+router.beforeEach(async (to, from, next) => {
   // 检查路由是否需要认证
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    // 需要认证的路由
+    // 需要认证的路由 - 动态导入store
+    const { useAuthStore } = await import('@/stores/authStore')
     const authStore = useAuthStore()
     
     if (!authStore.isLoggedIn) {

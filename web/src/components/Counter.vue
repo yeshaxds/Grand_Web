@@ -1,54 +1,71 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="counter-container">
-    <h2>Vuex示例</h2>
+    <h2>Pinia示例（已升级）</h2>
     
     <div class="counter-section">
       <h3>计数器</h3>
       <p>当前计数: {{ count }}</p>
       <p>双倍计数: {{ doubleCount }}</p>
+      <p v-if="loading" class="loading">操作中...</p>
       <div class="button-group">
-        <button @click="increment">+1</button>
-        <button @click="decrement">-1</button>
-        <button @click="incrementAsync">延迟+1</button>
+        <button @click="increment" :disabled="loading">+1</button>
+        <button @click="decrement" :disabled="loading">-1</button>
+        <button @click="incrementAsync" :disabled="loading">延迟+1</button>
+        <button @click="reset">重置</button>
       </div>
     </div>
     
     <div class="login-section">
       <h3>{{ welcomeMessage }}</h3>
       <div v-if="!username" class="login-form">
-        <input v-model="inputUsername" placeholder="请输入用户名" />
-        <button @click="login">登录</button>
+        <input v-model="inputUsername" placeholder="请输入用户名" @keyup.enter="login" />
+        <button @click="login" :disabled="!inputUsername.trim()">登录</button>
       </div>
+      <div v-else class="logout-section">
+        <p>欢迎，{{ username }}！</p>
+        <button @click="logout">退出登录</button>
+      </div>
+    </div>
+
+    <!-- 操作历史 -->
+    <div v-if="history.length > 0" class="history-section">
+      <h3>操作历史</h3>
+      <ul>
+        <li v-for="(record, index) in history" :key="index">{{ record }}</li>
+      </ul>
     </div>
   </div>
 </template>
 
-<script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+<script setup>
+import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useCounterStore } from '@/stores/counter'
 
-export default {
-  name: 'CounterComponent',
-  data() {
-    return {
-      inputUsername: ''
-    }
-  },
-  computed: {
-    ...mapState(['count', 'username']),
-    ...mapGetters(['doubleCount', 'welcomeMessage'])
-  },
-  methods: {
-    ...mapMutations(['increment', 'decrement']),
-    ...mapActions(['incrementAsync']),
-    login() {
-      if (this.inputUsername.trim()) {
-        this.$store.dispatch('login', this.inputUsername)
-          .then(() => {
-            this.inputUsername = ''
-          })
-      }
-    }
+// 使用Pinia store
+const counterStore = useCounterStore()
+
+// 解构响应式状态（使用storeToRefs保持响应性）
+const { count, username, loading, history, doubleCount, welcomeMessage } = storeToRefs(counterStore)
+
+// 解构actions（actions不需要storeToRefs）
+const { increment, decrement, incrementAsync, setUsername, reset } = counterStore
+
+// 本地响应式数据
+const inputUsername = ref('')
+
+// 登录方法
+const login = () => {
+  if (inputUsername.value.trim()) {
+    setUsername(inputUsername.value.trim())
+    inputUsername.value = ''
   }
+}
+
+// 退出登录方法
+const logout = () => {
+  setUsername('')
 }
 </script>
 

@@ -62,314 +62,349 @@
   </div>
 </template>
 
-<script>
-import { executeCode } from '@/services/codeExecutionService';
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { executeCode } from '@/services/codeExecutionService'
 
-export default {
-  name: 'CodeEditorView',
-  data() {
-    return {
-      code: '// 在这里编写代码\nconsole.log("Hello, World!");',
-      output: '',
-      isRunning: false,
-      selectedLanguage: 'javascript',
-      editorTheme: 'vs-dark',
-      editor: null,
-      editorLoaded: false,
-      codeExamples: [
-        {
-          id: 'js-hello',
-          language: 'javascript',
-          title: 'Hello World',
-          description: '基本的JavaScript示例',
-          code: '// 简单的Hello World示例\nconsole.log("Hello, World!");\n\n// 使用变量\nconst name = "CodeLearn用户";\nconsole.log(`欢迎, ${name}!`);\n\n// 使用函数\nfunction greet(person) {\n  return `你好, ${person}!`;\n}\n\nconsole.log(greet("编程爱好者"));'
-        },
-        {
-          id: 'js-array',
-          language: 'javascript',
-          title: '数组操作',
-          description: '数组方法示例',
-          code: '// 数组操作示例\nconst numbers = [1, 2, 3, 4, 5];\n\n// 映射\nconst doubled = numbers.map(n => n * 2);\nconsole.log("映射后的数组:", doubled);\n\n// 过滤\nconst evenNumbers = numbers.filter(n => n % 2 === 0);\nconsole.log("过滤后的数组:", evenNumbers);\n\n// 归约\nconst sum = numbers.reduce((total, n) => total + n, 0);\nconsole.log("数组总和:", sum);'
-        },
-        {
-          id: 'html-simple',
-          language: 'html',
-          title: '简单网页',
-          description: 'HTML基础示例',
-          code: '<!DOCTYPE html>\n<html>\n<head>\n  <title>我的测试页面</title>\n  <style>\n    body {\n      font-family: Arial, sans-serif;\n      margin: 0;\n      padding: 20px;\n      background-color: #f5f5f5;\n    }\n    h1 {\n      color: #333;\n      text-align: center;\n    }\n    .container {\n      background: white;\n      border-radius: 8px;\n      padding: 20px;\n      box-shadow: 0 2px 4px rgba(0,0,0,0.1);\n    }\n    button {\n      background-color: #4285f4;\n      color: white;\n      border: none;\n      padding: 10px 15px;\n      border-radius: 4px;\n      cursor: pointer;\n    }\n  </style>\n</head>\n<body>\n  <h1>欢迎使用在线编辑器</h1>\n  <div class="container">\n    <p>这是一个简单的HTML页面示例。</p>\n    <button onclick="alert(\'你点击了按钮!\')">点击我</button>\n  </div>\n</body>\n</html>'
-        },
-        {
-          id: 'py-hello',
-          language: 'python',
-          title: 'Python基础',
-          description: 'Python语言基础',
-          code: '# Python基础示例\nprint("Hello, World!")\n\n# 使用变量\nname = "CodeLearn用户"\nprint(f"欢迎, {name}!")\n\n# 定义函数\ndef greet(person):\n    return f"你好, {person}!"\n\nprint(greet("Python爱好者"))\n\n# 列表操作\nnumbers = [1, 2, 3, 4, 5]\nprint("原始列表:", numbers)\nprint("列表元素之和:", sum(numbers))\nprint("列表元素平方:", [n**2 for n in numbers])'
-        }
-      ]
-    };
+// 响应式数据
+const code = ref('// 在这里编写代码\nconsole.log("Hello, World!");')
+const output = ref('')
+const isRunning = ref(false)
+const selectedLanguage = ref('javascript')
+const editorTheme = ref('vs-dark')
+const editor = ref(null)
+const editorLoaded = ref(false)
+
+// 模板引用
+const monacoContainer = ref(null)
+const previewFrame = ref(null)
+const outputArea = ref(null)
+
+// 代码示例数据
+const codeExamples = ref([
+  {
+    id: 'js-hello',
+    language: 'javascript',
+    title: 'Hello World',
+    description: '基本的JavaScript示例',
+    code: '// 简单的Hello World示例\nconsole.log("Hello, World!");\n\n// 使用变量\nconst name = "CodeLearn用户";\nconsole.log(`欢迎, ${name}!`);\n\n// 使用函数\nfunction greet(person) {\n  return `你好, ${person}!`;\n}\n\nconsole.log(greet("编程爱好者"));'
   },
-  computed: {
-    formattedOutput() {
-      return this.output.replace(/\n/g, '<br/>');
-    },
-    isHtmlPreview() {
-      return this.selectedLanguage === 'html';
+  {
+    id: 'js-array',
+    language: 'javascript',
+    title: '数组操作',
+    description: '数组方法示例',
+    code: '// 数组操作示例\nconst numbers = [1, 2, 3, 4, 5];\n\n// 映射\nconst doubled = numbers.map(n => n * 2);\nconsole.log("映射后的数组:", doubled);\n\n// 过滤\nconst evenNumbers = numbers.filter(n => n % 2 === 0);\nconsole.log("过滤后的数组:", evenNumbers);\n\n// 归约\nconst sum = numbers.reduce((total, n) => total + n, 0);\nconsole.log("数组总和:", sum);'
+  },
+  {
+    id: 'html-simple',
+    language: 'html',
+    title: '简单网页',
+    description: 'HTML基础示例',
+    code: '<!DOCTYPE html>\n<html>\n<head>\n  <title>我的测试页面</title>\n  <style>\n    body {\n      font-family: Arial, sans-serif;\n      margin: 0;\n      padding: 20px;\n      background-color: #f5f5f5;\n    }\n    h1 {\n      color: #333;\n      text-align: center;\n    }\n    .container {\n      background: white;\n      border-radius: 8px;\n      padding: 20px;\n      box-shadow: 0 2px 4px rgba(0,0,0,0.1);\n    }\n    button {\n      background-color: #4285f4;\n      color: white;\n      border: none;\n      padding: 10px 15px;\n      border-radius: 4px;\n      cursor: pointer;\n    }\n  </style>\n</head>\n<body>\n  <h1>欢迎使用在线编辑器</h1>\n  <div class="container">\n    <p>这是一个简单的HTML页面示例。</p>\n    <button onclick="alert(\'你点击了按钮!\')">点击我</button>\n  </div>\n</body>\n</html>'
+  },
+  {
+    id: 'py-hello',
+    language: 'python',
+    title: 'Python基础',
+    description: 'Python语言基础',
+    code: '# Python基础示例\nprint("Hello, World!")\n\n# 使用变量\nname = "CodeLearn用户"\nprint(f"欢迎, {name}!")\n\n# 定义函数\ndef greet(person):\n    return f"你好, {person}!"\n\nprint(greet("Python爱好者"))\n\n# 列表操作\nnumbers = [1, 2, 3, 4, 5]\nprint("原始列表:", numbers)\nprint("列表元素之和:", sum(numbers))\nprint("列表元素平方:", [n**2 for n in numbers])'
+  }
+])
+
+// 计算属性
+const formattedOutput = computed(() => {
+  return output.value.replace(/\n/g, '<br/>')
+})
+
+const isHtmlPreview = computed(() => {
+  return selectedLanguage.value === 'html'
+})
+
+// 方法
+const loadMonacoEditor = async () => {
+  try {
+    // 动态导入monaco编辑器
+    const monaco = await import('monaco-editor')
+    window.monaco = monaco // 保存到全局以便后续使用
+
+    if (monacoContainer.value) {
+      // 创建编辑器前确保容器有尺寸
+      const container = monacoContainer.value
+
+      if (container.clientHeight === 0) {
+        container.style.height = '400px'
+      }
+
+      // 以固定的深色主题创建编辑器，然后通过CSS控制颜色
+      editor.value = monaco.editor.create(container, {
+        value: code.value,
+        language: selectedLanguage.value,
+        fontFamily: 'Consolas, "Courier New", monospace',
+        fontSize: 14,
+        tabSize: 2,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: true, // 允许滚动超过最后一行
+        automaticLayout: true,
+        wordWrap: 'on',
+        scrollbar: {
+          vertical: 'visible', // 显示垂直滚动条
+          verticalHasArrows: true,
+          verticalScrollbarSize: 12,
+          horizontalScrollbarSize: 12
+        },
+        fixedOverflowWidgets: true
+      })
+
+      // 监听内容变化
+      editor.value.onDidChangeModelContent(() => {
+        code.value = editor.value.getValue()
+      })
+
+      // 初始化后调整布局
+      setTimeout(() => {
+        editor.value.layout()
+        applyThemeStyles()
+      }, 100)
+
+      // 添加窗口大小变化监听器
+      window.addEventListener('resize', handleResize)
+
+      // 设置为已加载
+      editorLoaded.value = true
+      console.log('Monaco编辑器加载成功')
     }
-  },
-  methods: {
-    async loadMonacoEditor() {
-      try {
-        // 动态导入monaco编辑器
-        const monaco = await import('monaco-editor');
-        window.monaco = monaco; // 保存到全局以便后续使用
+  } catch (error) {
+    console.error('Monaco编辑器加载失败:', error)
+    editorLoaded.value = false
+  }
+}
 
-        if (this.$refs.monacoContainer) {
-          // 创建编辑器前确保容器有尺寸
-          const container = this.$refs.monacoContainer;
+const handleResize = () => {
+  if (editor.value && editorLoaded.value) {
+    editor.value.layout()
+  }
+}
 
-          if (container.clientHeight === 0) {
-            container.style.height = '400px';
-          }
+const handleLanguageChange = () => {
+  if (!editorLoaded.value || !window.monaco) return
 
-          // 以固定的深色主题创建编辑器，然后通过CSS控制颜色
-          this.editor = monaco.editor.create(container, {
-            value: this.code,
-            language: this.selectedLanguage,
-            fontFamily: 'Consolas, "Courier New", monospace',
-            fontSize: 14,
-            tabSize: 2,
-            minimap: { enabled: false },
-            scrollBeyondLastLine: true, // 允许滚动超过最后一行
-            automaticLayout: true,
-            wordWrap: 'on',
-            scrollbar: {
-              vertical: 'visible', // 显示垂直滚动条
-              verticalHasArrows: true,
-              verticalScrollbarSize: 12,
-              horizontalScrollbarSize: 12
-            },
-            fixedOverflowWidgets: true
-          });
+  try {
+    if (editor.value) {
+      window.monaco.editor.setModelLanguage(editor.value.getModel(), selectedLanguage.value)
 
-          // 监听内容变化
-          this.editor.onDidChangeModelContent(() => {
-            this.code = this.editor.getValue();
-          });
-
-          // 初始化后调整布局
-          setTimeout(() => {
-            this.editor.layout();
-            this.applyThemeStyles();
-          }, 100);
-
-          // 添加窗口大小变化监听器
-          window.addEventListener('resize', this.handleResize);
-
-          // 设置为已加载
-          this.editorLoaded = true;
-          console.log('Monaco编辑器加载成功');
-        }
-      } catch (error) {
-        console.error('Monaco编辑器加载失败:', error);
-        this.editorLoaded = false;
+      // 更新代码示例
+      if (selectedLanguage.value === 'html' && code.value.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
+        code.value = '<!DOCTYPE html>\n<html>\n<head>\n  <title>我的HTML页面</title>\n</head>\n<body>\n  <h1>Hello, World!</h1>\n  <p>这是我的第一个HTML页面。</p>\n</body>\n</html>'
+        editor.value.setValue(code.value)
+      } else if (selectedLanguage.value === 'python' && code.value.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
+        code.value = '# 在这里编写Python代码\nprint("Hello, World!")'
+        editor.value.setValue(code.value)
+      } else if (selectedLanguage.value === 'css' && code.value.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
+        code.value = '/* 在这里编写CSS样式 */\nbody {\n  font-family: Arial, sans-serif;\n  background-color: #f5f5f5;\n  color: #333;\n}\n\nh1 {\n  color: #4285f4;\n  text-align: center;\n}'
+        editor.value.setValue(code.value)
       }
-    },
-
-    handleResize() {
-      if (this.editor && this.editorLoaded) {
-        this.editor.layout();
-      }
-    },
-
-    handleLanguageChange() {
-      if (!this.editorLoaded || !window.monaco) return;
-
-      try {
-        if (this.editor) {
-          window.monaco.editor.setModelLanguage(this.editor.getModel(), this.selectedLanguage);
-
-          // 更新代码示例
-          if (this.selectedLanguage === 'html' && this.code.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
-            this.code = '<!DOCTYPE html>\n<html>\n<head>\n  <title>我的HTML页面</title>\n</head>\n<body>\n  <h1>Hello, World!</h1>\n  <p>这是我的第一个HTML页面。</p>\n</body>\n</html>';
-            this.editor.setValue(this.code);
-          } else if (this.selectedLanguage === 'python' && this.code.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
-            this.code = '# 在这里编写Python代码\nprint("Hello, World!")';
-            this.editor.setValue(this.code);
-          } else if (this.selectedLanguage === 'css' && this.code.trim() === '// 在这里编写代码\nconsole.log("Hello, World!");') {
-            this.code = '/* 在这里编写CSS样式 */\nbody {\n  font-family: Arial, sans-serif;\n  background-color: #f5f5f5;\n  color: #333;\n}\n\nh1 {\n  color: #4285f4;\n  text-align: center;\n}';
-            this.editor.setValue(this.code);
-          }
-        }
-      } catch (error) {
-        console.error('语言切换错误:', error);
-      }
-    },
-
-    // 通过CSS样式直接控制编辑器主题
-    applyThemeStyles() {
-      if (!this.editorLoaded || !this.$refs.monacoContainer) return;
-
-      try {
-        const container = this.$refs.monacoContainer;
-
-        // 移除旧主题类
-        container.classList.remove('vs', 'vs-dark');
-
-        // 添加新主题类
-        container.classList.add(this.editorTheme);
-
-        console.log('已应用CSS主题:', this.editorTheme);
-      } catch (error) {
-        console.error('应用CSS主题错误:', error);
-      }
-    },
-
-    handleThemeChange() {
-      if (!this.editorLoaded || !window.monaco) return;
-
-      try {
-        console.log('正在切换主题为:', this.editorTheme);
-
-        // 使用简单的主题切换方式
-        // const monaco = window.monaco;
-
-        // 在DOM中查找Monaco编辑器容器并直接修改样式
-        const editorContainer = document.querySelector('.monaco-editor');
-        if (editorContainer) {
-          if (this.editorTheme === 'vs') {
-            // 浅色主题
-            document.body.style.setProperty('--monaco-background', '#ffffff');
-            document.body.style.setProperty('--monaco-foreground', '#000000');
-            editorContainer.style.backgroundColor = '#ffffff';
-            editorContainer.style.color = '#000000';
-
-            // 找到并修改所有文本元素
-            const textElements = editorContainer.querySelectorAll('.mtk1, .mtk2, .mtk3, .mtk4, .mtk5');
-            textElements.forEach(el => {
-              el.style.color = '#000000';
-            });
-
-            // 修改行号颜色
-            const lineNumbers = editorContainer.querySelectorAll('.line-numbers');
-            lineNumbers.forEach(el => {
-              el.style.color = '#237893';
-            });
-          } else {
-            // 深色主题
-            document.body.style.setProperty('--monaco-background', '#1e1e1e');
-            document.body.style.setProperty('--monaco-foreground', '#d4d4d4');
-            editorContainer.style.backgroundColor = '#1e1e1e';
-            editorContainer.style.color = '#d4d4d4';
-
-            // 找到并修改所有文本元素
-            const textElements = editorContainer.querySelectorAll('.mtk1, .mtk2, .mtk3, .mtk4, .mtk5');
-            textElements.forEach(el => {
-              el.style.color = '#d4d4d4';
-            });
-
-            // 修改行号颜色
-            const lineNumbers = editorContainer.querySelectorAll('.line-numbers');
-            lineNumbers.forEach(el => {
-              el.style.color = '#858585';
-            });
-          }
-        }
-
-        // 强制重新布局编辑器
-        if (this.editor) {
-          setTimeout(() => {
-            this.editor.layout();
-          }, 100);
-        }
-
-        console.log('主题已切换:', this.editorTheme);
-      } catch (error) {
-        console.error('主题切换错误:', error);
-      }
-    },
-
-    async runCode() {
-      if (this.editor && this.editorLoaded) {
-        // 如果编辑器已加载，使用编辑器的值
-        this.code = this.editor.getValue();
-      }
-
-      this.isRunning = true;
-      this.output = '执行中...\n';
-
-      try {
-        if (this.isHtmlPreview) {
-          // HTML预览处理
-          this.updateHtmlPreview();
-        } else {
-          // 其他语言的执行
-          const result = await executeCode(this.code, this.selectedLanguage);
-
-          if (result.success) {
-            this.output = result.output || '代码执行成功，没有输出。';
-          } else {
-            this.output = result.errors || '执行出错，但没有详细错误信息。';
-          }
-        }
-      } catch (error) {
-        this.output = `执行错误: ${error.message}`;
-        console.error('代码执行错误:', error);
-      } finally {
-        this.isRunning = false;
-      }
-    },
-
-    updateHtmlPreview() {
-      // 更新HTML预览iframe的内容
-      const iframe = this.$refs.previewFrame;
-      if (iframe) {
-        try {
-          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-          iframeDoc.open();
-          iframeDoc.write(this.code);
-          iframeDoc.close();
-        } catch (error) {
-          console.error('HTML预览错误:', error);
-          this.output = `预览错误: ${error.message}`;
-        }
-      }
-    },
-
-    loadExample(example) {
-      this.selectedLanguage = example.language;
-      this.code = example.code;
-
-      if (this.editor && this.editorLoaded && window.monaco) {
-        try {
-          window.monaco.editor.setModelLanguage(this.editor.getModel(), example.language);
-          this.editor.setValue(example.code);
-        } catch (error) {
-          console.error('加载示例错误:', error);
-        }
-      }
-
-      this.output = ''; // 清空输出
     }
-  },
-  mounted() {
-    // 尝试加载Monaco编辑器
-    this.loadMonacoEditor();
+  } catch (error) {
+    console.error('语言切换错误:', error)
+  }
+}
 
-    // 页面加载后自动运行代码一次
-    setTimeout(() => {
-      this.runCode();
-    }, 1000);
-  },
-  beforeUnmount() {
-    // 移除事件监听器
-    window.removeEventListener('resize', this.handleResize);
+// 通过CSS样式直接控制编辑器主题
+const applyThemeStyles = () => {
+  if (!editorLoaded.value || !monacoContainer.value) return
 
-    // 销毁编辑器实例
-    if (this.editor && this.editorLoaded) {
-      this.editor.dispose();
+  try {
+    const container = monacoContainer.value
+
+    // 移除旧主题类
+    container.classList.remove('vs', 'vs-dark')
+
+    // 添加新主题类
+    container.classList.add(editorTheme.value)
+
+    console.log('已应用CSS主题:', editorTheme.value)
+  } catch (error) {
+    console.error('应用CSS主题错误:', error)
+  }
+}
+
+const handleThemeChange = () => {
+  if (!editorLoaded.value || !window.monaco) return
+
+  try {
+    console.log('正在切换主题为:', editorTheme.value)
+
+    // 在DOM中查找Monaco编辑器容器并直接修改样式
+    const editorContainer = document.querySelector('.monaco-editor')
+    if (editorContainer) {
+      if (editorTheme.value === 'vs') {
+        // 浅色主题
+        document.body.style.setProperty('--monaco-background', '#ffffff')
+        document.body.style.setProperty('--monaco-foreground', '#000000')
+        editorContainer.style.backgroundColor = '#ffffff'
+        editorContainer.style.color = '#000000'
+
+        // 找到并修改所有文本元素
+        const textElements = editorContainer.querySelectorAll('.mtk1, .mtk2, .mtk3, .mtk4, .mtk5')
+        textElements.forEach(el => {
+          el.style.color = '#000000'
+        })
+
+        // 修改行号颜色
+        const lineNumbers = editorContainer.querySelectorAll('.line-numbers')
+        lineNumbers.forEach(el => {
+          el.style.color = '#237893'
+        })
+      } else {
+        // 深色主题
+        document.body.style.setProperty('--monaco-background', '#1e1e1e')
+        document.body.style.setProperty('--monaco-foreground', '#d4d4d4')
+        editorContainer.style.backgroundColor = '#1e1e1e'
+        editorContainer.style.color = '#d4d4d4'
+
+        // 找到并修改所有文本元素
+        const textElements = editorContainer.querySelectorAll('.mtk1, .mtk2, .mtk3, .mtk4, .mtk5')
+        textElements.forEach(el => {
+          el.style.color = '#d4d4d4'
+        })
+
+        // 修改行号颜色
+        const lineNumbers = editorContainer.querySelectorAll('.line-numbers')
+        lineNumbers.forEach(el => {
+          el.style.color = '#858585'
+        })
+      }
+    }
+
+    // 强制重新布局编辑器
+    if (editor.value) {
+      setTimeout(() => {
+        editor.value.layout()
+      }, 100)
+    }
+
+    console.log('主题切换完成')
+  } catch (error) {
+    console.error('主题切换错误:', error)
+  }
+}
+
+const runCode = async () => {
+  if (editor.value && editorLoaded.value) {
+    // 如果编辑器已加载，使用编辑器的值
+    code.value = editor.value.getValue()
+  }
+
+  isRunning.value = true
+  output.value = '执行中...\n'
+
+  try {
+    if (isHtmlPreview.value) {
+      // HTML预览处理
+      updateHtmlPreview()
+    } else {
+      // 其他语言的执行
+      const result = await executeCode(code.value, selectedLanguage.value)
+
+      if (result.success) {
+        output.value = result.output || '代码执行成功，没有输出。'
+      } else {
+        output.value = result.errors || '执行出错，但没有详细错误信息。'
+      }
+    }
+  } catch (error) {
+    output.value = `执行错误: ${error.message}`
+    console.error('代码执行错误:', error)
+  } finally {
+    isRunning.value = false
+  }
+}
+
+const updateHtmlPreview = () => {
+  // 更新HTML预览iframe的内容
+  const iframe = previewFrame.value
+  if (iframe) {
+    try {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document
+      iframeDoc.open()
+      iframeDoc.write(code.value)
+      iframeDoc.close()
+    } catch (error) {
+      console.error('HTML预览错误:', error)
+      output.value = `预览错误: ${error.message}`
     }
   }
-};
+}
+
+const loadExample = (example) => {
+  if (!editor.value) {
+    console.warn('编辑器尚未初始化')
+    return
+  }
+
+  try {
+    // 切换语言
+    selectedLanguage.value = example.language
+    code.value = example.code
+
+    // 更新编辑器内容和语言
+    if (window.monaco && editor.value) {
+      window.monaco.editor.setModelLanguage(editor.value.getModel(), example.language)
+      editor.value.setValue(example.code)
+    }
+
+    // 清空输出
+    output.value = ''
+  } catch (error) {
+    console.error('加载示例失败:', error)
+    output.value = `加载示例失败: ${error.message}`
+  }
+}
+
+// eslint-disable-next-line no-unused-vars
+const clearEditor = () => {
+  if (!editor.value) return
+
+  try {
+    if (selectedLanguage.value === 'html') {
+      code.value = '<!DOCTYPE html>\n<html>\n<head>\n  <title>我的HTML页面</title>\n</head>\n<body>\n  <h1>在这里编写HTML</h1>\n</body>\n</html>'
+    } else if (selectedLanguage.value === 'python') {
+      code.value = '# 在这里编写Python代码\nprint("Hello, World!")'
+    } else if (selectedLanguage.value === 'css') {
+      code.value = '/* 在这里编写CSS样式 */\nbody {\n  font-family: Arial, sans-serif;\n}'
+    } else {
+      code.value = '// 在这里编写代码\nconsole.log("Hello, World!");'
+    }
+
+    editor.value.setValue(code.value)
+    output.value = '' // 清空输出
+  } catch (error) {
+    console.error('清空编辑器失败:', error)
+    output.value = `清空编辑器失败: ${error.message}`
+  }
+}
+
+// 生命周期
+onMounted(() => {
+  // 尝试加载Monaco编辑器
+  loadMonacoEditor()
+
+  // 页面加载后自动运行代码一次
+  setTimeout(() => {
+    runCode()
+  }, 1000)
+})
+
+onBeforeUnmount(() => {
+  // 移除事件监听器
+  window.removeEventListener('resize', handleResize)
+
+  // 销毁编辑器实例
+  if (editor.value && editorLoaded.value) {
+    editor.value.dispose()
+  }
+})
 </script>
 
 <style scoped>

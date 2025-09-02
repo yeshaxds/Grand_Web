@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -194,6 +195,73 @@ public class UserController {
         } catch (Exception e) {
             log.error("获取用户统计失败", e);
             return ResponseResult.error("获取用户统计失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 管理员专用 - 获取所有用户（包括禁用用户）
+     * GET /api/users/admin/all
+     */
+    @GetMapping("/admin/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult<List<User>> getAllUsersForAdmin() {
+        log.info("管理员请求获取所有用户");
+        try {
+            List<User> users = userService.getAllUsers();
+            return ResponseResult.success("获取所有用户成功", users);
+        } catch (Exception e) {
+            log.error("获取所有用户失败", e);
+            return ResponseResult.error("获取所有用户失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 管理员专用 - 禁用用户
+     * PUT /api/users/admin/{id}/disable
+     */
+    @PutMapping("/admin/{id}/disable")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult<String> disableUser(@PathVariable Long id) {
+        log.info("管理员请求禁用用户，ID: {}", id);
+        try {
+            Optional<User> userOpt = userService.getUserById(id);
+            if (userOpt.isEmpty()) {
+                return ResponseResult.notFound("用户不存在");
+            }
+            
+            User user = userOpt.get();
+            user.setStatus(0);
+            userService.updateUser(user);
+            
+            return ResponseResult.success("用户已禁用");
+        } catch (Exception e) {
+            log.error("禁用用户失败，ID: " + id, e);
+            return ResponseResult.error("禁用用户失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 管理员专用 - 启用用户
+     * PUT /api/users/admin/{id}/enable
+     */
+    @PutMapping("/admin/{id}/enable")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseResult<String> enableUser(@PathVariable Long id) {
+        log.info("管理员请求启用用户，ID: {}", id);
+        try {
+            Optional<User> userOpt = userService.getUserById(id);
+            if (userOpt.isEmpty()) {
+                return ResponseResult.notFound("用户不存在");
+            }
+            
+            User user = userOpt.get();
+            user.setStatus(1);
+            userService.updateUser(user);
+            
+            return ResponseResult.success("用户已启用");
+        } catch (Exception e) {
+            log.error("启用用户失败，ID: " + id, e);
+            return ResponseResult.error("启用用户失败: " + e.getMessage());
         }
     }
 } 

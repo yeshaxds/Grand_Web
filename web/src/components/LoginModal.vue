@@ -65,151 +65,176 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 
-export default {
-  name: 'LoginModal',
-  setup() {
-    const authStore = useAuthStore()
-    return { authStore }
-  },
-  data() {
-    return {
-      // 表单数据
-      formData: {
-        username: '',
-        password: ''
-      },
-      // 错误信息
-      errorMessage: '',
-      // 加载状态
-      isLoading: false
-    }
-  },
-  methods: {
-    // 处理登录
-    async handleLogin() {
-      this.errorMessage = ''
-      this.isLoading = true
+// Store
+const authStore = useAuthStore()
 
-      try {
-        const result = this.authStore.login(this.formData.username, this.formData.password)
-        
-        if (result.success) {
-          // 登录成功，清空表单
-          this.formData.username = ''
-          this.formData.password = ''
-          this.$emit('login-success')
-        } else {
-          // 登录失败，显示错误信息
-          this.errorMessage = result.message
-        }
-      } catch (error) {
-        this.errorMessage = '登录过程中发生错误，请稍后重试'
-        console.error('登录错误:', error)
-      } finally {
-        this.isLoading = false
-      }
-    },
+// 响应式数据
+const formData = reactive({
+  username: '',
+  password: ''
+})
 
-    // 处理遮罩点击
-    handleOverlayClick() {
-      this.authStore.closeLoginModal()
+const errorMessage = ref('')
+const isLoading = ref(false)
+
+// 方法
+const handleLogin = async () => {
+  errorMessage.value = ''
+  isLoading.value = true
+
+  try {
+    const result = authStore.login(formData.username, formData.password)
+    
+    if (result.success) {
+      // 登录成功，清空表单
+      resetForm()
+      authStore.closeLoginModal()
+    } else {
+      // 登录失败，显示错误信息
+      errorMessage.value = result.message || '登录失败，请检查用户名和密码'
     }
-  },
-  watch: {
-    // 监听弹窗显示状态，重置表单
-    'authStore.showLoginModal'(newVal) {
-      if (newVal) {
-        this.errorMessage = ''
-        this.isLoading = false
-      }
-    }
+  } catch (error) {
+    console.error('登录异常:', error)
+    errorMessage.value = '网络异常，请稍后重试'
+  } finally {
+    isLoading.value = false
   }
+}
+
+const handleOverlayClick = () => {
+  // 点击遮罩层关闭弹窗
+  authStore.closeLoginModal()
+}
+
+const resetForm = () => {
+  formData.username = ''
+  formData.password = ''
+  errorMessage.value = ''
+}
+
+const handleKeyEscape = (event) => {
+  if (event.key === 'Escape') {
+    authStore.closeLoginModal()
+  }
+}
+
+// 防止背景滚动
+const preventBodyScroll = () => {
+  if (authStore.showLoginModal) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+}
+
+// 监听ESC键和防止背景滚动
+// eslint-disable-next-line no-unused-vars
+const setupEventListeners = () => {
+  document.addEventListener('keydown', handleKeyEscape)
+  preventBodyScroll()
+}
+
+// eslint-disable-next-line no-unused-vars
+const cleanupEventListeners = () => {
+  document.removeEventListener('keydown', handleKeyEscape)
+  document.body.style.overflow = ''
 }
 </script>
 
 <style scoped>
-/* 弹窗遮罩 */
 .login-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 10000;
-  backdrop-filter: blur(5px);
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
 }
 
-/* 登录弹窗 */
-.login-modal {
-  background: white;
-  border-radius: 12px;
-  padding: 0;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: modalSlideIn 0.3s ease-out;
-}
-
-/* 弹窗动画 */
-@keyframes modalSlideIn {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(0.9) translateY(-20px);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
   }
 }
 
-/* 弹窗头部 */
+.login-modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 420px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 .login-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #eee;
+  padding: 25px 30px 20px;
+  border-bottom: 1px solid #f0f0f0;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-radius: 12px 12px 0 0;
+  border-radius: 16px 16px 0 0;
 }
 
 .login-header h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 1.4rem;
   font-weight: 600;
 }
 
 .close-btn {
-  background: none;
+  background: rgba(255, 255, 255, 0.2);
   border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 5px;
   border-radius: 50%;
-  transition: background-color 0.2s;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
 }
 
 .close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
 }
 
-/* 登录表单 */
+.close-btn span {
+  font-size: 18px;
+  line-height: 1;
+}
+
 .login-form {
-  padding: 24px;
+  padding: 30px;
 }
 
 .form-group {
@@ -218,85 +243,158 @@ export default {
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-  color: #333;
-  font-size: 14px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
 }
 
 .form-group input {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid #e1e5e9;
+  border: 2px solid #e9ecef;
   border-radius: 8px;
-  font-size: 14px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
   box-sizing: border-box;
 }
 
 .form-group input:focus {
   outline: none;
   border-color: #667eea;
+  background: white;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* 错误信息 */
 .error-message {
-  background-color: #fee;
-  color: #c53030;
-  padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 14px;
-  margin-bottom: 16px;
-  border: 1px solid #fed7d7;
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  animation: shake 0.5s ease-in-out;
 }
 
-/* 表单操作区 */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
 .form-actions {
-  margin-top: 24px;
+  margin-bottom: 20px;
 }
 
 .login-btn {
   width: 100%;
-  padding: 12px 20px;
+  padding: 14px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .login-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 .login-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.7;
   cursor: not-allowed;
   transform: none;
 }
 
-/* 提示信息 */
 .login-tips {
-  background-color: #f8f9fa;
-  padding: 16px 24px;
-  border-radius: 0 0 12px 12px;
-  border-top: 1px solid #eee;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 0 0 16px 16px;
+  text-align: center;
+  border-top: 1px solid #e9ecef;
 }
 
 .login-tips p {
-  margin: 2px 0;
-  font-size: 13px;
-  color: #666;
+  margin: 5px 0;
+  font-size: 0.85rem;
+  color: #6c757d;
 }
 
 .login-tips p:first-child {
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 6px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 10px;
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .login-modal {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .login-header {
+    padding: 20px 25px 15px;
+  }
+  
+  .login-header h3 {
+    font-size: 1.2rem;
+  }
+  
+  .login-form {
+    padding: 25px;
+  }
+  
+  .login-tips {
+    padding: 15px;
+  }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .login-modal {
+    background: #2c3e50;
+    color: #ecf0f1;
+  }
+  
+  .login-header {
+    border-bottom-color: #34495e;
+  }
+  
+  .form-group label {
+    color: #ecf0f1;
+  }
+  
+  .form-group input {
+    background: #34495e;
+    border-color: #34495e;
+    color: #ecf0f1;
+  }
+  
+  .form-group input:focus {
+    background: #34495e;
+    border-color: #667eea;
+  }
+  
+  .login-tips {
+    background: #34495e;
+    border-top-color: #34495e;
+  }
+  
+  .login-tips p {
+    color: #95a5a6;
+  }
+  
+  .login-tips p:first-child {
+    color: #ecf0f1;
+  }
 }
 </style> 

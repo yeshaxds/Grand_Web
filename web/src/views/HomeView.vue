@@ -106,101 +106,104 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'HomeView',
-  data() {
-    return {
-      searchQuery: '',
-      hasSearched: false,
-      searchResults: [],
-      languages: [
-        { id: 'javascript', name: 'JavaScript', icon: 'JS', description: '网络开发的通用语言，前端开发的基础', type: 'language' },
-        { id: 'python', name: 'Python', icon: 'PY', description: '简洁易学的通用语言，适合数据科学和后端开发', type: 'language' },
-        { id: 'java', name: 'Java', icon: 'JV', description: '强大的企业级编程语言，适合大型应用开发', type: 'language' },
-        { id: 'go', name: 'Go', icon: 'GO', description: '高性能的现代语言，适合云原生和微服务开发', type: 'language' },
-        { id: 'rust', name: 'Rust', icon: 'RS', description: '专注于安全性和性能的系统级语言', type: 'language' },
-        { id: 'csharp', name: 'C#', icon: 'C#', description: '微软生态系统的主要语言，用于.NET开发', type: 'language' }
-      ],
-      techStacks: [
-        { id: 'mern', name: 'MERN Stack', icon: '📱', description: 'MongoDB, Express, React, Node.js 全栈开发', type: 'stack' },
-        { id: 'lamp', name: 'LAMP Stack', icon: '💻', description: 'Linux, Apache, MySQL, PHP 传统Web开发', type: 'stack' },
-        { id: 'mean', name: 'MEAN Stack', icon: '🌐', description: 'MongoDB, Express, Angular, Node.js 全栈开发', type: 'stack' },
-        { id: 'jamstack', name: 'JAMStack', icon: '🚀', description: 'JavaScript, API, Markup 现代静态站点开发', type: 'stack' }
-      ],
-      learningPath: [
-        { title: '学习编程基础', description: '开始理解编程的核心概念和逻辑思维' },
-        { title: '掌握一门语言', description: '深入学习一门主要编程语言及其生态系统' },
-        { title: '了解前端开发', description: '学习HTML, CSS, JavaScript和现代前端框架' },
-        { title: '探索后端开发', description: '学习服务器端编程、API设计和数据库' },
-        { title: '构建完整项目', description: '整合所学知识，构建全栈应用程序' }
-      ]
-    }
-  },
-  computed: {
-    found_tools(){
-      let result = [...this.languages, ...this.techStacks];
-      
-      // 搜索过滤
-      if (this.searchQuery) {
-        const query = this.searchQuery.toLowerCase();
-        result = result.filter(lang => 
-          lang.name.toLowerCase().includes(query) || 
-          lang.description.toLowerCase().includes(query)
-        );
-      }
+<script setup>
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
+// 使用路由
+const router = useRouter()
 
+// 响应式数据
+const searchQuery = ref('')
+const hasSearched = ref(false)
+const searchResults = ref([])
 
-      return result;
-    }
-  },
-  methods: {
-    search() {
-      if (!this.searchQuery.trim()) {
-        this.hasSearched = false;
-        this.searchResults = [];
-        return;
-      }
-      
-      // 设置搜索状态
-      this.hasSearched = true;
-      
-      // 合并语言和技术栈数据
-      const allItems = [...this.languages, ...this.techStacks];
-      
-      // 执行搜索逻辑 - 搜索名称和描述
-      const query = this.searchQuery.toLowerCase();
-      this.searchResults = allItems.filter(item => 
-        item.name.toLowerCase().includes(query) || 
-        item.description.toLowerCase().includes(query)
-      );
-    },
-    
-    navigateToResult(result) {
-      if (result.type === 'language') {
-        this.goToLanguage(result.id);
-      } else {
-        this.goToStack(result.id);
-      }
-    },
-    
-    goToLanguage(languageId) {
-      // 导航到特定语言的页面
-      this.$router.push(`/language/${languageId}`);
-    },
-    
-    goToStack(stackId) {
-      // 导航到特定技术栈的页面
-      this.$router.push(`/stack/${stackId}`);
-    },
-    
-    clearSearch() {
-      this.searchQuery = '';
-      this.hasSearched = false;
-      this.searchResults = [];
-    }
+// 语言和技术栈数据
+const languages = ref([
+  { id: 'javascript', name: 'JavaScript', icon: 'JS', description: '网络开发的通用语言，前端开发的基础', type: 'language' },
+  { id: 'python', name: 'Python', icon: 'PY', description: '简洁易学的通用语言，适合数据科学和后端开发', type: 'language' },
+  { id: 'java', name: 'Java', icon: 'JV', description: '强大的企业级编程语言，适合大型应用开发', type: 'language' },
+  { id: 'go', name: 'Go', icon: 'GO', description: '高性能的现代语言，适合云原生和微服务开发', type: 'language' },
+  { id: 'rust', name: 'Rust', icon: 'RS', description: '专注于安全性和性能的系统级语言', type: 'language' },
+  { id: 'csharp', name: 'C#', icon: 'C#', description: '微软生态系统的主要语言，用于.NET开发', type: 'language' }
+])
+
+const techStacks = ref([
+  { id: 'mern', name: 'MERN Stack', icon: '📱', description: 'MongoDB, Express, React, Node.js 全栈开发', type: 'stack' },
+  { id: 'lamp', name: 'LAMP Stack', icon: '💻', description: 'Linux, Apache, MySQL, PHP 传统Web开发', type: 'stack' },
+  { id: 'mean', name: 'MEAN Stack', icon: '🌐', description: 'MongoDB, Express, Angular, Node.js 全栈开发', type: 'stack' },
+  { id: 'jamstack', name: 'JAMStack', icon: '🚀', description: 'JavaScript, API, Markup 现代静态站点开发', type: 'stack' }
+])
+
+const learningPath = ref([
+  { title: '学习编程基础', description: '开始理解编程的核心概念和逻辑思维' },
+  { title: '掌握一门语言', description: '深入学习一门主要编程语言及其生态系统' },
+  { title: '了解前端开发', description: '学习HTML, CSS, JavaScript和现代前端框架' },
+  { title: '探索后端开发', description: '学习服务器端编程、API设计和数据库' },
+  { title: '构建完整项目', description: '整合所学知识，构建全栈应用程序' }
+])
+
+// 计算属性
+const found_tools = computed(() => {
+  let result = [...languages.value, ...techStacks.value]
+  
+  // 搜索过滤
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    result = result.filter(lang => 
+      lang.name.toLowerCase().includes(query) || 
+      lang.description.toLowerCase().includes(query)
+    )
   }
+  
+  return result
+})
+
+// 方法
+const search = () => {
+  if (!searchQuery.value.trim()) {
+    hasSearched.value = false
+    searchResults.value = []
+    return
+  }
+  
+  // 设置搜索状态
+  hasSearched.value = true
+  
+  // 合并语言和技术栈数据
+  const allItems = [...languages.value, ...techStacks.value]
+  
+  // 执行搜索逻辑 - 搜索名称和描述
+  const query = searchQuery.value.toLowerCase()
+  searchResults.value = allItems.filter(item => 
+    item.name.toLowerCase().includes(query) || 
+    item.description.toLowerCase().includes(query)
+  )
+}
+
+const navigateToResult = (result) => {
+  if (result.type === 'language') {
+    goToLanguage(result.id)
+  } else {
+    goToStack(result.id)
+  }
+}
+
+const goToLanguage = (languageId) => {
+  // 导航到特定语言的页面
+  router.push(`/language/${languageId}`)
+}
+
+const goToStack = (stackId) => {
+  // 导航到特定技术栈的页面
+  router.push(`/stack/${stackId}`)
+}
+
+// eslint-disable-next-line no-unused-vars
+const clearSearch = () => {
+  searchQuery.value = ''
+  hasSearched.value = false
+  searchResults.value = []
 }
 </script>
 

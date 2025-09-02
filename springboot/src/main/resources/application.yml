@@ -86,4 +86,7 @@ logging:
 app:
   name: CodeLearn Backend API
   version: 1.0.0
-  description: SpringBoot功能演示项目 
+  description: SpringBoot功能演示项目
+  jwt:
+    secret: mySecretKeyForJwtTokenGenerationThatIsLongEnoughAndSecure
+    expiration: 86400000 # 24小时 (毫秒) 

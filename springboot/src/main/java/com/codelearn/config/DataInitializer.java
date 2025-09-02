@@ -5,6 +5,7 @@ import com.codelearn.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 public class DataInitializer implements CommandLineRunner {
     
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     
     @Override
     public void run(String... args) throws Exception {
@@ -28,32 +30,32 @@ public class DataInitializer implements CommandLineRunner {
         
         log.info("开始初始化示例数据...");
         
-        // 创建示例用户
+        // 创建示例用户（密码加密）
         User admin = new User(
                 "admin",
                 "admin@codelearn.com",
-                "admin123",
+                passwordEncoder.encode("admin123"),
                 User.UserRole.ADMIN
         );
         
         User user1 = new User(
                 "john_doe",
                 "john@example.com",
-                "password123",
+                passwordEncoder.encode("password123"),
                 User.UserRole.USER
         );
         
         User user2 = new User(
                 "jane_smith",
                 "jane@example.com",
-                "password456",
+                passwordEncoder.encode("password456"),
                 User.UserRole.USER
         );
         
         User user3 = new User(
                 "bob_wilson",
                 "bob@example.com",
-                "password789",
+                passwordEncoder.encode("password789"),
                 User.UserRole.USER
         );
         
@@ -61,7 +63,7 @@ public class DataInitializer implements CommandLineRunner {
         User disabledUser = new User(
                 "disabled_user",
                 "disabled@example.com",
-                "password000",
+                passwordEncoder.encode("password000"),
                 User.UserRole.USER
         );
         disabledUser.setStatus(0);  // 设置为禁用状态

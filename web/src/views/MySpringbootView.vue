@@ -260,204 +260,207 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'MySpringbootView',
-  data() {
-    return {
-      activeTab: 'system',
-      serverOnline: false,
-      systemInfo: null,
-      databaseInfo: null,
-      redisInfo: null,
-      users: [],
-      userStats: null,
-      features: null,
-      apiResponse: null,
-      searchKeyword: '',
-      showCreateUserModal: false,
-      newUser: {
-        username: '',
-        email: '',
-        password: '',
-        role: 'USER'
+<script setup>
+import { ref, onMounted } from 'vue'
+
+// 响应式数据
+const activeTab = ref('system')
+const serverOnline = ref(false)
+const systemInfo = ref(null)
+const databaseInfo = ref(null)
+const redisInfo = ref(null)
+const users = ref([])
+const userStats = ref(null)
+const features = ref(null)
+const apiResponse = ref(null)
+const searchKeyword = ref('')
+const showCreateUserModal = ref(false)
+const newUser = ref({
+  username: '',
+  email: '',
+  password: '',
+  role: 'USER'
+})
+
+// 静态数据
+const tabs = ref([
+  { id: 'system', name: '系统信息', icon: '🖥️' },
+  { id: 'users', name: '用户管理', icon: '👥' },
+  { id: 'api', name: 'API测试', icon: '🔌' },
+  { id: 'features', name: '功能特性', icon: '⚡' }
+])
+
+const userApis = ref([
+  { method: 'GET', path: '/api/users', description: '获取所有用户' },
+  { method: 'GET', path: '/api/users/stats', description: '获取用户统计' },
+  { method: 'GET', path: '/api/users/active', description: '获取活跃用户' },
+  { method: 'GET', path: '/api/users/page', description: '分页获取用户' }
+])
+
+const systemApis = ref([
+  { method: 'GET', path: '/api/system/info', description: '获取应用信息' },
+  { method: 'GET', path: '/api/system/health', description: '健康检查' },
+  { method: 'GET', path: '/api/system/database', description: '数据库信息' },
+  { method: 'GET', path: '/api/system/redis', description: 'Redis信息' }
+])
+
+// 方法
+const apiRequest = async (url, options = {}) => {
+  const baseUrl = 'http://localhost:8080'
+  try {
+    const response = await fetch(baseUrl + url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
       },
-      tabs: [
-        { id: 'system', name: '系统信息', icon: '🖥️' },
-        { id: 'users', name: '用户管理', icon: '👥' },
-        { id: 'api', name: 'API测试', icon: '🔌' },
-        { id: 'features', name: '功能特性', icon: '⚡' }
-      ],
-      userApis: [
-        { method: 'GET', path: '/api/users', description: '获取所有用户' },
-        { method: 'GET', path: '/api/users/stats', description: '获取用户统计' },
-        { method: 'GET', path: '/api/users/active', description: '获取活跃用户' },
-        { method: 'GET', path: '/api/users/page', description: '分页获取用户' }
-      ],
-      systemApis: [
-        { method: 'GET', path: '/api/system/info', description: '获取应用信息' },
-        { method: 'GET', path: '/api/system/health', description: '健康检查' },
-        { method: 'GET', path: '/api/system/database', description: '数据库信息' },
-        { method: 'GET', path: '/api/system/redis', description: 'Redis信息' }
-      ]
+      ...options
+    })
+    return await response.json()
+  } catch (error) {
+    console.error('API请求失败:', error)
+    // 使用原生 alert 作为备选
+    alert('API请求失败: ' + error.message)
+    return null
+  }
+}
+
+const checkServerStatus = async () => {
+  try {
+    const response = await apiRequest('/api/system/health')
+    serverOnline.value = response && response.code === 200
+  } catch {
+    serverOnline.value = false
+  }
+}
+
+const loadSystemInfo = async () => {
+  const response = await apiRequest('/api/system/info')
+  if (response && response.code === 200) {
+    systemInfo.value = response.data
+  }
+}
+
+const loadDatabaseInfo = async () => {
+  const response = await apiRequest('/api/system/database')
+  if (response && response.code === 200) {
+    databaseInfo.value = response.data
+  }
+}
+
+const loadRedisInfo = async () => {
+  const response = await apiRequest('/api/system/redis')
+  if (response && response.code === 200) {
+    redisInfo.value = response.data
+  }
+}
+
+const loadUsers = async () => {
+  const response = await apiRequest('/api/users')
+  if (response && response.code === 200) {
+    users.value = response.data
+  }
+  
+  const statsResponse = await apiRequest('/api/users/stats')
+  if (statsResponse && statsResponse.code === 200) {
+    userStats.value = statsResponse.data
+  }
+}
+
+const loadFeatures = async () => {
+  const response = await apiRequest('/api/system/features')
+  if (response && response.code === 200) {
+    features.value = response.data
+  }
+}
+
+const searchUsers = async () => {
+  if (!searchKeyword.value.trim()) {
+    loadUsers()
+    return
+  }
+  
+  const response = await apiRequest(`/api/users/search?keyword=${encodeURIComponent(searchKeyword.value)}`)
+  if (response && response.code === 200) {
+    users.value = response.data.content || []
+  }
+}
+
+const createUser = async () => {
+  const response = await apiRequest('/api/users', {
+    method: 'POST',
+    body: JSON.stringify(newUser.value)
+  })
+  
+  if (response && response.code === 200) {
+    showCreateUserModal.value = false
+    newUser.value = { username: '', email: '', password: '', role: 'USER' }
+    loadUsers()
+    alert('用户创建成功')
+  }
+}
+
+const deleteUser = async (id) => {
+  if (!confirm('确定要删除这个用户吗？')) return
+  
+  const response = await apiRequest(`/api/users/${id}`, {
+    method: 'DELETE'
+  })
+  
+  if (response && response.code === 200) {
+    loadUsers()
+    alert('用户删除成功')
+  }
+}
+
+const testApi = async (api) => {
+  try {
+    const response = await fetch('http://localhost:8080' + api.path)
+    const data = await response.json()
+    
+    apiResponse.value = {
+      method: api.method,
+      url: api.path,
+      status: response.status,
+      data: data
     }
-  },
-  mounted() {
-    this.checkServerStatus();
-    this.loadSystemInfo();
-    this.loadUsers();
-  },
-  methods: {
-    async apiRequest(url, options = {}) {
-      const baseUrl = 'http://localhost:8080';
-      try {
-        const response = await fetch(baseUrl + url, {
-          headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-          },
-          ...options
-        });
-        return await response.json();
-      } catch (error) {
-        console.error('API请求失败:', error);
-        this.$message?.error?.('API请求失败: ' + error.message) || alert('API请求失败: ' + error.message);
-        return null;
-      }
-    },
-
-    async checkServerStatus() {
-      try {
-        const response = await this.apiRequest('/api/system/health');
-        this.serverOnline = response && response.code === 200;
-      } catch {
-        this.serverOnline = false;
-      }
-    },
-
-    async loadSystemInfo() {
-      const response = await this.apiRequest('/api/system/info');
-      if (response && response.code === 200) {
-        this.systemInfo = response.data;
-      }
-    },
-
-    async loadDatabaseInfo() {
-      const response = await this.apiRequest('/api/system/database');
-      if (response && response.code === 200) {
-        this.databaseInfo = response.data;
-      }
-    },
-
-    async loadRedisInfo() {
-      const response = await this.apiRequest('/api/system/redis');
-      if (response && response.code === 200) {
-        this.redisInfo = response.data;
-      }
-    },
-
-    async loadUsers() {
-      const response = await this.apiRequest('/api/users');
-      if (response && response.code === 200) {
-        this.users = response.data;
-      }
-      
-      const statsResponse = await this.apiRequest('/api/users/stats');
-      if (statsResponse && statsResponse.code === 200) {
-        this.userStats = statsResponse.data;
-      }
-    },
-
-    async loadFeatures() {
-      const response = await this.apiRequest('/api/system/features');
-      if (response && response.code === 200) {
-        this.features = response.data;
-      }
-    },
-
-    async searchUsers() {
-      if (!this.searchKeyword.trim()) {
-        this.loadUsers();
-        return;
-      }
-      
-      const response = await this.apiRequest(`/api/users/search?keyword=${encodeURIComponent(this.searchKeyword)}`);
-      if (response && response.code === 200) {
-        this.users = response.data.content || [];
-      }
-    },
-
-    async createUser() {
-      const response = await this.apiRequest('/api/users', {
-        method: 'POST',
-        body: JSON.stringify(this.newUser)
-      });
-      
-      if (response && response.code === 200) {
-        this.showCreateUserModal = false;
-        this.newUser = { username: '', email: '', password: '', role: 'USER' };
-        this.loadUsers();
-        this.$message?.success?.('用户创建成功') || alert('用户创建成功');
-      }
-    },
-
-    async deleteUser(id) {
-      if (!confirm('确定要删除这个用户吗？')) return;
-      
-      const response = await this.apiRequest(`/api/users/${id}`, {
-        method: 'DELETE'
-      });
-      
-      if (response && response.code === 200) {
-        this.loadUsers();
-        this.$message?.success?.('用户删除成功') || alert('用户删除成功');
-      }
-    },
-
-    async testApi(api) {
-      try {
-        const response = await fetch('http://localhost:8080' + api.path);
-        const data = await response.json();
-        
-        this.apiResponse = {
-          method: api.method,
-          url: api.path,
-          status: response.status,
-          data: data
-        };
-      } catch (error) {
-        this.apiResponse = {
-          method: api.method,
-          url: api.path,
-          status: 0,
-          data: { error: error.message }
-        };
-      }
-    },
-
-    formatDate(dateString) {
-      if (!dateString) return '-';
-      return new Date(dateString).toLocaleString('zh-CN');
-    },
-
-    getFeatureGroupTitle(key) {
-      const titles = {
-        coreFeatures: '🔧 核心功能',
-        webFeatures: '🌐 Web功能', 
-        dataFeatures: '💾 数据访问',
-        cacheFeatures: '🚀 缓存功能',
-        securityFeatures: '🔐 安全功能',
-        monitoringFeatures: '📊 监控功能'
-      };
-      return titles[key] || key;
-    },
-
-    editUser(user) {
-      // 实现编辑用户功能
-      console.log('编辑用户:', user);
+  } catch (error) {
+    apiResponse.value = {
+      method: api.method,
+      url: api.path,
+      status: 0,
+      data: { error: error.message }
     }
   }
 }
+
+const formatDate = (dateString) => {
+  if (!dateString) return '-'
+  return new Date(dateString).toLocaleString('zh-CN')
+}
+
+const getFeatureGroupTitle = (key) => {
+  const titles = {
+    coreFeatures: '🔧 核心功能',
+    webFeatures: '🌐 Web功能', 
+    dataFeatures: '💾 数据访问',
+    cacheFeatures: '🚀 缓存功能',
+    securityFeatures: '🔐 安全功能',
+    monitoringFeatures: '📊 监控功能'
+  }
+  return titles[key] || key
+}
+
+const editUser = (user) => {
+  // 实现编辑用户功能
+  console.log('编辑用户:', user)
+}
+
+// 生命周期钩子
+onMounted(() => {
+  checkServerStatus()
+  loadSystemInfo()
+  loadUsers()
+})
 </script>
 
 <style scoped>

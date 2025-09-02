@@ -37,56 +37,63 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 
-export default {
-  name: 'UserAvatar',
-  setup() {
-    const authStore = useAuthStore()
-    return { authStore }
-  },
-  data() {
-    return {
-      showMenu: false
-    }
-  },
-  methods: {
-    // 处理头像点击
-    handleAvatarClick() {
-      this.showMenu = !this.showMenu
-    },
+// 使用路由和store
+const router = useRouter()
+const route = useRoute()
+const authStore = useAuthStore()
 
-    // 关闭菜单
-    closeMenu() {
-      this.showMenu = false
-    },
+// 响应式数据
+const showMenu = ref(false)
 
-    // 处理登录按钮点击
-    handleLogin() {
-      this.authStore.openLoginModal()
-      this.showMenu = false
-    },
+// 方法
+const handleAvatarClick = () => {
+  showMenu.value = !showMenu.value
+}
 
-    // 处理登出
-    handleLogout() {
-      this.authStore.logout()
-      this.showMenu = false
-      // 跳转到首页
-      if (this.$route.path !== '/') {
-        this.$router.push('/')
-      }
-    }
-  },
-  mounted() {
-    // 点击文档其他地方关闭菜单
-    document.addEventListener('click', (e) => {
-      if (!this.$el.contains(e.target)) {
-        this.showMenu = false
-      }
-    })
+const closeMenu = () => {
+  showMenu.value = false
+}
+
+const handleLogin = () => {
+  authStore.openLoginModal()
+  showMenu.value = false
+}
+
+const handleLogout = () => {
+  authStore.logout()
+  showMenu.value = false
+  // 跳转到首页
+  if (route.path !== '/') {
+    router.push('/')
   }
 }
+
+// 点击外部关闭菜单的处理函数
+let menuCloseHandler
+
+onMounted(() => {
+  // 点击文档其他地方关闭菜单
+  menuCloseHandler = (e) => {
+    // 这里需要检查点击的元素是否在组件内
+    const container = document.querySelector('.user-avatar-container')
+    if (container && !container.contains(e.target)) {
+      showMenu.value = false
+    }
+  }
+  document.addEventListener('click', menuCloseHandler)
+})
+
+onUnmounted(() => {
+  // 清理事件监听器
+  if (menuCloseHandler) {
+    document.removeEventListener('click', menuCloseHandler)
+  }
+})
 </script>
 
 <style scoped>

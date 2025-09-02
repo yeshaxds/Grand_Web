@@ -45,6 +45,7 @@
           <p><router-link to="/pinia-counter">Pinia示例</router-link></p>
           <p><router-link to="/websocket-chat">WebSocket聊天</router-link></p>
           <p><router-link to="/html-demo">v-html示例</router-link></p>
+          <p><router-link to="/spring-cloud">Spring Cloud</router-link></p>
         </div>
       </div>
 
@@ -64,7 +65,8 @@
   <LoginModal />
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted } from 'vue'
 // 导入获取随机励志语句的函数
 import { getRandomQuote } from '@/data/motivationalQuotes.js'
 // 导入认证store
@@ -73,39 +75,25 @@ import { useAuthStore } from '@/stores/authStore'
 import UserAvatar from '@/components/UserAvatar.vue'
 import LoginModal from '@/components/LoginModal.vue'
 
-export default {
-  // 组件
-  components: {
-    UserAvatar,
-    LoginModal
-  },
-  setup() {
-    const authStore = useAuthStore()
-    return { authStore }
-  },
-  // 组件数据
-  data() {
-    return {
-      // 随机励志语句对象，包含文本和作者
-      randomQuote: { text: '', author: '' }
-    }
-  },
-  // 组件挂载完成后的生命周期钩子
-  mounted() {
-    // 获取一条随机励志语句显示在导航栏
-    this.randomQuote = getRandomQuote();
-    
-    // 初始化认证状态
-    this.authStore.initAuth();
-  },
-  // 组件方法
-  methods: {
-    // 刷新励志语句 - 当用户点击刷新按钮时调用
-    refreshQuote() {
-      this.randomQuote = getRandomQuote();
-    }
-  }
+// 使用store
+const authStore = useAuthStore()
+
+// 响应式数据
+const randomQuote = ref({ text: '', author: '' })
+
+// 刷新励志语句方法
+const refreshQuote = () => {
+  randomQuote.value = getRandomQuote()
 }
+
+// 组件挂载后的逻辑
+onMounted(() => {
+  // 获取一条随机励志语句显示在导航栏
+  randomQuote.value = getRandomQuote()
+  
+  // 初始化认证状态
+  authStore.initAuth()
+})
 </script>
 
 <style>
